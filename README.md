@@ -1,4 +1,4 @@
-# 🏛️ StarkPoly
+# 🏛️ Blockopoly
 
 ## 📌 Overview
 
