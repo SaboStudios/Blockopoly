@@ -1,0 +1,1295 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "numberOfPlayers",
+        "type": "uint8"
+      },
+      {
+        "internalType": "address",
+        "name": "_nftContract",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "allowance",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "needed",
+        "type": "uint256"
+      }
+    ],
+    "name": "ERC20InsufficientAllowance",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "balance",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "needed",
+        "type": "uint256"
+      }
+    ],
+    "name": "ERC20InsufficientBalance",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "approver",
+        "type": "address"
+      }
+    ],
+    "name": "ERC20InvalidApprover",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      }
+    ],
+    "name": "ERC20InvalidReceiver",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      }
+    ],
+    "name": "ERC20InvalidSender",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      }
+    ],
+    "name": "ERC20InvalidSpender",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ReentrancyGuardReentrantCall",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "Approval",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint8",
+        "name": "propertyId",
+        "type": "uint8"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "bidder",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "bidAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "PropertyBid",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "propertyId",
+        "type": "uint256"
+      }
+    ],
+    "name": "PropertyDownGraded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "propertyId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "mortgageAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "PropertyMortgaged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint8",
+        "name": "propertyId",
+        "type": "uint8"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "PropertySold",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "propertyId",
+        "type": "uint256"
+      }
+    ],
+    "name": "PropertyUpGraded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "Transfer",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      }
+    ],
+    "name": "allowance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "approve",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "addr",
+        "type": "address"
+      }
+    ],
+    "name": "bal",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "balanceOf",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "propertyId",
+        "type": "uint8"
+      },
+      {
+        "internalType": "address",
+        "name": "buyer",
+        "type": "address"
+      }
+    ],
+    "name": "buyProperty",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "decimals",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "propertyId",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "noOfDowngrade",
+        "type": "uint8"
+      },
+      {
+        "internalType": "address",
+        "name": "player",
+        "type": "address"
+      }
+    ],
+    "name": "downgradeProperty",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "name": "gameProperties",
+    "outputs": [
+      {
+        "internalType": "bytes",
+        "name": "name",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bytes",
+        "name": "uri",
+        "type": "bytes"
+      },
+      {
+        "internalType": "uint256",
+        "name": "buyAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "rentAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "uint8",
+        "name": "noOfUpgrades",
+        "type": "uint8"
+      },
+      {
+        "internalType": "enum MonopolyLibrary.PropertyType",
+        "name": "propertyType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "enum MonopolyLibrary.PropertyColors",
+        "name": "propertyColor",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "enum MonopolyLibrary.PropertyColors",
+        "name": "color",
+        "type": "uint8"
+      }
+    ],
+    "name": "getNumberOfUserOwnedPropertyOnAColor",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_playerAddress",
+        "type": "address"
+      }
+    ],
+    "name": "getPropertiesOwnedByAPlayer",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes",
+            "name": "name",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "uri",
+            "type": "bytes"
+          },
+          {
+            "internalType": "uint256",
+            "name": "buyAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "rentAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "internalType": "uint8",
+            "name": "noOfUpgrades",
+            "type": "uint8"
+          },
+          {
+            "internalType": "enum MonopolyLibrary.PropertyType",
+            "name": "propertyType",
+            "type": "uint8"
+          },
+          {
+            "internalType": "enum MonopolyLibrary.PropertyColors",
+            "name": "propertyColor",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct MonopolyLibrary.PropertyG[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "propertyId",
+        "type": "uint8"
+      }
+    ],
+    "name": "getProperty",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes",
+            "name": "name",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "uri",
+            "type": "bytes"
+          },
+          {
+            "internalType": "uint256",
+            "name": "buyAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "rentAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "internalType": "uint8",
+            "name": "noOfUpgrades",
+            "type": "uint8"
+          },
+          {
+            "internalType": "enum MonopolyLibrary.PropertyType",
+            "name": "propertyType",
+            "type": "uint8"
+          },
+          {
+            "internalType": "enum MonopolyLibrary.PropertyColors",
+            "name": "propertyColor",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct MonopolyLibrary.PropertyG",
+        "name": "property",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "propertyId",
+        "type": "uint8"
+      }
+    ],
+    "name": "getPropertyOwner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "_propertyOwner",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "proposalId",
+        "type": "uint8"
+      }
+    ],
+    "name": "getProposalSwappedType",
+    "outputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "proposedAmount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "biddingPropertyId",
+                "type": "uint8"
+              }
+            ],
+            "internalType": "struct MonopolyLibrary.CashForProperty",
+            "name": "cashForProperty",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint8",
+                "name": "propertyId",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "biddingAmount",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct MonopolyLibrary.PropertyForCash",
+            "name": "propertyForCash",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint8",
+                "name": "proposedPropertyId",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "proposedAmount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "biddingPropertyId",
+                "type": "uint8"
+              }
+            ],
+            "internalType": "struct MonopolyLibrary.PropertyAndCashForProperty",
+            "name": "propertyAndCashForProperty",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint8",
+                "name": "proposedPropertyId",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint8",
+                "name": "biddingPropertyId",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "biddingAmount",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct MonopolyLibrary.PropertyForCashAndProperty",
+            "name": "propertyForCashAndProperty",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint8",
+                "name": "proposedPropertyId",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint8",
+                "name": "biddingPropertyId",
+                "type": "uint8"
+              }
+            ],
+            "internalType": "struct MonopolyLibrary.PropertyForProperty",
+            "name": "propertyForProperty",
+            "type": "tuple"
+          }
+        ],
+        "internalType": "struct MonopolyLibrary.SwappedType",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "player",
+        "type": "address"
+      },
+      {
+        "internalType": "uint8",
+        "name": "propertyId",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "diceRolled",
+        "type": "uint8"
+      }
+    ],
+    "name": "handleRent",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "inGameProposals",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "player",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "otherPlayer",
+        "type": "address"
+      },
+      {
+        "internalType": "enum MonopolyLibrary.SwapType",
+        "name": "swapType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "enum MonopolyLibrary.ProposalStatus",
+        "name": "proposalStatus",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "proposalId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isAccepted",
+        "type": "bool"
+      }
+    ],
+    "name": "makeDecisionOnProposal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "proposer",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "otherPlayer",
+        "type": "address"
+      },
+      {
+        "internalType": "uint8",
+        "name": "proposedPropertyId",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "biddingPropertyId",
+        "type": "uint8"
+      },
+      {
+        "internalType": "enum MonopolyLibrary.SwapType",
+        "name": "swapType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountInvolved",
+        "type": "uint256"
+      }
+    ],
+    "name": "makeProposal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "mint",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "propertyId",
+        "type": "uint8"
+      },
+      {
+        "internalType": "address",
+        "name": "player",
+        "type": "address"
+      }
+    ],
+    "name": "mortgageProperty",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "name",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum MonopolyLibrary.PropertyColors",
+        "name": "",
+        "type": "uint8"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "noOfColorGroupOwnedByUser",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "name": "propertyOwner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "name": "propertyToProposal",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "propertyId",
+        "type": "uint8"
+      },
+      {
+        "internalType": "address",
+        "name": "player",
+        "type": "address"
+      }
+    ],
+    "name": "releaseMortgage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "returnProposal",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "bidder",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "clientAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "uint8",
+            "name": "biddersProperty",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "yourProperty",
+            "type": "uint8"
+          },
+          {
+            "internalType": "enum MonopolyLibrary.SwapType",
+            "name": "swapType",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "biddingAmount",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct MonopolyLibrary.PropertySwap",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "swappedType",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "proposedAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint8",
+            "name": "biddingPropertyId",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct MonopolyLibrary.CashForProperty",
+        "name": "cashForProperty",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint8",
+            "name": "propertyId",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "biddingAmount",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct MonopolyLibrary.PropertyForCash",
+        "name": "propertyForCash",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint8",
+            "name": "proposedPropertyId",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "proposedAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint8",
+            "name": "biddingPropertyId",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct MonopolyLibrary.PropertyAndCashForProperty",
+        "name": "propertyAndCashForProperty",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint8",
+            "name": "proposedPropertyId",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "biddingPropertyId",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "biddingAmount",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct MonopolyLibrary.PropertyForCashAndProperty",
+        "name": "propertyForCashAndProperty",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint8",
+            "name": "proposedPropertyId",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "biddingPropertyId",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct MonopolyLibrary.PropertyForProperty",
+        "name": "propertyForProperty",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "symbol",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalSupply",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "transfer",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "transferFrom",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "propertyId",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "_noOfUpgrade",
+        "type": "uint8"
+      },
+      {
+        "internalType": "address",
+        "name": "player",
+        "type": "address"
+      }
+    ],
+    "name": "upgradeProperty",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "myDeals",
+        "type": "address"
+      }
+    ],
+    "name": "viewDeals",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "bidder",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "clientAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "uint8",
+            "name": "biddersProperty",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "yourProperty",
+            "type": "uint8"
+          },
+          {
+            "internalType": "enum MonopolyLibrary.SwapType",
+            "name": "swapType",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "biddingAmount",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct MonopolyLibrary.PropertySwap",
+        "name": "currentDeal",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

@@ -1,0 +1,543 @@
+{
+  "properties": [
+    {
+      "name": "Axone Avenue",
+      "id": "axoneave",
+      "position": 1,
+      "price": 60,
+      "rent": 2,
+      "multpliedrent": [10, 30, 90, 160, 250],
+      "housecost": 50,
+      "group": "Purple"
+    },
+    {
+      "name": "Onlydust Avenue",
+      "id": "onlydustave",
+      "position": 3,
+      "price": 60,
+      "rent": 4,
+      "multpliedrent": [20, 60, 180, 320, 450],
+      "housecost": 50,
+      "group": "Purple"
+    },
+    {
+      "name": "ZkSync Lane",
+      "id": "zksynclane",
+      "position": 6,
+      "price": 100,
+      "rent": 6,
+      "multpliedrent": [30, 90, 270, 400, 550],
+      "housecost": 50,
+      "group": "lightgreen"
+    },
+    {
+      "name": "Starknet Lane",
+      "id": "starknetlane",
+      "position": 8,
+      "price": 100,
+      "rent": 6,
+      "multpliedrent": [30, 90, 270, 400, 550],
+      "housecost": 50,
+      "group": "lightgreen"
+    },
+    {
+      "name": "Linea Lane",
+      "id": "linealane",
+      "position": 9,
+      "price": 120,
+      "rent": 8,
+      "multpliedrent": [40, 100, 300, 450, 600],
+      "housecost": 50,
+      "group": "lightgreen"
+    },
+    {
+      "name": "Arbitrium Avenue",
+      "id": "arbitriumave",
+      "position": 11,
+      "price": 140,
+      "rent": 10,
+      "multpliedrent": [50, 150, 450, 625, 750],
+      "housecost": 100,
+      "group": "Violet"
+    },
+    {
+      "name": "Optimistic Avenue",
+      "id": "optimisticave",
+      "position": 13,
+      "price": 140,
+      "rent": 10,
+      "multpliedrent": [50, 150, 450, 625, 750],
+      "housecost": 100,
+      "group": "Violet"
+    },
+    {
+      "name": "Base Avenue",
+      "id": "baseave",
+      "position": 14,
+      "price": 160,
+      "rent": 12,
+      "multpliedrent": [60, 180, 500, 700, 900],
+      "housecost": 100,
+      "group": "Violet"
+    },
+    {
+      "name": "Cosmos Lane",
+      "id": "cosmosave",
+      "position": 16,
+      "price": 180,
+      "rent": 14,
+      "multpliedrent": [70, 200, 550, 750, 950],
+      "housecost": 100,
+      "group": "Orange"
+    },
+    {
+      "name": "Polkadot Lane",
+      "id": "polkadotlane",
+      "position": 18,
+      "price": 180,
+      "rent": 14,
+      "multpliedrent": [70, 200, 550, 750, 950],
+      "housecost": 100,
+      "group": "Orange"
+    },
+    {
+      "name": "Near Lane",
+      "id": "nearlane",
+      "position": 19,
+      "price": 200,
+      "rent": 16,
+      "multpliedrent": [80, 220, 600, 800, 1000],
+      "housecost": 100,
+      "group": "Orange"
+    },
+    {
+      "name": "Uniswap Avenue",
+      "id": "uniswapave",
+      "position": 21,
+      "price": 220,
+      "rent": 18,
+      "multpliedrent": [90, 250, 700, 875, 1050],
+      "housecost": 150,
+      "group": "Red"
+    },
+    {
+      "name": "MakerDAO Avenue",
+      "id": "makerdaoave",
+      "position": 23,
+      "price": 220,
+      "rent": 18,
+      "multpliedrent": [90, 250, 700, 875, 1050],
+      "housecost": 150,
+      "group": "Red"
+    },
+    {
+      "name": "Aave Avenue",
+      "id": "aaveave",
+      "position": 24,
+      "price": 240,
+      "rent": 20,
+      "multpliedrent": [100, 300, 750, 925, 1100],
+      "housecost": 150,
+      "group": "Red"
+    },
+    {
+      "name": "Lisk Lane",
+      "id": "liskave",
+      "position": 26,
+      "price": 260,
+      "rent": 22,
+      "multpliedrent": [110, 330, 800, 975, 1150],
+      "housecost": 150,
+      "group": "Yellow"
+    },
+    {
+      "name": "Rootstock Lane",
+      "id": "rootstockave",
+      "position": 27,
+      "price": 260,
+      "rent": 22,
+      "multpliedrent": [110, 330, 800, 975, 1150],
+      "housecost": 150,
+      "group": "Yellow"
+    },
+    {
+      "name": "Ark Lane",
+      "id": "arkave",
+      "position": 29,
+      "price": 280,
+      "rent": 22,
+      "multpliedrent": [120, 360, 850, 1025, 1200],
+      "housecost": 150,
+      "group": "Yellow"
+    },
+    {
+      "name": "Avalanche Avenue",
+      "id": "avalancheave",
+      "position": 31,
+      "price": 300,
+      "rent": 26,
+      "multpliedrent": [130, 390, 900, 1100, 1275],
+      "housecost": 200,
+      "group": "darkgreen"
+    },
+    {
+      "name": "Solana Drive",
+      "id": "solanadrive",
+      "position": 32,
+      "price": 300,
+      "rent": 26,
+      "multpliedrent": [130, 390, 900, 1100, 1275],
+      "housecost": 200,
+      "group": "darkgreen"
+    },
+    {
+      "name": "Ethereum Avenue",
+      "id": "ethereumave",
+      "position": 34,
+      "price": 320,
+      "rent": 28,
+      "multpliedrent": [150, 450, 1000, 1200, 1400],
+      "housecost": 200,
+      "group": "darkgreen"
+    },
+    {
+      "name": "CoreDao Park",
+      "id": "coredaopark",
+      "position": 37,
+      "price": 350,
+      "rent": 35,
+      "multpliedrent": [175, 500, 1100, 1300, 1500],
+      "housecost": 200,
+      "group": "darkblue"
+    },
+    {
+      "name": "Bitcoin Lane",
+      "id": "bitcoinlane",
+      "position": 39,
+      "price": 400,
+      "rent": 50,
+      "multpliedrent": [200, 600, 1400, 1700, 2000],
+      "housecost": 200,
+      "group": "darkblue"
+    },
+    {
+      "name": "The Graph",
+      "id": "thegraph",
+      "position": 12,
+      "price": 150,
+      "group": "Utilities"
+    },
+    {
+      "name": "Chainlink",
+      "id": "chainlink",
+      "position": 28,
+      "price": 150,
+      "group": "Utilities"
+    },
+    {
+      "name": "IPFS",
+      "id": "ipfs",
+      "position": 5,
+      "price": 200,
+      "group": "Railroad"
+    },
+    {
+      "name": "Pinata",
+      "id": "pinata",
+      "position": 15,
+      "price": 200,
+      "group": "Railroad"
+    },
+    {
+      "name": "Open Zeppelin",
+      "id": "openzeppelin",
+      "position": 25,
+      "price": 200,
+      "group": "Railroad"
+    },
+    {
+      "name": "Cartridge Railroad",
+      "id": "cartridge",
+      "position": 35,
+      "price": 200,
+      "group": "Railroad"
+    },
+    {
+      "name": "Go",
+      "id": "go",
+      "position": 0,
+      "group": "Special-ex"
+    },
+    {
+      "name": "Income Tax",
+      "id": "incometax",
+      "position": 4,
+      "group": "Special"
+    },
+    {
+      "name": "Jail / Just Visiting",
+      "id": "jail",
+      "position": 10,
+      "group": "Special-ex"
+    },
+    {
+      "name": "Chance",
+      "id": "chance",
+      "group": "Special",
+      "position": 36
+    },
+    {
+      "name": "Chance",
+      "id": "chance",
+      "group": "Special",
+      "position": 7
+    },
+    {
+      "name": "Chance",
+      "id": "chance",
+      "group": "Special",
+      "position": 22
+    },
+    {
+      "name": "Free Parking",
+      "id": "freeparking",
+      "group": "Special-ex",
+      "position": 20
+    },
+    {
+      "name": "Community Chest",
+      "id": "communitychest",
+      "group": "Special",
+      "position": 2
+    },
+    {
+      "name": "Community Chest",
+      "id": "communitychest",
+      "group": "Special",
+      "position": 33
+    },
+    {
+      "name": "Community Chest",
+      "id": "communitychest",
+      "group": "Special",
+      "position": 17
+    },
+    {
+      "name": "Go To Jail",
+      "id": "gotojail",
+      "group": "Special-ex",
+      "position": 30
+    },
+    {
+      "name": "Luxury Tax",
+      "id": "luxerytax",
+      "group": "Special",
+      "position": 38
+    }
+  ],
+  "tiles": [
+    { "id": "go" },
+    { "id": "axoneave" },
+    { "id": "communitychest" },
+    { "id": "onlydustave" },
+    { "id": "incometax" },
+    { "id": "ipfs" },
+    { "id": "zksynclane" },
+    { "id": "chance" },
+    { "id": "starknetlane" },
+    { "id": "linealane" },
+    { "id": "jail" },
+    { "id": "arbitriumave" },
+    { "id": "thegraph" },
+    { "id": "optimisticave" },
+    { "id": "baseave" },
+    { "id": "pinata" },
+    { "id": "cosmosave" },
+    { "id": "communitychest" },
+    { "id": "polkadotlane" },
+    { "id": "nearlane" },
+    { "id": "freeparking" },
+    { "id": "uniswapave" },
+    { "id": "chance" },
+    { "id": "makerdaoave" },
+    { "id": "aaveave" },
+    { "id": "openzeppelin" },
+    { "id": "liskave" },
+    { "id": "rootstockave" },
+    { "id": "chainlink" },
+    { "id": "arkave" },
+    { "id": "gotojail" },
+    { "id": "avalancheave" },
+    { "id": "solanadrive" },
+    { "id": "communitychest" },
+    { "id": "ethereumave" },
+    { "id": "cartridge" },
+    { "id": "chance" },
+    { "id": "coredaopark" },
+    { "id": "luxerytax" },
+    { "id": "bitcoinlane" }
+  ],
+  "chance": [
+    {
+      "title": "Advance to Go (Collect $200)",
+      "action": "move",
+      "tileid": "go"
+    },
+    {
+      "title": "Advance to Illinois Avenue - If you pass Go, collect $200",
+      "action": "move",
+      "tileid": "illinoisave"
+    },
+    {
+      "title": "Advance to St. Charles Place - If you pass Go, collect $200",
+      "action": "move",
+      "tileid": "stcharlesplace"
+    },
+    {
+      "title": "Advance token to nearest Utility. If unowned, you may buy it from the Bank. If owned, throw dice and pay owner a total ten times the amount thrown.",
+      "action": "movenearest",
+      "groupid": "utility",
+      "rentmultiplier": 10
+    },
+    {
+      "title": "Advance token to the nearest Railroad and pay owner twice the rental to which he/she is otherwise entitled. If Railroad is unowned, you may buy it from the Bank.",
+      "action": "movenearest",
+      "groupid": "railroad",
+      "rentmultiplier": 2
+    },
+    {
+      "title": "Bank pays you dividend of $50",
+      "action": "addfunds",
+      "amount": 50
+    },
+    {
+      "title": "Get out of Jail Free - This card may be kept until needed, or traded/sold",
+      "action": "jail",
+      "subaction": "getout"
+    },
+    {
+      "title": "Go Back 3 Spaces",
+      "action": "move",
+      "count": -3
+    },
+    {
+      "title": "Go to Jail - Go directly to Jail - Do not pass Go, do not collect $200",
+      "action": "jail",
+      "subaction": "goto"
+    },
+    {
+      "title": "Make general repairs on all your property - For each house pay $25 - For each hotel $100",
+      "action": "propertycharges",
+      "buildings": 25,
+      "hotels": 100
+    },
+    {
+      "title": "Pay poor tax of $15",
+      "action": "removefunds",
+      "amount": 15
+    },
+    {
+      "title": "Take a trip to Reading Railroad - If you pass Go, collect $200",
+      "action": "move",
+      "tileid": "readingrailroad"
+    },
+    {
+      "title": "Take a walk on the Boardwalk - Advance token to Boardwalk",
+      "action": "move",
+      "tileid": "boardwalk"
+    },
+    {
+      "title": "You have been elected Chairman of the Board - Pay each player $50",
+      "action": "removefundstoplayers",
+      "amount": 50
+    },
+    {
+      "title": "Your building loan matures - Collect $150",
+      "action": "addfunds",
+      "amount": 50
+    }
+  ],
+  "communitychest": [
+    {
+      "title": "Advance to Go (Collect $200)",
+      "action": "move",
+      "tileid": "go"
+    },
+    {
+      "title": "Bank error in your favor - Collect $200 ",
+      "action": "addfunds",
+      "amount": 200
+    },
+    {
+      "title": "Doctor fee - Pay $50",
+      "action": "removefunds",
+      "amount": 50
+    },
+    {
+      "title": "From sale of stock you get $50",
+      "action": "addfunds",
+      "amount": 50
+    },
+    {
+      "title": "Get Out of Jail Free",
+      "action": "jail",
+      "subaction": "getout"
+    },
+    {
+      "title": "Go to Jail - Go directly to jail - Do not pass Go - Do not collect $200",
+      "action": "jail",
+      "subaction": "goto"
+    },
+    {
+      "title": "Grand Opera Night - Collect $50 from every player for opening night seats",
+      "action": "addfundsfromplayers",
+      "amount": 50
+    },
+    {
+      "title": "Holiday Fund matures - Receive $100",
+      "action": "addfunds",
+      "amount": 100
+    },
+    {
+      "title": "Income tax refund - Collect $20",
+      "action": "addfunds",
+      "amount": 20
+    },
+    {
+      "title": "Life insurance matures - Collect $100",
+      "action": "addfunds",
+      "amount": 100
+    },
+    {
+      "title": "Pay hospital fees of $100",
+      "action": "removefunds",
+      "amount": 100
+    },
+    {
+      "title": "Pay school fees of $150",
+      "action": "removefunds",
+      "amount": 150
+    },
+    {
+      "title": "Receive $25 consultancy fee",
+      "action": "addfunds",
+      "amount": 25
+    },
+    {
+      "title": "You are assessed for street repairs - $40 per house - $115 per hotel",
+      "action": "propertycharges",
+      "buildings": 40,
+      "hotels": 115
+    },
+    {
+      "title": "You have won second prize in a beauty contest - Collect $10",
+      "action": "addfunds",
+      "amount": 10
+    },
+    {
+      "title": "You inherit $100",
+      "action": "addfunds",
+      "amount": 100
+    }
+  ]
+}

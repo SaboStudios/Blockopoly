@@ -1,0 +1,31 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Orbitron:wght@400..900&display=swap");
+
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #0a0e17;
+  --color-secondary: #0ff0fc;
+  --color-dark: #111727;
+  --color-grey: #ceb1fd;
+  --font-dmsans: "DM Sans", "serif";
+  --font-orbitron: "Orbitron", "serif";
+}
+
+.hero-section {
+  background-image: url("./assets/vector.svg"), url("./assets/vector-r.svg");
+  background-position: top left, top right;
+  background-repeat: no-repeat;
+  background-size: 300px, 300px;
+}
+
+@media (max-width: 600px) {
+  .hero-section {
+    background-image: url("./assets/vector.svg"), url("./assets/vector-r.svg");
+    background-position: top left, bottom right;
+    background-repeat: no-repeat;
+    background-size: 130px, 130px;
+  }
+}
+
+
+
