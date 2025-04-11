@@ -21,6 +21,22 @@ pub enum PropertyType {
     Special,
 }
 
+
+#[derive(Copy, Drop, Serde, Debug)]
+#[dojo::model]
+pub struct Player {
+    #[key]
+    pub player: ContractAddress,
+    pub username: felt252,
+    pub player_current_position: u8,
+    pub in_jail: bool,
+    pub jailAttemptCount: u8,
+    pub cash_at_hand: u256,
+    pub diceRolled: u8,
+    pub bankrupt: bool,
+    pub netWorth: u256,
+}
+
 #[derive(Copy, Drop, Serde, Debug)]
 #[dojo::model]
 pub struct Property {
@@ -28,6 +44,8 @@ pub struct Property {
     pub owner: ContractAddress,
     pub name: felt252,
     pub amount: u256,
+    pub cost_of_house: u256,
+    pub rent_site_only: u256,
     pub rent_one_house: u256,
     pub rent_two_houses: u256,
     pub rent_three_houses: u256,
