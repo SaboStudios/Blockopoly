@@ -89,8 +89,6 @@ pub mod actions {
             world.emit_event(@Moved { player, direction });
         }
 
-        
-
 
         fn roll_dice(ref self: ContractState) -> (u8, u8) {
             let seed = get_block_timestamp();

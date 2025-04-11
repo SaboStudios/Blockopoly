@@ -9,7 +9,7 @@ pub enum PropertyColors {
     RED,
     GREEN,
     PURPLE,
-    BROWN
+    BROWN,
 }
 
 
@@ -18,7 +18,7 @@ pub enum PropertyType {
     Property,
     RailStation,
     Utility,
-    Special
+    Special,
 }
 
 #[derive(Copy, Drop, Serde, Debug)]
@@ -64,8 +64,6 @@ pub struct Position {
     pub player: ContractAddress,
     pub vec: Vec2,
 }
-
-
 
 
 #[derive(Serde, Copy, Drop, Introspect, PartialEq, Debug)]

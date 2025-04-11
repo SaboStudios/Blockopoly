@@ -110,16 +110,14 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         actions_system.spawn();
-     
 
-      let (dice_1, dice_2) = actions_system.roll_dice();
-      println!("dice_1: {}", dice_1);
-      println!("dice_2: {}", dice_2);
+        let (dice_1, dice_2) = actions_system.roll_dice();
+        println!("dice_1: {}", dice_1);
+        println!("dice_2: {}", dice_2);
 
-      assert(dice_2 <= 6, 'incorrect roll');
-      assert( dice_1 <= 6, 'incorrect roll');
-      assert( dice_2 > 0, 'incorrect roll');
-      assert( dice_1 > 0, 'incorrect roll');
-
+        assert(dice_2 <= 6, 'incorrect roll');
+        assert(dice_1 <= 6, 'incorrect roll');
+        assert(dice_2 > 0, 'incorrect roll');
+        assert(dice_1 > 0, 'incorrect roll');
     }
 }
