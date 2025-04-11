@@ -7,7 +7,8 @@ mod tests {
         spawn_test_world, NamespaceDef, TestResource, ContractDefTrait, ContractDef,
     };
 
-    use dojo_starter::systems::actions::{actions, IActionsDispatcher, IActionsDispatcherTrait};
+    use dojo_starter::systems::actions::{actions};
+    use dojo_starter::interfaces::IActions::{IActionsDispatcher, IActionsDispatcherTrait};
     use dojo_starter::models::{Position, m_Position, Moves, m_Moves, Direction};
 
     fn namespace_def() -> NamespaceDef {
@@ -95,5 +96,30 @@ mod tests {
         let new_position: Position = world.read_model(caller);
         assert(new_position.vec.x == initial_position.vec.x + 1, 'position x is wrong');
         assert(new_position.vec.y == initial_position.vec.y, 'position y is wrong');
+    }
+    #[test]
+    #[available_gas(30000000)]
+    fn test_roll_dice() {
+        let caller = starknet::contract_address_const::<0x0>();
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        actions_system.spawn();
+     
+
+      let (dice_1, dice_2) = actions_system.roll_dice();
+      println!("dice_1: {}", dice_1);
+      println!("dice_2: {}", dice_2);
+
+      assert(dice_2 <= 6, 'incorrect roll');
+      assert( dice_1 <= 6, 'incorrect roll');
+      assert( dice_2 > 0, 'incorrect roll');
+      assert( dice_1 > 0, 'incorrect roll');
+
     }
 }

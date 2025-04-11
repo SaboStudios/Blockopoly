@@ -1,21 +1,17 @@
 use dojo_starter::models::{Direction, Position};
+use dojo_starter::interfaces::IActions::IActions;
 
-// define the interface
-#[starknet::interface]
-pub trait IActions<T> {
-    fn spawn(ref self: T);
-    fn move(ref self: T, direction: Direction);
-}
 
 // dojo decorator
 #[dojo::contract]
 pub mod actions {
     use super::{IActions, Direction, Position, next_position};
-    use starknet::{ContractAddress, get_caller_address};
+    use starknet::{ContractAddress, get_caller_address, get_block_timestamp};
     use dojo_starter::models::{Vec2, Moves};
 
     use dojo::model::{ModelStorage};
     use dojo::event::EventStorage;
+    use origami_random::dice::{Dice, DiceTrait};
 
     #[derive(Copy, Drop, Serde)]
     #[dojo::event]
@@ -91,6 +87,19 @@ pub mod actions {
 
             // Emit an event to the world to notify about the player's move.
             world.emit_event(@Moved { player, direction });
+        }
+
+
+        fn roll_dice(ref self: ContractState) -> (u8, u8) {
+            let seed = get_block_timestamp();
+
+            let mut dice1 = DiceTrait::new(6, seed.try_into().unwrap());
+            let mut dice2 = DiceTrait::new(6, (seed + 1).try_into().unwrap());
+
+            let dice1_roll = dice1.roll();
+            let dice2_roll = dice2.roll();
+
+            (dice1_roll, dice2_roll)
         }
     }
 

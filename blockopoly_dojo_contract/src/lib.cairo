@@ -1,6 +1,9 @@
 pub mod systems {
     pub mod actions;
 }
+pub mod interfaces {
+    pub mod IActions;
+}
 
 pub mod models;
 
