@@ -17,6 +17,7 @@ dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.2.2" }
 origami_random = { git = "https://github.com/dojoengine/origami" }
 
 
+
 [[target.starknet-contract]]
 build-external-contracts = ["dojo::world::world_contract::world"]
 

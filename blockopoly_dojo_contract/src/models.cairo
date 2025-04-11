@@ -1,5 +1,44 @@
 use starknet::{ContractAddress};
 
+#[derive(Serde, Copy, Drop, Introspect, PartialEq, Debug)]
+pub enum PropertyColors {
+    PINK,
+    YELLOW,
+    BLUE,
+    ORANGE,
+    RED,
+    GREEN,
+    PURPLE,
+    BROWN
+}
+
+
+#[derive(Serde, Copy, Drop, Introspect, PartialEq, Debug)]
+pub enum PropertyType {
+    Property,
+    RailStation,
+    Utility,
+    Special
+}
+
+#[derive(Copy, Drop, Serde, Debug)]
+#[dojo::model]
+pub struct Property {
+    #[key]
+    pub owner: ContractAddress,
+    pub name: felt252,
+    pub amount: u256,
+    pub rent_one_house: u256,
+    pub rent_two_houses: u256,
+    pub rent_three_houses: u256,
+    pub rent_four_houses: u256,
+    pub rent_one_hotel: u256,
+    pub mortgaged: bool,
+    pub no_of_houses: u256,
+    pub property_type: PropertyType,
+    pub property_color: PropertyColors,
+}
+
 #[derive(Copy, Drop, Serde, Debug)]
 #[dojo::model]
 pub struct Moves {
@@ -25,6 +64,8 @@ pub struct Position {
     pub player: ContractAddress,
     pub vec: Vec2,
 }
+
+
 
 
 #[derive(Serde, Copy, Drop, Introspect, PartialEq, Debug)]
