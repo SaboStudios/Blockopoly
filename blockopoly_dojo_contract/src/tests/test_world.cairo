@@ -8,7 +8,9 @@ mod tests {
     };
 
     use dojo_starter::systems::actions::{actions};
+    use dojo_starter::systems::MockUsdc::{MockUsdc};
     use dojo_starter::interfaces::IActions::{IActionsDispatcher, IActionsDispatcherTrait};
+    use dojo_starter::interfaces::IMockUsdc::{IMockUsdcDispatcher, IMockUsdcDispatcherTrait};
     use dojo_starter::models::{Position, m_Position, Moves, m_Moves, Direction};
 
     fn namespace_def() -> NamespaceDef {
