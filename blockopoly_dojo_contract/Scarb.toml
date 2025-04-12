@@ -15,8 +15,7 @@ move = "sozo execute dojo_starter-actions move -c 1 --wait" # scarb run move
 [dependencies]
 dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.2.2" }
 origami_random = { git = "https://github.com/dojoengine/origami" }
-
-
+openzeppelin = "0.20.0"
 
 
 [[target.starknet-contract]]
