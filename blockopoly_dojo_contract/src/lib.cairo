@@ -1,12 +1,12 @@
 pub mod systems {
     pub mod actions;
-    // pub mod BlockopolyNft;
-    pub mod MockUsdc;
+    pub mod Blockopoly;
+    pub mod BlockopolyNFT;
 }
 pub mod interfaces {
     pub mod IActions;
-    pub mod IMockUsdc;
-    // pub mod IBlockopolyNft;
+    pub mod IBlockopoly;
+    pub mod IBlockopolyNFT;
 }
 
 pub mod models;

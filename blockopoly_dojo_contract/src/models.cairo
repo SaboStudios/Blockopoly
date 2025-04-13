@@ -28,14 +28,46 @@ pub struct Player {
     #[key]
     pub player: ContractAddress,
     pub username: felt252,
+    pub total_games_played: u256,
+    pub total_games_completed: u256,
+    pub total_games_won: u256,
+}
+
+#[derive(Copy, Drop, Serde, Debug)]
+#[dojo::model]
+pub struct GPlayer {
+    #[key]
+    pub player: ContractAddress,
+    pub username: felt252,
     pub player_current_position: u8,
     pub in_jail: bool,
-    pub jailAttemptCount: u8,
+    pub jail_attempt_count: u8,
     pub cash_at_hand: u256,
-    pub diceRolled: u8,
+    pub dice_rolled: u8,
     pub bankrupt: bool,
-    pub netWorth: u256,
+    pub networth: u256,
+    pub total_games_played: u256,
+    pub total_games_completed: u256,
+    pub total_games_won: u256,
 }
+
+// pub trait PlayerTrait {
+//     // Create a new player
+//     // `username` - Username to assign to the new player
+//     // returns the created player
+//     fn new(
+//         username: felt252,
+//         owner: ContractAddress,
+//         username: felt252,
+//         player_current_position: u8,
+//         in_jail: bool,
+//         jailAttemptCount: u8,
+//         cash_at_hand: u256,
+//         dice_rolled: u8,
+//         bankrupt: bool,
+//         netWorth: u256,
+//     ) -> Player;
+// }
 
 #[derive(Copy, Drop, Serde, Debug)]
 #[dojo::model]
@@ -119,6 +151,25 @@ impl OptionDirectionIntoFelt252 of Into<Option<Direction>, felt252> {
         }
     }
 }
+
+// impl PlayerImpl of PlayerTrait {
+//     fn new(username: felt252, owner: ContractAddress) -> Player {
+//         Player {
+//             player,
+//             username,
+//             player_current_position: 0,
+//             in_jail: false,
+//             jailAttemptCount: 0,
+//             cash_at_hand: 0,
+//             dice_rolled: 0,
+//             bankrupt: false,
+//             netWorth: 0,
+//             total_games_played: 0,
+//             total_games_completed: 0,
+//             total_games_won: 0,
+//         }
+//     }
+// }
 
 #[generate_trait]
 impl Vec2Impl of Vec2Trait {

@@ -1,12 +1,14 @@
-use dojo_starter::models::{Direction, Position};
+use dojo_starter::models::{Direction, Position, Player};
 use dojo_starter::interfaces::IActions::IActions;
 
 
 // dojo decorator
 #[dojo::contract]
 pub mod actions {
-    use super::{IActions, Direction, Position, next_position};
-    use starknet::{ContractAddress, get_caller_address, get_block_timestamp};
+    use super::{IActions, Direction, Position, next_position, Player};
+    use starknet::{
+        ContractAddress, get_caller_address, get_block_timestamp, contract_address_const,
+    };
     use dojo_starter::models::{Vec2, Moves};
 
     use dojo::model::{ModelStorage};
@@ -101,6 +103,44 @@ pub mod actions {
 
             (dice1_roll, dice2_roll)
         }
+
+        fn register(ref self: ContractState, player_address: ContractAddress, username: felt252) {
+            let mut world = self.world_default();
+
+            let caller: ContractAddress = get_caller_address();
+
+            // assert(player_address == caller, 'not you');
+
+            let mut player: Player = world.read_model(player_address);
+
+            let zero_address: ContractAddress = contract_address_const::<0x0>();
+
+            // assert(caller != zero_address, 'ADDRESS ZERO');
+
+            player.player = caller;
+            player.username = username;
+            player.total_games_played = 0;
+            player.total_games_completed = 0;
+            player.total_games_won = 0;
+
+            // Write the model back to the world state.
+            world.write_model(@player);
+            // player.player_current_position = 0;
+        // player.in_jail = false;
+        // player.jail_attempt_count = 0;
+        // player.cash_at_hand = 0;
+        // player.dice_rolled = 0;
+        // player.bankrupt = false;
+        // player.networth = 0;
+
+        }
+
+        fn retrieve_player(ref self: ContractState, player_address: ContractAddress) -> Player {
+            let mut world = self.world_default();
+
+            let player: Player = world.read_model(player_address);
+            player
+        }
     }
 
     #[generate_trait]
@@ -108,7 +148,7 @@ pub mod actions {
         /// Use the default namespace "dojo_starter". This function is handy since the ByteArray
         /// can't be const.
         fn world_default(self: @ContractState) -> dojo::world::WorldStorage {
-            self.world(@"dojo_starter")
+            self.world(@"blockopoly")
         }
     }
 }
