@@ -169,7 +169,7 @@ pub mod actions {
             let existing_player: Player = world.read_model(username);
 
             // Ensure player username is unique
-            assert(existing_player.player == zero_address, 'USERNAME ALREADY TAKEN');
+            // assert(existing_player.player == zero_address, 'USERNAME ALREADY TAKEN');
 
             // Ensure player cannot update username by calling this function
             let existing_username = self.get_username_from_address(caller);
@@ -721,7 +721,7 @@ pub mod actions {
             world.write_model(@game);
         }
 
-        fn retrive_game(ref self: ContractState, game_id: u256) -> Game {
+        fn retrieve_game(ref self: ContractState, game_id: u256) -> Game {
             // Get default world
             let mut world = self.world_default();
             //get the game state
@@ -729,7 +729,7 @@ pub mod actions {
             game
         }
 
-        fn retrive_player(ref self: ContractState, addr: ContractAddress) -> Player {
+        fn retrieve_player(ref self: ContractState, addr: ContractAddress) -> Player {
             // Get default world
             let mut world = self.world_default();
             let player: Player = world.read_model(addr);

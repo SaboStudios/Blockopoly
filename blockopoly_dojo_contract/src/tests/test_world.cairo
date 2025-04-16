@@ -15,7 +15,12 @@ mod tests {
     use dojo_starter::systems::Blockopoly::{Blockopoly};
     use dojo_starter::interfaces::IActions::{IActionsDispatcher, IActionsDispatcherTrait};
     use dojo_starter::interfaces::IBlockopoly::{IBlockopolyDispatcher, IBlockopolyDispatcherTrait};
-    use dojo_starter::models::{Position, m_Position, Moves, m_Moves, Direction, Player};
+    use dojo_starter::models::{Position, m_Position, Moves, m_Moves, Direction};
+    use dojo_starter::game_model::{
+        Player, m_Player, Game, m_Game, UsernameToAddress, m_UsernameToAddress, AddressToUsername,
+        m_AddressToUsername,
+    };
+    use starknet::{testing, get_caller_address, contract_address_const};
 
     fn namespace_def() -> NamespaceDef {
         let ndef = NamespaceDef {
@@ -23,7 +28,12 @@ mod tests {
             resources: [
                 TestResource::Model(m_Position::TEST_CLASS_HASH),
                 TestResource::Model(m_Moves::TEST_CLASS_HASH),
+                TestResource::Model(m_Player::TEST_CLASS_HASH),
+                TestResource::Model(m_Game::TEST_CLASS_HASH),
+                TestResource::Model(m_UsernameToAddress::TEST_CLASS_HASH),
+                TestResource::Model(m_AddressToUsername::TEST_CLASS_HASH),
                 TestResource::Event(actions::e_Moved::TEST_CLASS_HASH),
+                TestResource::Event(actions::e_PlayerCreated::TEST_CLASS_HASH),
                 TestResource::Contract(actions::TEST_CLASS_HASH),
             ]
                 .span(),
@@ -130,7 +140,11 @@ mod tests {
     #[test]
     #[available_gas(30000000)]
     fn test_player_registration() {
-        let caller = starknet::contract_address_const::<0x0>();
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'dreamer'>();
+        let username = 'Aji';
+
+        let caller1 = get_caller_address();
 
         let ndef = namespace_def();
         let mut world = spawn_test_world([ndef].span());
@@ -139,17 +153,12 @@ mod tests {
         let (contract_address, _) = world.dns(@"actions").unwrap();
         let actions_system = IActionsDispatcher { contract_address };
 
-        actions_system.spawn();
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username, false);
 
-        // start_cheat_caller_address( caller);
-        // actions_system.register(caller, 'Sabo');
-        // stop_cheat_caller_address(caller);
-
-        let player: Player = actions_system.retrieve_player(caller);
-        // println!("player_addr: {}", player.player);
-    // println!("username: {}", player.username);
-
-        // assert(player.player == caller, 'incorrect address');
-    // assert(player.username == 'Sabo', 'incorrect username');
+        let player: Player = actions_system.retrieve_player(caller_1);
+        println!("username: {}", player.username);
+        assert(player.player == caller_1, 'incorrect address');
+        assert(player.username == 'Aji', 'incorrect username');
     }
 }

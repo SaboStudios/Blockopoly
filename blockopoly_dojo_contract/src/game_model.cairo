@@ -59,7 +59,7 @@ pub trait GameTrait {
 }
 
 // #[derive(Copy, Drop, Serde, Debug)]
-#[derive(Drop, Serde)]
+#[derive(Drop, Copy, Serde)]
 #[dojo::model]
 pub struct Player {
     #[key]

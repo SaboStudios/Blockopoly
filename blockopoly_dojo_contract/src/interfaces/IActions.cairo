@@ -26,6 +26,6 @@ pub trait IActions<T> {
     fn get_username_from_address(self: @T, address: ContractAddress) -> felt252;
     fn create_new_game_id(ref self: T) -> u64;
     fn join_game(ref self: T, player_symbol: PlayerSymbol, game_id: u64);
-    fn retrive_game(ref self: T, game_id: u256) -> Game;
-    fn retrive_player(ref self: T, addr: ContractAddress) -> Player;
+    fn retrieve_game(ref self: T, game_id: u256) -> Game;
+    fn retrieve_player(ref self: T, addr: ContractAddress) -> Player;
 }
