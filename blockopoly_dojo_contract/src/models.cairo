@@ -1,5 +1,6 @@
 use starknet::{ContractAddress};
 
+
 #[derive(Serde, Copy, Drop, Introspect, PartialEq, Debug)]
 pub enum PropertyColors {
     PINK,

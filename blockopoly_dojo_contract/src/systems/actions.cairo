@@ -108,24 +108,23 @@ pub mod actions {
             let mut world = self.world_default();
 
             let caller: ContractAddress = get_caller_address();
-
             // assert(player_address == caller, 'not you');
 
-            let mut player: Player = world.read_model(player_address);
+            // let mut player: Player = world.read_model(player_address);
 
-            let zero_address: ContractAddress = contract_address_const::<0x0>();
+            // let zero_address: ContractAddress = contract_address_const::<0x0>();
 
             // assert(caller != zero_address, 'ADDRESS ZERO');
 
-            player.player = caller;
-            player.username = username;
-            player.total_games_played = 0;
-            player.total_games_completed = 0;
-            player.total_games_won = 0;
+            // player.player = caller;
+        // player.username = username;
+        // player.total_games_played = 0;
+        // player.total_games_completed = 0;
+        // player.total_games_won = 0;
 
             // Write the model back to the world state.
-            world.write_model(@player);
-            // player.player_current_position = 0;
+        // world.write_model(@player);
+        // player.player_current_position = 0;
         // player.in_jail = false;
         // player.jail_attempt_count = 0;
         // player.cash_at_hand = 0;
@@ -134,13 +133,12 @@ pub mod actions {
         // player.networth = 0;
 
         }
+        // fn retrieve_player(ref self: ContractState, player_address: ContractAddress) -> Player {
+    //     let mut world = self.world_default();
 
-        fn retrieve_player(ref self: ContractState, player_address: ContractAddress) -> Player {
-            let mut world = self.world_default();
-
-            let player: Player = world.read_model(player_address);
-            player
-        }
+        //     let player: Player = world.read_model(player_address);
+    //     player
+    // }
     }
 
     #[generate_trait]
