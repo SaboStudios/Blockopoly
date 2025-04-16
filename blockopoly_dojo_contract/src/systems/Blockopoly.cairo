@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 use starknet::ContractAddress;
-use dojo_starter::interfaces::IMockUsdc::IMockUsdc;
+use dojo_starter::interfaces::IBlockopoly::IBlockopoly;
 
 
-#[starknet::contract]
-pub mod MockUsdc {
+#[dojo::contract]
+pub mod Blockopoly {
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
-    use super::IMockUsdc;
+    use super::IBlockopoly;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
@@ -42,16 +42,15 @@ pub mod MockUsdc {
         OwnableEvent: OwnableComponent::Event,
     }
 
-    #[constructor]
-    fn constructor(ref self: ContractState, owner: ContractAddress) {
-        self.erc20.initializer(format!("USDC"), format!("USDC"));
-        self.ownable.initializer(owner);
-
-        self.erc20.mint(owner, 1000000_u256);
-    }
 
     #[abi(embed_v0)]
-    impl ExternalImpl of IMockUsdc<ContractState> {
+    impl BlockopolyImpl of IBlockopoly<ContractState> {
+        fn init(ref self: ContractState, owner: ContractAddress) {
+            self.erc20.initializer(format!("USDC"), format!("USDC"));
+            self.ownable.initializer(owner);
+
+            self.erc20.mint(owner, 1000000_u256);
+        }
         fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
             self.erc20.mint(recipient, amount);
         }

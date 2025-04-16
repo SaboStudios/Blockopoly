@@ -2,7 +2,8 @@
 use starknet::ContractAddress;
 
 #[starknet::interface]
-pub trait IMockUsdc<ContractState> {
+pub trait IBlockopoly<ContractState> {
+    fn init(ref self: ContractState, owner: ContractAddress);
     fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256);
     fn get_balance(ref self: ContractState, address: ContractAddress) -> u256;
     fn transferFrom(

@@ -6,16 +6,20 @@ mod tests {
     use dojo_cairo_test::{
         spawn_test_world, NamespaceDef, TestResource, ContractDefTrait, ContractDef,
     };
+    // use snforge_std::{
+    //     CheatSpan, ContractClassTrait, DeclareResultTrait, cheat_caller_address, declare,
+    //     start_cheat_caller_address, stop_cheat_caller_address,
+    // };
 
     use dojo_starter::systems::actions::{actions};
-    use dojo_starter::systems::MockUsdc::{MockUsdc};
+    use dojo_starter::systems::Blockopoly::{Blockopoly};
     use dojo_starter::interfaces::IActions::{IActionsDispatcher, IActionsDispatcherTrait};
-    use dojo_starter::interfaces::IMockUsdc::{IMockUsdcDispatcher, IMockUsdcDispatcherTrait};
-    use dojo_starter::models::{Position, m_Position, Moves, m_Moves, Direction};
+    use dojo_starter::interfaces::IBlockopoly::{IBlockopolyDispatcher, IBlockopolyDispatcherTrait};
+    use dojo_starter::models::{Position, m_Position, Moves, m_Moves, Direction, Player};
 
     fn namespace_def() -> NamespaceDef {
         let ndef = NamespaceDef {
-            namespace: "dojo_starter",
+            namespace: "blockopoly",
             resources: [
                 TestResource::Model(m_Position::TEST_CLASS_HASH),
                 TestResource::Model(m_Moves::TEST_CLASS_HASH),
@@ -30,8 +34,8 @@ mod tests {
 
     fn contract_defs() -> Span<ContractDef> {
         [
-            ContractDefTrait::new(@"dojo_starter", @"actions")
-                .with_writer_of([dojo::utils::bytearray_hash(@"dojo_starter")].span())
+            ContractDefTrait::new(@"blockopoly", @"actions")
+                .with_writer_of([dojo::utils::bytearray_hash(@"blockopoly")].span())
         ]
             .span()
     }
@@ -121,5 +125,31 @@ mod tests {
         assert(dice_1 <= 6, 'incorrect roll');
         assert(dice_2 > 0, 'incorrect roll');
         assert(dice_1 > 0, 'incorrect roll');
+    }
+
+    #[test]
+    #[available_gas(30000000)]
+    fn test_player_registration() {
+        let caller = starknet::contract_address_const::<0x0>();
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        actions_system.spawn();
+
+        // start_cheat_caller_address( caller);
+        // actions_system.register(caller, 'Sabo');
+        // stop_cheat_caller_address(caller);
+
+        let player: Player = actions_system.retrieve_player(caller);
+        // println!("player_addr: {}", player.player);
+    // println!("username: {}", player.username);
+
+        // assert(player.player == caller, 'incorrect address');
+    // assert(player.username == 'Sabo', 'incorrect username');
     }
 }
