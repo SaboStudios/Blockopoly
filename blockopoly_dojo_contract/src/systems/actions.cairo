@@ -294,6 +294,448 @@ pub mod actions {
 
             game_id
         }
+
+        /// Start game
+        /// Change game status to ONGOING
+        fn join_game(ref self: ContractState, player_symbol: PlayerSymbol, game_id: u64) {
+            // Get world state
+            let mut world = self.world_default();
+
+            //get the game state
+            let mut game: Game = world.read_model(game_id);
+
+            assert(game.is_initialised, 'GAME NOT INITIALISED');
+
+            // Assert that game is a Multiplayer game
+            assert(game.mode == GameMode::MultiPlayer, 'GAME NOT MULTIPLAYER');
+
+            // Assert that game is in Pending state
+            assert(game.status == GameStatus::Pending, 'GAME NOT PENDING');
+
+            // Get the account address of the caller
+            let caller_address = get_caller_address();
+            let caller_username = self.get_username_from_address(caller_address);
+
+            assert(caller_username != 0, 'PLAYER NOT REGISTERED');
+
+            // Verify that player has not already joined the game
+            assert(game.player_hat != caller_username, 'ALREADY SELECTED HAT');
+            assert(game.player_car != caller_username, 'ALREADY SELECTED CAR');
+            assert(game.player_dog != caller_username, 'ALREADY SELECTED DOG');
+            assert(game.player_thimble != caller_username, 'ALREADY SELECTED THIMBLE');
+            assert(game.player_iron != caller_username, 'ALREADY SELECTED IRON');
+            assert(game.player_battleship != caller_username, 'ALREADY SELECTED BATTLESHIP');
+            assert(game.player_boot != caller_username, 'ALREADY SELECTED BOOT');
+            assert(game.player_wheelbarrow != caller_username, 'ALREADY SELECTED WHEELBARROW');
+
+            /// Game starts automatically once the last player joins
+
+            // Verify that symbol is available
+            // Assign symbol to player if available
+
+            match player_symbol {
+                PlayerSymbol::Hat => {
+                    if (game.player_hat == 0) {
+                        game.player_hat = caller_username;
+                        world
+                            .emit_event(
+                                @PlayerJoined {
+                                    game_id,
+                                    username: caller_username,
+                                    timestamp: get_block_timestamp(),
+                                },
+                            )
+                    } else {
+                        panic!("HAT already selected");
+                    }
+                },
+                PlayerSymbol::Car => {
+                    if (game.player_car == 0) {
+                        game.player_car = caller_username;
+                        world
+                            .emit_event(
+                                @PlayerJoined {
+                                    game_id,
+                                    username: caller_username,
+                                    timestamp: get_block_timestamp(),
+                                },
+                            )
+                    } else {
+                        panic!("CAR already selected");
+                    }
+                },
+                PlayerSymbol::Dog => {
+                    if (game.player_dog == 0) {
+                        game.player_dog = caller_username;
+                        world
+                            .emit_event(
+                                @PlayerJoined {
+                                    game_id,
+                                    username: caller_username,
+                                    timestamp: get_block_timestamp(),
+                                },
+                            )
+                    } else {
+                        panic!("Dog already selected");
+                    }
+                },
+                PlayerSymbol::Thimble => {
+                    if (game.player_thimble == 0) {
+                        game.player_thimble = caller_username;
+                        world
+                            .emit_event(
+                                @PlayerJoined {
+                                    game_id,
+                                    username: caller_username,
+                                    timestamp: get_block_timestamp(),
+                                },
+                            )
+                    } else {
+                        panic!("Thimble already selected");
+                    }
+                },
+                PlayerSymbol::Iron => {
+                    if (game.player_iron == 0) {
+                        game.player_iron = caller_username;
+                        world
+                            .emit_event(
+                                @PlayerJoined {
+                                    game_id,
+                                    username: caller_username,
+                                    timestamp: get_block_timestamp(),
+                                },
+                            )
+                    } else {
+                        panic!("Iron already selected");
+                    }
+                },
+                PlayerSymbol::Battleship => {
+                    if (game.player_battleship == 0) {
+                        game.player_battleship = caller_username;
+                        world
+                            .emit_event(
+                                @PlayerJoined {
+                                    game_id,
+                                    username: caller_username,
+                                    timestamp: get_block_timestamp(),
+                                },
+                            )
+                    } else {
+                        panic!("Battleship already selected");
+                    }
+                },
+                PlayerSymbol::Boot => {
+                    if (game.player_boot == 0) {
+                        game.player_boot = caller_username;
+                        world
+                            .emit_event(
+                                @PlayerJoined {
+                                    game_id,
+                                    username: caller_username,
+                                    timestamp: get_block_timestamp(),
+                                },
+                            )
+                    } else {
+                        panic!("Boot already selected");
+                    }
+                },
+                PlayerSymbol::Wheelbarrow => {
+                    if (game.player_wheelbarrow == 0) {
+                        game.player_wheelbarrow = caller_username;
+                        world
+                            .emit_event(
+                                @PlayerJoined {
+                                    game_id,
+                                    username: caller_username,
+                                    timestamp: get_block_timestamp(),
+                                },
+                            )
+                    } else {
+                        panic!("Wheelbarrow already selected");
+                    }
+                },
+            }
+
+            // Start game automatically once the last player joins
+
+            const TWO_PLAYERS: u8 = 2;
+            const THREE_PLAYERS: u8 = 3;
+            const FOUR_PLAYERS: u8 = 4;
+            const FIVE_PLAYERS: u8 = 5;
+            const SIX_PLAYERS: u8 = 6;
+            const SEVEN_PLAYERS: u8 = 7;
+            const EIGHT_PLAYERS: u8 = 8;
+
+            match game.number_of_players {
+                0 => panic!("Number of players cannot be 0"),
+                1 => panic!("Number of players cannot be 1"),
+                2 => {
+                    let mut players_joined_count: u8 = 0;
+
+                    if (game.player_hat != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_car != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_dog != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_thimble != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_iron != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_battleship != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_boot != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_wheelbarrow != 0) {
+                        players_joined_count += 1;
+                    }
+
+                    // Start game once all players have joined
+                    if (players_joined_count == TWO_PLAYERS) {
+                        game.status = GameStatus::Ongoing;
+                        world
+                            .emit_event(@GameStarted { game_id, timestamp: get_block_timestamp() });
+                    }
+                },
+                3 => {
+                    let mut players_joined_count: u8 = 0;
+
+                    if (game.player_hat != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_car != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_dog != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_thimble != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_iron != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_battleship != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_boot != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_wheelbarrow != 0) {
+                        players_joined_count += 1;
+                    }
+
+                    // Start game once all players have joined
+                    if (players_joined_count == THREE_PLAYERS) {
+                        game.status = GameStatus::Ongoing;
+                        world
+                            .emit_event(@GameStarted { game_id, timestamp: get_block_timestamp() });
+                    }
+                },
+                4 => {
+                    let mut players_joined_count: u8 = 0;
+
+                    if (game.player_hat != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_car != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_dog != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_thimble != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_iron != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_battleship != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_boot != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_wheelbarrow != 0) {
+                        players_joined_count += 1;
+                    }
+
+                    // Start game once all players have joined
+                    if (players_joined_count == FOUR_PLAYERS) {
+                        game.status = GameStatus::Ongoing;
+                        world
+                            .emit_event(@GameStarted { game_id, timestamp: get_block_timestamp() });
+                    }
+                },
+                5 => {
+                    let mut players_joined_count: u8 = 0;
+
+                    if (game.player_hat != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_car != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_dog != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_thimble != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_iron != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_battleship != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_boot != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_wheelbarrow != 0) {
+                        players_joined_count += 1;
+                    }
+
+                    // Start game once all players have joined
+                    if (players_joined_count == FIVE_PLAYERS) {
+                        game.status = GameStatus::Ongoing;
+                        world
+                            .emit_event(@GameStarted { game_id, timestamp: get_block_timestamp() });
+                    }
+                },
+                6 => {
+                    let mut players_joined_count: u8 = 0;
+
+                    if (game.player_hat != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_car != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_dog != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_thimble != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_iron != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_battleship != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_boot != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_wheelbarrow != 0) {
+                        players_joined_count += 1;
+                    }
+
+                    // Start game once all players have joined
+                    if (players_joined_count == SIX_PLAYERS) {
+                        game.status = GameStatus::Ongoing;
+                        world
+                            .emit_event(@GameStarted { game_id, timestamp: get_block_timestamp() });
+                    }
+                },
+                7 => {
+                    let mut players_joined_count: u8 = 0;
+
+                    if (game.player_hat != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_car != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_dog != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_thimble != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_iron != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_battleship != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_boot != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_wheelbarrow != 0) {
+                        players_joined_count += 1;
+                    }
+
+                    // Start game once all players have joined
+                    if (players_joined_count == SEVEN_PLAYERS) {
+                        game.status = GameStatus::Ongoing;
+                        world
+                            .emit_event(@GameStarted { game_id, timestamp: get_block_timestamp() });
+                    }
+                },
+                8 => {
+                    let mut players_joined_count: u8 = 0;
+
+                    if (game.player_hat != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_car != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_dog != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_thimble != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_iron != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_battleship != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_boot != 0) {
+                        players_joined_count += 1;
+                    }
+                    if (game.player_wheelbarrow != 0) {
+                        players_joined_count += 1;
+                    }
+
+                    // Start game once all players have joined
+                    if (players_joined_count == EIGHT_PLAYERS) {
+                        game.status = GameStatus::Ongoing;
+                        world
+                            .emit_event(@GameStarted { game_id, timestamp: get_block_timestamp() });
+                    }
+                },
+                _ => panic!("Invalid number of players"),
+            };
+
+            // Update the game state in the world
+            world.write_model(@game);
+        }
+
+        fn retrive_game(ref self: ContractState, game_id: u256) -> Game {
+            // Get default world
+            let mut world = self.world_default();
+            //get the game state
+            let game: Game = world.read_model(game_id);
+            game
+        }
+
+        fn retrive_player(ref self: ContractState, addr: ContractAddress) -> Player {
+            // Get default world
+            let mut world = self.world_default();
+            let player: Player = world.read_model(addr);
+
+            player
+        }
     }
 
     #[generate_trait]
