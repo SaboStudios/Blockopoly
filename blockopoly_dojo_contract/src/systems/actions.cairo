@@ -1,11 +1,18 @@
-use dojo_starter::models::{Direction, Position, Player};
+use dojo_starter::models::{Direction, Position};
+use dojo_starter::game_model::{
+    Player, GameMode, PlayerSymbol, Game, GameTrait, UsernameToAddress, AddressToUsername,
+    PlayerTrait,
+};
 use dojo_starter::interfaces::IActions::IActions;
 
 
 // dojo decorator
 #[dojo::contract]
 pub mod actions {
-    use super::{IActions, Direction, Position, next_position, Player};
+    use super::{
+        IActions, Direction, Position, next_position, Player, GameMode, PlayerSymbol, Game,
+        GameTrait, UsernameToAddress, AddressToUsername, PlayerTrait,
+    };
     use starknet::{
         ContractAddress, get_caller_address, get_block_timestamp, contract_address_const,
     };
@@ -22,6 +29,17 @@ pub mod actions {
         pub player: ContractAddress,
         pub direction: Direction,
     }
+
+    #[derive(Copy, Drop, Serde)]
+    #[dojo::event]
+    pub struct PlayerCreated {
+        #[key]
+        pub username: felt252,
+        #[key]
+        pub owner: ContractAddress,
+        pub timestamp: u64,
+    }
+
 
     #[abi(embed_v0)]
     impl ActionsImpl of IActions<ContractState> {
@@ -133,12 +151,134 @@ pub mod actions {
         // player.networth = 0;
 
         }
+        fn get_username_from_address(self: @ContractState, address: ContractAddress) -> felt252 {
+            let mut world = self.world_default();
+
+            let address_map: AddressToUsername = world.read_model(address);
+
+            address_map.username
+        }
+        fn register_new_player(ref self: ContractState, username: felt252, is_bot: bool) {
+            let mut world = self.world_default();
+
+            let caller: ContractAddress = get_caller_address();
+
+            let zero_address: ContractAddress = contract_address_const::<0x0>();
+
+            // Validate username
+            assert(username != 0, 'USERNAME CANNOT BE ZERO');
+
+            let existing_player: Player = world.read_model(username);
+
+            // Ensure player username is unique
+            assert(existing_player.player == zero_address, 'USERNAME ALREADY TAKEN');
+
+            // Ensure player cannot update username by calling this function
+            let existing_username = self.get_username_from_address(caller);
+
+            assert(existing_username == 0, 'USERNAME ALREADY CREATED');
+
+            let new_player: Player = PlayerTrait::new(username, caller, is_bot);
+            let username_to_address: UsernameToAddress = UsernameToAddress {
+                username, address: caller,
+            };
+            let address_to_username: AddressToUsername = AddressToUsername {
+                address: caller, username,
+            };
+
+            world.write_model(@new_player);
+            world.write_model(@username_to_address);
+            world.write_model(@address_to_username);
+            world
+            .emit_event(
+                @PlayerCreated { username, owner: caller, timestamp: get_block_timestamp() },
+            );
+        }
         // fn retrieve_player(ref self: ContractState, player_address: ContractAddress) -> Player {
-    //     let mut world = self.world_default();
+        //     let mut world = self.world_default();
 
         //     let player: Player = world.read_model(player_address);
-    //     player
-    // }
+        //     player
+        // }
+        fn create_new_game(
+            ref self: ContractState,
+            game_mode: GameMode,
+            player_symbol: PlayerSymbol,
+            player_hat: felt252,
+            player_car: felt252,
+            player_dog: felt252,
+            player_thimble: felt252,
+            player_iron: felt252,
+            player_battleship: felt252,
+            player_boot: felt252,
+            player_wheelbarrow: felt252,
+            number_of_players: u8,
+        ) -> u64 {
+            // Get default world
+            let mut world = self.world_default();
+
+            assert(number_of_players >= 2 && number_of_players <= 8, 'invalid no of players');
+
+            // Get the account address of the caller
+            let caller_address = get_caller_address();
+            // let caller_username = self.get_username_from_address(caller_address);
+            // assert(caller_username != 0, 'PLAYER NOT REGISTERED');
+
+            // let game_id = self.create_new_game_id();
+            let timestamp = get_block_timestamp();
+
+            // let player_green = match player_color {
+            //     PlayerColor::Green => caller_username,
+            //     _ => 0,
+            // };
+
+            // let player_yellow = match player_color {
+            //     PlayerColor::Yellow => caller_username,
+            //     _ => 0,
+            // };
+
+            // let player_blue = match player_color {
+            //     PlayerColor::Blue => caller_username,
+            //     _ => 0,
+            // };
+
+            // let player_red = match player_color {
+            //     PlayerColor::Red => caller_username,
+            //     _ => 0,
+            // };
+
+            // Create a new game
+            let mut new_game: Game = GameTrait::new(
+                // game_id,
+                1,
+                // caller_address,
+                'hat',
+                game_mode,
+                player_hat,
+                player_car,
+                player_dog,
+                player_thimble,
+                player_iron,
+                player_battleship,
+                player_boot,
+                player_wheelbarrow,
+                number_of_players,
+            );
+
+            // If it's a multiplayer game, set status to Pending,
+            // else mark it as Ongoing (for single-player).
+            // if game_mode == GameMode::MultiPlayer {
+            //     new_game.status = GameStatus::Pending;
+            // } else {
+            //     new_game.status = GameStatus::Ongoing;
+            // }
+
+            // world.write_model(@new_game);
+
+            // world.emit_event(@GameCreated { game_id, timestamp });
+
+            2
+        }
     }
 
     #[generate_trait]

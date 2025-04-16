@@ -97,6 +97,18 @@ pub enum GameMode {
     MultiPlayer // Play online with friends
 }
 
+#[derive(Serde, Copy, Drop, Introspect, PartialEq)]
+pub enum PlayerSymbol {
+    Hat,
+    Car,
+    Dog,
+    Thimble,
+    Iron,
+    Battleship,
+    Boot,
+    Wheelbarrow,
+}
+
 impl PlayerImpl of PlayerTrait {
     fn new(username: felt252, player: ContractAddress, is_bot: bool) -> Player {
         Player {
@@ -108,6 +120,22 @@ impl PlayerImpl of PlayerTrait {
             total_games_won: 0,
         }
     }
+}
+
+#[derive(Drop, Copy, Serde)]
+#[dojo::model]
+pub struct UsernameToAddress {
+    #[key]
+    pub username: felt252,
+    pub address: ContractAddress,
+}
+
+#[derive(Drop, Copy, Serde)]
+#[dojo::model]
+pub struct AddressToUsername {
+    #[key]
+    pub address: ContractAddress,
+    pub username: felt252,
 }
 
 impl GameImpl of GameTrait {
@@ -200,4 +228,5 @@ impl GameImpl of GameTrait {
 //     pub id: felt252,
 //     pub current_val: u64,
 // }
+
 
