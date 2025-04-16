@@ -116,8 +116,6 @@ mod tests {
     #[test]
     #[available_gas(30000000)]
     fn test_roll_dice() {
-        let caller = starknet::contract_address_const::<0x0>();
-
         let ndef = namespace_def();
         let mut world = spawn_test_world([ndef].span());
         world.sync_perms_and_inits(contract_defs());
@@ -141,10 +139,7 @@ mod tests {
     #[available_gas(30000000)]
     fn test_player_registration() {
         let caller_1 = contract_address_const::<'aji'>();
-        let caller_2 = contract_address_const::<'dreamer'>();
         let username = 'Aji';
-
-        let caller1 = get_caller_address();
 
         let ndef = namespace_def();
         let mut world = spawn_test_world([ndef].span());
@@ -161,4 +156,88 @@ mod tests {
         assert(player.player == caller_1, 'incorrect address');
         assert(player.username == 'Aji', 'incorrect username');
     }
+    #[test]
+    #[should_panic]
+    #[available_gas(30000000)]
+    fn test_player_registration_same_user_name() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'dreamer'>();
+        let username = 'Aji';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username, false);
+
+        testing::set_contract_address(caller_2);
+        actions_system.register_new_player(username, false);
+    }
+
+    #[test]
+    #[should_panic]
+    #[available_gas(30000000)]
+    fn test_player_registration_same_user_tries_to_register_twice_with_different_username() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let username = 'Aji';
+        let username1 = 'Ajidokwu';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username, false);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username1, false);
+    }
+    #[test]
+    #[should_panic]
+    #[available_gas(30000000)]
+    fn test_player_registration_same_user_tries_to_register_twice_with_the_same_username() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let username = 'Aji';
+        let username1 = 'Aji';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username, false);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username1, false);
+    }
+
+
+    #[test]
+    #[should_panic]
+    #[available_gas(30000000)]
+    fn test_player_registration_bot_tries_registering() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let username = 'Aji';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username, true);
+    }
 }
+

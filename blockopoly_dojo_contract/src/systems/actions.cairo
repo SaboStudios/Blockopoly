@@ -157,6 +157,7 @@ pub mod actions {
             address_map.username
         }
         fn register_new_player(ref self: ContractState, username: felt252, is_bot: bool) {
+            assert(!is_bot, 'Bot detected');
             let mut world = self.world_default();
 
             let caller: ContractAddress = get_caller_address();
@@ -166,10 +167,9 @@ pub mod actions {
             // Validate username
             assert(username != 0, 'USERNAME CANNOT BE ZERO');
 
-            let existing_player: Player = world.read_model(username);
-
-            // Ensure player username is unique
-            // assert(existing_player.player == zero_address, 'USERNAME ALREADY TAKEN');
+            // Check if the player already exists (ensure username is unique)
+            let existing_player: UsernameToAddress = world.read_model(username);
+            assert(existing_player.address == zero_address, 'USERNAME ALREADY TAKEN');
 
             // Ensure player cannot update username by calling this function
             let existing_username = self.get_username_from_address(caller);
