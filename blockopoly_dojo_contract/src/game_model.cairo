@@ -221,12 +221,11 @@ impl GameImpl of GameTrait {
         self.status = GameStatus::Ended;
     }
 }
-// #[derive(Serde, Copy, Drop, Introspect, PartialEq)]
-// #[dojo::model]
-// pub struct GameCounter {
-//     #[key]
-//     pub id: felt252,
-//     pub current_val: u64,
-// }
-
+#[derive(Serde, Copy, Drop, Introspect, PartialEq)]
+#[dojo::model]
+pub struct GameCounter {
+    #[key]
+    pub id: felt252,
+    pub current_val: u64,
+}
 

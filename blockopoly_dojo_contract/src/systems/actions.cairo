@@ -1,7 +1,7 @@
 use dojo_starter::models::{Direction, Position};
 use dojo_starter::game_model::{
     Player, GameMode, PlayerSymbol, Game, GameTrait, UsernameToAddress, AddressToUsername,
-    PlayerTrait,
+    PlayerTrait, GameCounter, GameStatus,
 };
 use dojo_starter::interfaces::IActions::IActions;
 
@@ -11,7 +11,7 @@ use dojo_starter::interfaces::IActions::IActions;
 pub mod actions {
     use super::{
         IActions, Direction, Position, next_position, Player, GameMode, PlayerSymbol, Game,
-        GameTrait, UsernameToAddress, AddressToUsername, PlayerTrait,
+        GameTrait, UsernameToAddress, AddressToUsername, PlayerTrait, GameCounter, GameStatus,
     };
     use starknet::{
         ContractAddress, get_caller_address, get_block_timestamp, contract_address_const,
@@ -32,11 +32,37 @@ pub mod actions {
 
     #[derive(Copy, Drop, Serde)]
     #[dojo::event]
+    pub struct GameCreated {
+        #[key]
+        pub game_id: u64,
+        pub timestamp: u64,
+    }
+
+    #[derive(Copy, Drop, Serde)]
+    #[dojo::event]
     pub struct PlayerCreated {
         #[key]
         pub username: felt252,
         #[key]
-        pub owner: ContractAddress,
+        pub player: ContractAddress,
+        pub timestamp: u64,
+    }
+
+    #[derive(Copy, Drop, Serde)]
+    #[dojo::event]
+    pub struct GameStarted {
+        #[key]
+        pub game_id: u64,
+        pub timestamp: u64,
+    }
+
+    #[derive(Copy, Drop, Serde)]
+    #[dojo::event]
+    pub struct PlayerJoined {
+        #[key]
+        pub game_id: u64,
+        #[key]
+        pub username: felt252,
         pub timestamp: u64,
     }
 
@@ -122,35 +148,7 @@ pub mod actions {
             (dice1_roll, dice2_roll)
         }
 
-        fn register(ref self: ContractState, player_address: ContractAddress, username: felt252) {
-            let mut world = self.world_default();
 
-            let caller: ContractAddress = get_caller_address();
-            // assert(player_address == caller, 'not you');
-
-            // let mut player: Player = world.read_model(player_address);
-
-            // let zero_address: ContractAddress = contract_address_const::<0x0>();
-
-            // assert(caller != zero_address, 'ADDRESS ZERO');
-
-            // player.player = caller;
-        // player.username = username;
-        // player.total_games_played = 0;
-        // player.total_games_completed = 0;
-        // player.total_games_won = 0;
-
-            // Write the model back to the world state.
-        // world.write_model(@player);
-        // player.player_current_position = 0;
-        // player.in_jail = false;
-        // player.jail_attempt_count = 0;
-        // player.cash_at_hand = 0;
-        // player.dice_rolled = 0;
-        // player.bankrupt = false;
-        // player.networth = 0;
-
-        }
         fn get_username_from_address(self: @ContractState, address: ContractAddress) -> felt252 {
             let mut world = self.world_default();
 
@@ -190,16 +188,21 @@ pub mod actions {
             world.write_model(@username_to_address);
             world.write_model(@address_to_username);
             world
-            .emit_event(
-                @PlayerCreated { username, owner: caller, timestamp: get_block_timestamp() },
-            );
+                .emit_event(
+                    @PlayerCreated { username, player: caller, timestamp: get_block_timestamp() },
+                );
         }
-        // fn retrieve_player(ref self: ContractState, player_address: ContractAddress) -> Player {
-        //     let mut world = self.world_default();
 
-        //     let player: Player = world.read_model(player_address);
-        //     player
-        // }
+
+        fn create_new_game_id(ref self: ContractState) -> u64 {
+            let mut world = self.world_default();
+            let mut game_counter: GameCounter = world.read_model('v0');
+            let new_val = game_counter.current_val + 1;
+            game_counter.current_val = new_val;
+            world.write_model(@game_counter);
+            new_val
+        }
+
         fn create_new_game(
             ref self: ContractState,
             game_mode: GameMode,
@@ -221,38 +224,50 @@ pub mod actions {
 
             // Get the account address of the caller
             let caller_address = get_caller_address();
-            // let caller_username = self.get_username_from_address(caller_address);
-            // assert(caller_username != 0, 'PLAYER NOT REGISTERED');
+            let caller_username = self.get_username_from_address(caller_address);
+            assert(caller_username != 0, 'PLAYER NOT REGISTERED');
 
-            // let game_id = self.create_new_game_id();
+            let game_id = self.create_new_game_id();
             let timestamp = get_block_timestamp();
 
-            // let player_green = match player_color {
-            //     PlayerColor::Green => caller_username,
-            //     _ => 0,
-            // };
+            let player_hat = match player_symbol {
+                PlayerSymbol::Hat => caller_username,
+                _ => 0,
+            };
 
-            // let player_yellow = match player_color {
-            //     PlayerColor::Yellow => caller_username,
-            //     _ => 0,
-            // };
-
-            // let player_blue = match player_color {
-            //     PlayerColor::Blue => caller_username,
-            //     _ => 0,
-            // };
-
-            // let player_red = match player_color {
-            //     PlayerColor::Red => caller_username,
-            //     _ => 0,
-            // };
+            let player_car = match player_symbol {
+                PlayerSymbol::Car => caller_username,
+                _ => 0,
+            };
+            let player_dog = match player_symbol {
+                PlayerSymbol::Dog => caller_username,
+                _ => 0,
+            };
+            let player_thimble = match player_symbol {
+                PlayerSymbol::Thimble => caller_username,
+                _ => 0,
+            };
+            let player_iron = match player_symbol {
+                PlayerSymbol::Iron => caller_username,
+                _ => 0,
+            };
+            let player_battleship = match player_symbol {
+                PlayerSymbol::Battleship => caller_username,
+                _ => 0,
+            };
+            let player_boot = match player_symbol {
+                PlayerSymbol::Boot => caller_username,
+                _ => 0,
+            };
+            let player_wheelbarrow = match player_symbol {
+                PlayerSymbol::Wheelbarrow => caller_username,
+                _ => 0,
+            };
 
             // Create a new game
             let mut new_game: Game = GameTrait::new(
-                // game_id,
-                1,
-                // caller_address,
-                'hat',
+                game_id,
+                caller_username,
                 game_mode,
                 player_hat,
                 player_car,
@@ -267,17 +282,17 @@ pub mod actions {
 
             // If it's a multiplayer game, set status to Pending,
             // else mark it as Ongoing (for single-player).
-            // if game_mode == GameMode::MultiPlayer {
-            //     new_game.status = GameStatus::Pending;
-            // } else {
-            //     new_game.status = GameStatus::Ongoing;
-            // }
+            if game_mode == GameMode::MultiPlayer {
+                new_game.status = GameStatus::Pending;
+            } else {
+                new_game.status = GameStatus::Ongoing;
+            }
 
-            // world.write_model(@new_game);
+            world.write_model(@new_game);
 
-            // world.emit_event(@GameCreated { game_id, timestamp });
+            world.emit_event(@GameCreated { game_id, timestamp });
 
-            2
+            game_id
         }
     }
 
