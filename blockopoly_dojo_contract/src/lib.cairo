@@ -9,8 +9,10 @@ pub mod interfaces {
     pub mod IBlockopolyNFT;
 }
 
-pub mod game_model;
-pub mod models;
+pub mod model {
+    pub mod game_model;
+    pub mod player_model;
+}
 
 pub mod tests {
     mod test_world;
