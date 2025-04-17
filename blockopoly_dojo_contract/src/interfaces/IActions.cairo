@@ -1,12 +1,12 @@
-use dojo_starter::models::{Direction, Position};
-use dojo_starter::game_model::{GameMode, PlayerSymbol, Game, Player};
+
+use dojo_starter::model::game_model::{GameMode, Game};
+use dojo_starter::model::player_model::{PlayerSymbol, Player};
+
 use starknet::{ContractAddress};
 
 // define the interface
 #[starknet::interface]
 pub trait IActions<T> {
-    fn spawn(ref self: T);
-    fn move(ref self: T, direction: Direction);
     fn roll_dice(ref self: T) -> (u8, u8);
     fn register_new_player(ref self: T, username: felt252, is_bot: bool);
     fn create_new_game(

@@ -6,19 +6,18 @@ mod tests {
     use dojo_cairo_test::{
         spawn_test_world, NamespaceDef, TestResource, ContractDefTrait, ContractDef,
     };
-    // use snforge_std::{
-    //     CheatSpan, ContractClassTrait, DeclareResultTrait, cheat_caller_address, declare,
-    //     start_cheat_caller_address, stop_cheat_caller_address,
-    // };
 
     use dojo_starter::systems::actions::{actions};
     use dojo_starter::systems::Blockopoly::{Blockopoly};
     use dojo_starter::interfaces::IActions::{IActionsDispatcher, IActionsDispatcherTrait};
     use dojo_starter::interfaces::IBlockopoly::{IBlockopolyDispatcher, IBlockopolyDispatcherTrait};
-    use dojo_starter::models::{Position, m_Position, Moves, m_Moves, Direction};
-    use dojo_starter::game_model::{
-        Player, m_Player, Game, m_Game, UsernameToAddress, m_UsernameToAddress, AddressToUsername,
-        m_AddressToUsername, PlayerSymbol, GameMode, GameStatus, GameCounter, m_GameCounter,
+
+    use dojo_starter::model::game_model::{
+        Game, m_Game, GameMode, GameStatus, GameCounter, m_GameCounter,
+    };
+    use dojo_starter::model::player_model::{
+        Player, m_Player, UsernameToAddress, m_UsernameToAddress, AddressToUsername,
+        m_AddressToUsername, PlayerSymbol,
     };
     use starknet::{testing, get_caller_address, contract_address_const};
 
@@ -26,14 +25,13 @@ mod tests {
         let ndef = NamespaceDef {
             namespace: "blockopoly",
             resources: [
-                TestResource::Model(m_Position::TEST_CLASS_HASH),
-                TestResource::Model(m_Moves::TEST_CLASS_HASH),
+              
                 TestResource::Model(m_Player::TEST_CLASS_HASH),
                 TestResource::Model(m_Game::TEST_CLASS_HASH),
                 TestResource::Model(m_UsernameToAddress::TEST_CLASS_HASH),
                 TestResource::Model(m_AddressToUsername::TEST_CLASS_HASH),
                 TestResource::Model(m_GameCounter::TEST_CLASS_HASH),
-                TestResource::Event(actions::e_Moved::TEST_CLASS_HASH),
+                
                 TestResource::Event(actions::e_PlayerCreated::TEST_CLASS_HASH),
                 TestResource::Event(actions::e_GameCreated::TEST_CLASS_HASH),
                 TestResource::Event(actions::e_PlayerJoined::TEST_CLASS_HASH),
@@ -54,38 +52,7 @@ mod tests {
             .span()
     }
 
-    #[test]
-    fn test_world_test_set() {
-        // Initialize test environment
-        let caller = starknet::contract_address_const::<0x0>();
-        let ndef = namespace_def();
-
-        // Register the resources.
-        let mut world = spawn_test_world([ndef].span());
-
-        // Ensures permissions and initializations are synced.
-        world.sync_perms_and_inits(contract_defs());
-
-        // Test initial position
-        let mut position: Position = world.read_model(caller);
-        assert(position.vec.x == 0 && position.vec.y == 0, 'initial position wrong');
-
-        // Test write_model_test
-        position.vec.x = 122;
-        position.vec.y = 88;
-
-        world.write_model_test(@position);
-
-        let mut position: Position = world.read_model(caller);
-        assert(position.vec.y == 88, 'write_value_from_id failed');
-
-        // Test model deletion
-        world.erase_model(@position);
-        let position: Position = world.read_model(caller);
-        assert(position.vec.x == 0 && position.vec.y == 0, 'erase_model failed');
-    }
-
-
+   
     #[test]
     fn test_roll_dice() {
         let ndef = namespace_def();
@@ -94,8 +61,6 @@ mod tests {
 
         let (contract_address, _) = world.dns(@"actions").unwrap();
         let actions_system = IActionsDispatcher { contract_address };
-
-        actions_system.spawn();
 
         let (dice_1, dice_2) = actions_system.roll_dice();
         println!("dice_1: {}", dice_1);

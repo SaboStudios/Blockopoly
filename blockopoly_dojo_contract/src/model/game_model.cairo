@@ -1,6 +1,15 @@
 use starknet::{ContractAddress, contract_address_const};
 // Keeps track of the state of the game
 
+#[derive(Serde, Copy, Drop, Introspect, PartialEq)]
+#[dojo::model]
+pub struct GameCounter {
+    #[key]
+    pub id: felt252,
+    pub current_val: u64,
+}
+
+
 #[derive(Drop, Serde)]
 #[dojo::model]
 pub struct Game {
@@ -58,27 +67,6 @@ pub trait GameTrait {
     fn terminate_game(ref self: Game);
 }
 
-// #[derive(Copy, Drop, Serde, Debug)]
-#[derive(Drop, Copy, Serde)]
-#[dojo::model]
-pub struct Player {
-    #[key]
-    pub player: ContractAddress,
-    pub username: felt252,
-    pub is_bot: bool,
-    pub total_games_played: u256,
-    pub total_games_completed: u256,
-    pub total_games_won: u256,
-}
-
-
-pub trait PlayerTrait {
-    // Create a new player
-    // `username` - Username to assign to the new player
-    // `owner` - Account owner of player
-    // returns the created player
-    fn new(username: felt252, player: ContractAddress, is_bot: bool) -> Player;
-}
 
 // Represents the status of the game
 // Can either be Ongoing or Ended
@@ -97,46 +85,6 @@ pub enum GameMode {
     MultiPlayer // Play online with friends
 }
 
-#[derive(Serde, Copy, Drop, Introspect, PartialEq)]
-pub enum PlayerSymbol {
-    Hat,
-    Car,
-    Dog,
-    Thimble,
-    Iron,
-    Battleship,
-    Boot,
-    Wheelbarrow,
-}
-
-impl PlayerImpl of PlayerTrait {
-    fn new(username: felt252, player: ContractAddress, is_bot: bool) -> Player {
-        Player {
-            player,
-            username,
-            is_bot,
-            total_games_played: 0,
-            total_games_completed: 0,
-            total_games_won: 0,
-        }
-    }
-}
-
-#[derive(Drop, Copy, Serde)]
-#[dojo::model]
-pub struct UsernameToAddress {
-    #[key]
-    pub username: felt252,
-    pub address: ContractAddress,
-}
-
-#[derive(Drop, Copy, Serde)]
-#[dojo::model]
-pub struct AddressToUsername {
-    #[key]
-    pub address: ContractAddress,
-    pub username: felt252,
-}
 
 impl GameImpl of GameTrait {
     fn new(
@@ -220,12 +168,5 @@ impl GameImpl of GameTrait {
     fn terminate_game(ref self: Game) {
         self.status = GameStatus::Ended;
     }
-}
-#[derive(Serde, Copy, Drop, Introspect, PartialEq)]
-#[dojo::model]
-pub struct GameCounter {
-    #[key]
-    pub id: felt252,
-    pub current_val: u64,
 }
 
