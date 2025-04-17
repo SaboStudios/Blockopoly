@@ -207,14 +207,6 @@ pub mod actions {
             ref self: ContractState,
             game_mode: GameMode,
             player_symbol: PlayerSymbol,
-            player_hat: felt252,
-            player_car: felt252,
-            player_dog: felt252,
-            player_thimble: felt252,
-            player_iron: felt252,
-            player_battleship: felt252,
-            player_boot: felt252,
-            player_wheelbarrow: felt252,
             number_of_players: u8,
         ) -> u64 {
             // Get default world
@@ -721,7 +713,7 @@ pub mod actions {
             world.write_model(@game);
         }
 
-        fn retrieve_game(ref self: ContractState, game_id: u256) -> Game {
+        fn retrieve_game(ref self: ContractState, game_id: u64) -> Game {
             // Get default world
             let mut world = self.world_default();
             //get the game state
