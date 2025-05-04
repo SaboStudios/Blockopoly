@@ -1,16 +1,11 @@
-use dojo_starter::model::game_model::{GameMode, Game, GameTrait, GameCounter, GameStatus};
-use dojo_starter::model::player_model::{
-    Player, PlayerSymbol, UsernameToAddress, AddressToUsername, PlayerTrait,
-};
-use dojo_starter::interfaces::IActions::IActions;
-
-
 // dojo decorator
 #[dojo::contract]
 pub mod actions {
-    use super::{
-        IActions, Player, GameMode, PlayerSymbol, Game, GameTrait, UsernameToAddress,
-        AddressToUsername, PlayerTrait, GameCounter, GameStatus,
+    use dojo_starter::interfaces::IActions::IActions;
+    use dojo_starter::model::property_model::{Property, PropertyTrait, PropertyToId, IdToProperty};
+    use dojo_starter::model::game_model::{GameMode, Game, GameTrait, GameCounter, GameStatus};
+    use dojo_starter::model::player_model::{
+        Player, PlayerSymbol, UsernameToAddress, AddressToUsername, PlayerTrait,
     };
     use starknet::{
         ContractAddress, get_caller_address, get_block_timestamp, contract_address_const,

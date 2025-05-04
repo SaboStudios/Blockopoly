@@ -19,6 +19,22 @@ pub struct Property {
     pub group_id: u8,
 }
 
+#[derive(Drop, Copy, Serde)]
+#[dojo::model]
+pub struct PropertyToId {
+    #[key]
+    pub name: felt252,
+    pub id: u256,
+}
+
+#[derive(Drop, Copy, Serde)]
+#[dojo::model]
+pub struct IdToProperty {
+    #[key]
+    pub id: u256,
+    pub name: felt252,
+}
+
 pub trait PropertyTrait {
     fn new(
         id: u8,
