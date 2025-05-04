@@ -18,12 +18,3 @@ pub mod tests {
     mod test_world;
 }
 
-pub mod components{
-    pub mod player{
-        pub mod player;
-        pub mod mock;
-        pub mod interface;
-        pub mod types;
-        pub mod test;
-    }
-}

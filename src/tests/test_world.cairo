@@ -89,7 +89,7 @@ mod tests {
 
         let player: Player = actions_system.retrieve_player(caller_1);
         println!("username: {}", player.username);
-        assert(player.player == caller_1, 'incorrect address');
+        assert(player.address == caller_1, 'incorrect address');
         assert(player.username == 'Aji', 'incorrect username');
     }
     #[test]

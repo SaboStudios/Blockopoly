@@ -92,6 +92,8 @@ pub mod actions {
 
             let zero_address: ContractAddress = contract_address_const::<0x0>();
 
+            let timestamp = get_block_timestamp();
+
             // Validate username
             assert(username != 0, 'USERNAME CANNOT BE ZERO');
 
@@ -104,7 +106,7 @@ pub mod actions {
 
             assert(existing_username == 0, 'USERNAME ALREADY CREATED');
 
-            let new_player: Player = PlayerTrait::new(username, caller, is_bot);
+            let new_player: Player = PlayerTrait::new(username, caller, is_bot, timestamp );
             let username_to_address: UsernameToAddress = UsernameToAddress {
                 username, address: caller,
             };
