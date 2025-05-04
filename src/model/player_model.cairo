@@ -5,7 +5,7 @@ use starknet::{ContractAddress, contract_address_const};
 #[dojo::model]
 pub struct Player {
     #[key]
-    pub address: ContractAddress,  
+    pub address: ContractAddress,
     pub username: felt252,
     pub is_bot: bool,
     pub created_at: u64,
@@ -18,19 +18,18 @@ pub struct Player {
     pub total_games_played: u256,
     pub total_games_completed: u256,
     pub total_games_won: u256,
-
 }
 
 
 pub trait PlayerTrait {
-    fn new(username: felt252,  address: ContractAddress, is_bot: bool, created_at: u64) -> Player;
+    fn new(username: felt252, address: ContractAddress, is_bot: bool, created_at: u64) -> Player;
     fn move(player: Player, steps: u8);
     fn pay_rent_to(from: Player, to: Player, amount: u256);
-    fn buy_property( from: Player,  to: Player, amount: u256);
+    fn buy_property(from: Player, to: Player, amount: u256);
 }
 
 impl PlayerImpl of PlayerTrait {
-    fn new(username: felt252,  address: ContractAddress, is_bot: bool, created_at: u64) -> Player {
+    fn new(username: felt252, address: ContractAddress, is_bot: bool, created_at: u64) -> Player {
         let zero_address: ContractAddress = contract_address_const::<0>();
         Player {
             address,
@@ -46,20 +45,19 @@ impl PlayerImpl of PlayerTrait {
             total_games_played: 0,
             total_games_completed: 0,
             total_games_won: 0,
-
         }
     }
-    fn move(mut player: Player, steps: u8){
+    fn move(mut player: Player, steps: u8) {
         player.position += steps;
     }
 
-    fn pay_rent_to(mut from: Player, mut to: Player, amount: u256){
+    fn pay_rent_to(mut from: Player, mut to: Player, amount: u256) {
         assert(from.balance >= amount, 'insufficient amount');
         from.balance -= amount;
         to.balance += amount;
     }
 
-    fn buy_property(mut from: Player, mut to: Player, amount: u256){
+    fn buy_property(mut from: Player, mut to: Player, amount: u256) {
         assert(from.balance >= amount, 'insufficient amount');
         from.balance -= amount;
         to.balance += amount;

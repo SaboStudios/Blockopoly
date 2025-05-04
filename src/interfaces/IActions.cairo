@@ -1,4 +1,3 @@
-
 use dojo_starter::model::game_model::{GameMode, Game};
 use dojo_starter::model::player_model::{PlayerSymbol, Player};
 

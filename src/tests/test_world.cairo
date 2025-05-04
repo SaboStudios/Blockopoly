@@ -25,13 +25,11 @@ mod tests {
         let ndef = NamespaceDef {
             namespace: "blockopoly",
             resources: [
-              
                 TestResource::Model(m_Player::TEST_CLASS_HASH),
                 TestResource::Model(m_Game::TEST_CLASS_HASH),
                 TestResource::Model(m_UsernameToAddress::TEST_CLASS_HASH),
                 TestResource::Model(m_AddressToUsername::TEST_CLASS_HASH),
                 TestResource::Model(m_GameCounter::TEST_CLASS_HASH),
-                
                 TestResource::Event(actions::e_PlayerCreated::TEST_CLASS_HASH),
                 TestResource::Event(actions::e_GameCreated::TEST_CLASS_HASH),
                 TestResource::Event(actions::e_PlayerJoined::TEST_CLASS_HASH),
@@ -52,7 +50,7 @@ mod tests {
             .span()
     }
 
-   
+
     #[test]
     fn test_roll_dice() {
         let ndef = namespace_def();

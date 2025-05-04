@@ -9,8 +9,8 @@ use dojo_starter::interfaces::IActions::IActions;
 #[dojo::contract]
 pub mod actions {
     use super::{
-        IActions, Player, GameMode, PlayerSymbol, Game,
-        GameTrait, UsernameToAddress, AddressToUsername, PlayerTrait, GameCounter, GameStatus,
+        IActions, Player, GameMode, PlayerSymbol, Game, GameTrait, UsernameToAddress,
+        AddressToUsername, PlayerTrait, GameCounter, GameStatus,
     };
     use starknet::{
         ContractAddress, get_caller_address, get_block_timestamp, contract_address_const,
@@ -20,7 +20,6 @@ pub mod actions {
     use dojo::model::{ModelStorage};
     use dojo::event::EventStorage;
     use origami_random::dice::{Dice, DiceTrait};
-
 
 
     #[derive(Copy, Drop, Serde)]
@@ -62,8 +61,6 @@ pub mod actions {
 
     #[abi(embed_v0)]
     impl ActionsImpl of IActions<ContractState> {
-      
-
         fn roll_dice(ref self: ContractState) -> (u8, u8) {
             let seed = get_block_timestamp();
 
@@ -106,7 +103,7 @@ pub mod actions {
 
             assert(existing_username == 0, 'USERNAME ALREADY CREATED');
 
-            let new_player: Player = PlayerTrait::new(username, caller, is_bot, timestamp );
+            let new_player: Player = PlayerTrait::new(username, caller, is_bot, timestamp);
             let username_to_address: UsernameToAddress = UsernameToAddress {
                 username, address: caller,
             };
@@ -669,5 +666,4 @@ pub mod actions {
         }
     }
 }
-
 
