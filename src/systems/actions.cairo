@@ -3,12 +3,15 @@
 pub mod actions {
     use dojo_starter::interfaces::IActions::IActions;
     use dojo_starter::model::property_model::{Property, PropertyTrait, PropertyToId, IdToProperty};
-    use dojo_starter::model::game_model::{GameMode, Game, GameTrait, GameCounter, GameStatus};
+    use dojo_starter::model::game_model::{
+        GameMode, Game, GameBalance, GameTrait, GameCounter, GameStatus,
+    };
     use dojo_starter::model::player_model::{
         Player, PlayerSymbol, UsernameToAddress, AddressToUsername, PlayerTrait,
     };
     use starknet::{
         ContractAddress, get_caller_address, get_block_timestamp, contract_address_const,
+        get_contract_address,
     };
 
     use dojo::model::{ModelStorage};
@@ -20,7 +23,7 @@ pub mod actions {
     #[dojo::event]
     pub struct GameCreated {
         #[key]
-        pub game_id: u64,
+        pub game_id: u256,
         pub timestamp: u64,
     }
 
@@ -38,7 +41,7 @@ pub mod actions {
     #[dojo::event]
     pub struct GameStarted {
         #[key]
-        pub game_id: u64,
+        pub game_id: u256,
         pub timestamp: u64,
     }
 
@@ -46,7 +49,7 @@ pub mod actions {
     #[dojo::event]
     pub struct PlayerJoined {
         #[key]
-        pub game_id: u64,
+        pub game_id: u256,
         #[key]
         pub username: felt252,
         pub timestamp: u64,
@@ -118,6 +121,7 @@ pub mod actions {
         fn generate_properties(
             ref self: ContractState,
             id: u8,
+            game_id: u256,
             name: felt252,
             cost_of_property: u256,
             rent_site_only: u256,
@@ -131,11 +135,12 @@ pub mod actions {
             group_id: u8,
         ) {
             let mut world = self.world_default();
-            let mut property: Property = world.read_model(1);
+            let mut property: Property = world.read_model((id, game_id));
 
             property =
                 PropertyTrait::new(
                     id,
+                    game_id,
                     name,
                     cost_of_property,
                     rent_site_only,
@@ -156,14 +161,14 @@ pub mod actions {
             world.write_model(@id_to_property);
         }
 
-        fn get_property(ref self: ContractState, id: u8) -> Property {
+        fn get_property(ref self: ContractState, id: u8, game_id: u256) -> Property {
             let mut world = self.world_default();
-            let property = world.read_model(id);
+            let property = world.read_model((id, game_id));
             property
         }
 
 
-        fn create_new_game_id(ref self: ContractState) -> u64 {
+        fn create_new_game_id(ref self: ContractState) -> u256 {
             let mut world = self.world_default();
             let mut game_counter: GameCounter = world.read_model('v0');
             let new_val = game_counter.current_val + 1;
@@ -177,7 +182,7 @@ pub mod actions {
             game_mode: GameMode,
             player_symbol: PlayerSymbol,
             number_of_players: u8,
-        ) -> u64 {
+        ) -> u256 {
             // Get default world
             let mut world = self.world_default();
 
@@ -248,6 +253,22 @@ pub mod actions {
             } else {
                 new_game.status = GameStatus::Ongoing;
             }
+            self
+                .generate_properties(
+                    1, game_id, 'Eth_Lane', 200, 10, 100, 200, 300, 400, 300, 500, false, 4,
+                );
+            self
+                .generate_properties(
+                    2, game_id, 'Sol_Street', 220, 12, 110, 220, 330, 440, 310, 520, false, 4,
+                );
+            self
+                .generate_properties(
+                    3, game_id, 'Zk_Avenue', 180, 8, 90, 180, 270, 360, 290, 460, false, 3,
+                );
+            self
+                .generate_properties(
+                    4, game_id, 'Node_Block', 240, 15, 130, 260, 390, 520, 320, 580, false, 5,
+                );
 
             world.write_model(@new_game);
 
@@ -256,9 +277,28 @@ pub mod actions {
             game_id
         }
 
+        fn buy_property(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
+            let mut world = self.world_default();
+            let zero_address: ContractAddress = contract_address_const::<0>();
+            let caller = get_caller_address();
+            let mut property: Property = world.read_model((property_id, game_id));
+            let contract_address = get_contract_address();
+            let amount: u256 = property.cost_of_property;
+            if (property.owner == zero_address) {
+                self.transfer_from(caller, contract_address, game_id, amount);
+            } else {
+                self.transfer_from(caller, property.owner, game_id, amount);
+            }
+
+            property.owner = caller;
+
+            world.write_model(@property);
+            true
+        }
+
         /// Start game
         /// Change game status to ONGOING
-        fn join_game(ref self: ContractState, player_symbol: PlayerSymbol, game_id: u64) {
+        fn join_game(ref self: ContractState, player_symbol: PlayerSymbol, game_id: u256) {
             // Get world state
             let mut world = self.world_default();
 
@@ -682,12 +722,49 @@ pub mod actions {
             world.write_model(@game);
         }
 
-        fn retrieve_game(ref self: ContractState, game_id: u64) -> Game {
+        fn retrieve_game(ref self: ContractState, game_id: u256) -> Game {
             // Get default world
             let mut world = self.world_default();
             //get the game state
             let game: Game = world.read_model(game_id);
             game
+        }
+
+        fn transfer_from(
+            ref self: ContractState,
+            from: ContractAddress,
+            to: ContractAddress,
+            game_id: u256,
+            amount: u256,
+        ) {
+            let mut world = self.world_default();
+
+            let mut sender: GameBalance = world.read_model((from, game_id));
+            let mut recepient: GameBalance = world.read_model((to, game_id));
+            assert(sender.balance >= amount, 'insufficient funds');
+            sender.balance -= amount;
+            recepient.balance += amount;
+            world.write_model(@sender);
+            world.write_model(@recepient);
+        }
+
+        fn mint(ref self: ContractState, recepient: ContractAddress, game_id: u256, amount: u256) {
+            let mut world = self.world_default();
+
+            let mut receiver: GameBalance = world.read_model((recepient, game_id));
+            let balance = receiver.balance + amount;
+            receiver.balance = balance;
+            world.write_model(@receiver);
+        }
+
+
+        fn get_players_balance(
+            ref self: ContractState, player: ContractAddress, game_id: u256,
+        ) -> u256 {
+            let world = self.world_default();
+
+            let players_balance: GameBalance = world.read_model((player, game_id));
+            players_balance.balance
         }
 
         fn retrieve_player(ref self: ContractState, addr: ContractAddress) -> Player {

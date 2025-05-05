@@ -13,7 +13,7 @@ mod tests {
     use dojo_starter::interfaces::IBlockopoly::{IBlockopolyDispatcher, IBlockopolyDispatcherTrait};
 
     use dojo_starter::model::game_model::{
-        Game, m_Game, GameMode, GameStatus, GameCounter, m_GameCounter,
+        Game, m_Game, GameMode, GameStatus, GameCounter, m_GameCounter, GameBalance, m_GameBalance,
     };
     use dojo_starter::model::player_model::{
         Player, m_Player, UsernameToAddress, m_UsernameToAddress, AddressToUsername,
@@ -34,6 +34,7 @@ mod tests {
                 TestResource::Model(m_IdToProperty::TEST_CLASS_HASH),
                 TestResource::Model(m_PropertyToId::TEST_CLASS_HASH),
                 TestResource::Model(m_Game::TEST_CLASS_HASH),
+                TestResource::Model(m_GameBalance::TEST_CLASS_HASH),
                 TestResource::Model(m_UsernameToAddress::TEST_CLASS_HASH),
                 TestResource::Model(m_AddressToUsername::TEST_CLASS_HASH),
                 TestResource::Model(m_GameCounter::TEST_CLASS_HASH),
@@ -334,13 +335,78 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         actions_system
-            .generate_properties(1, 'Eth_Lane', 200, 10, 100, 200, 300, 400, 300, 500, false, 4);
+            .generate_properties(1, 1, 'Eth_Lane', 200, 10, 100, 200, 300, 400, 300, 500, false, 4);
 
-        let property = actions_system.get_property(1);
+        let property = actions_system.get_property(1, 1);
         println!("property_name: {}", property.name);
         println!("property_id: {}", property.id);
 
         assert(property.id == 1, 'wrong id');
+    }
+    #[test]
+    fn test_buy_property() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let username = 'Ajidokwu';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username, false);
+
+        testing::set_contract_address(caller_1);
+        let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
+        assert(game_id == 1, 'Wrong game id');
+        println!("game_id: {}", game_id);
+
+        actions_system.mint(caller_1, game_id, 10000);
+        let player_balance_before = actions_system.get_players_balance(caller_1, game_id);
+        let contract_balance_before = actions_system.get_players_balance(contract_address, game_id);
+
+        testing::set_contract_address(caller_1);
+        actions_system.buy_property(1, game_id);
+
+        let player_balance_after = actions_system.get_players_balance(caller_1, game_id);
+        let contract_balance_after = actions_system.get_players_balance(contract_address, game_id);
+
+        let game: Game = actions_system.retrieve_game(game_id);
+        assert(game.created_by == username, 'Wrong game id');
+        let property = actions_system.get_property(1, game_id);
+        assert(property.owner == caller_1, 'invalid property txn');
+        println!("player_balance_before: {}", player_balance_before);
+        println!("player_balance_after: {}", player_balance_after);
+        println!("contract_balance_before: {}", contract_balance_before);
+        println!("contract_balance_after: {}", contract_balance_after);
+    }
+
+    #[test]
+    fn test_mint_and_balance() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let username = 'Ajidokwu';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username, false);
+
+        testing::set_contract_address(caller_1);
+        let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
+        assert(game_id == 1, 'Wrong game id');
+        println!("game_id: {}", game_id);
+
+        actions_system.mint(caller_1, game_id, 10000);
+
+        let player_balance = actions_system.get_players_balance(caller_1, game_id);
+        assert(player_balance == 10000, 'mint failure');
     }
 }
 

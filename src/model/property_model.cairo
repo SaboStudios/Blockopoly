@@ -5,6 +5,8 @@ use starknet::{ContractAddress, contract_address_const};
 pub struct Property {
     #[key]
     pub id: u8,
+    #[key]
+    game_id: u256,
     pub name: felt252,
     pub owner: ContractAddress,
     pub cost_of_property: u256,
@@ -38,6 +40,7 @@ pub struct IdToProperty {
 pub trait PropertyTrait {
     fn new(
         id: u8,
+        game_id: u256,
         name: felt252,
         cost: u256,
         rent_site_only: u256,
@@ -58,6 +61,7 @@ pub trait PropertyTrait {
 impl PropertyImpl of PropertyTrait {
     fn new(
         id: u8,
+        game_id: u256,
         name: felt252,
         cost: u256,
         rent_site_only: u256,
@@ -72,6 +76,7 @@ impl PropertyImpl of PropertyTrait {
         let zero_address: ContractAddress = contract_address_const::<0>();
         Property {
             id,
+            game_id,
             name,
             owner: zero_address,
             cost_of_property: cost,
