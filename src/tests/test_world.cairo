@@ -19,6 +19,10 @@ mod tests {
         Player, m_Player, UsernameToAddress, m_UsernameToAddress, AddressToUsername,
         m_AddressToUsername, PlayerSymbol,
     };
+
+    use dojo_starter::model::property_model::{
+        Property, m_Property, IdToProperty, m_IdToProperty, PropertyToId, m_PropertyToId,
+    };
     use starknet::{testing, get_caller_address, contract_address_const};
 
     fn namespace_def() -> NamespaceDef {
@@ -26,6 +30,9 @@ mod tests {
             namespace: "blockopoly",
             resources: [
                 TestResource::Model(m_Player::TEST_CLASS_HASH),
+                TestResource::Model(m_Property::TEST_CLASS_HASH),
+                TestResource::Model(m_IdToProperty::TEST_CLASS_HASH),
+                TestResource::Model(m_PropertyToId::TEST_CLASS_HASH),
                 TestResource::Model(m_Game::TEST_CLASS_HASH),
                 TestResource::Model(m_UsernameToAddress::TEST_CLASS_HASH),
                 TestResource::Model(m_AddressToUsername::TEST_CLASS_HASH),
@@ -315,6 +322,25 @@ mod tests {
 
         testing::set_contract_address(caller_2);
         let game_id = actions_system.join_game(PlayerSymbol::Hat, 1);
+    }
+
+    #[test]
+    fn test_property() {
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        actions_system
+            .generate_properties(1, 'Eth_Lane', 200, 10, 100, 200, 300, 400, 300, 500, false, 4);
+
+        let property = actions_system.get_property(1);
+        println!("property_name: {}", property.name);
+        println!("property_id: {}", property.id);
+
+        assert(property.id == 1, 'wrong id');
     }
 }
 

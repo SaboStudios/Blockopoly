@@ -11,7 +11,6 @@ pub mod actions {
         ContractAddress, get_caller_address, get_block_timestamp, contract_address_const,
     };
 
-
     use dojo::model::{ModelStorage};
     use dojo::event::EventStorage;
     use origami_random::dice::{Dice, DiceTrait};
@@ -113,6 +112,54 @@ pub mod actions {
                 .emit_event(
                     @PlayerCreated { username, player: caller, timestamp: get_block_timestamp() },
                 );
+        }
+
+
+        fn generate_properties(
+            ref self: ContractState,
+            id: u8,
+            name: felt252,
+            cost_of_property: u256,
+            rent_site_only: u256,
+            rent_one_house: u256,
+            rent_two_houses: u256,
+            rent_three_houses: u256,
+            rent_four_houses: u256,
+            cost_of_house: u256,
+            rent_hotel: u256,
+            is_mortgaged: bool,
+            group_id: u8,
+        ) {
+            let mut world = self.world_default();
+            let mut property: Property = world.read_model(1);
+
+            property =
+                PropertyTrait::new(
+                    id,
+                    name,
+                    cost_of_property,
+                    rent_site_only,
+                    rent_one_house,
+                    rent_two_houses,
+                    rent_three_houses,
+                    rent_four_houses,
+                    rent_hotel,
+                    cost_of_house,
+                    group_id,
+                );
+
+            let property_to_id: PropertyToId = PropertyToId { name, id };
+            let id_to_property: IdToProperty = IdToProperty { id, name };
+
+            world.write_model(@property);
+            world.write_model(@property_to_id);
+            world.write_model(@id_to_property);
+        }
+
+        fn get_property(ref self: ContractState, id: u8) -> Property {
+            let mut world = self.world_default();
+            let property = world.read_model(id);
+            property
         }
 
 

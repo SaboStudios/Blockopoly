@@ -24,14 +24,14 @@ pub struct Property {
 pub struct PropertyToId {
     #[key]
     pub name: felt252,
-    pub id: u256,
+    pub id: u8,
 }
 
 #[derive(Drop, Copy, Serde)]
 #[dojo::model]
 pub struct IdToProperty {
     #[key]
-    pub id: u256,
+    pub id: u8,
     pub name: felt252,
 }
 
