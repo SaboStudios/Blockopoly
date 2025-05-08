@@ -19,6 +19,8 @@ pub struct Property {
     pub rent_hotel: u256,
     pub is_mortgaged: bool,
     pub group_id: u8,
+    pub for_sale: bool,
+    pub development: u8,
 }
 
 #[derive(Drop, Copy, Serde)]
@@ -89,8 +91,11 @@ impl PropertyImpl of PropertyTrait {
             cost_of_house,
             is_mortgaged: false,
             group_id,
+            for_sale: true,
+            development: 0,
         }
     }
+
 
     fn set_owner(mut property: Property, new_owner: ContractAddress) {
         property.owner = new_owner;

@@ -277,24 +277,144 @@ pub mod actions {
             game_id
         }
 
+        fn sell_property(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
+            let mut world = self.world_default();
+            let caller = get_caller_address();
+            let mut property: Property = world.read_model((property_id, game_id));
+
+            assert(property.owner == caller, 'Can only sell your property');
+
+            property.for_sale = true;
+            world.write_model(@property);
+
+            true
+        }
+
         fn buy_property(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
             let mut world = self.world_default();
-            let zero_address: ContractAddress = contract_address_const::<0>();
             let caller = get_caller_address();
             let mut property: Property = world.read_model((property_id, game_id));
             let contract_address = get_contract_address();
+            let zero_address: ContractAddress = contract_address_const::<0>();
             let amount: u256 = property.cost_of_property;
-            if (property.owner == zero_address) {
+
+            if property.owner == zero_address {
                 self.transfer_from(caller, contract_address, game_id, amount);
             } else {
+                assert(property.for_sale == true, 'Property is not for sale');
                 self.transfer_from(caller, property.owner, game_id, amount);
             }
 
             property.owner = caller;
+            property.for_sale = false;
 
             world.write_model(@property);
             true
         }
+        fn mortgage_property(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
+            let mut world = self.world_default();
+            let caller = get_caller_address();
+            let mut property: Property = world.read_model((property_id, game_id));
+
+            assert(property.owner == caller, 'Only the owner can mortgage ');
+            assert(property.is_mortgaged == false, 'Property is already mortgaged');
+
+            let amount: u256 = property.cost_of_property / 2;
+            let contract_address = get_contract_address();
+
+            self.transfer_from(contract_address, caller, game_id, amount);
+
+            property.is_mortgaged = true;
+            world.write_model(@property);
+
+            true
+        }
+
+        fn unmortgage_property(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
+            let mut world = self.world_default();
+            let caller = get_caller_address();
+            let mut property: Property = world.read_model((property_id, game_id));
+
+            assert(property.owner == caller, 'Only the owner can unmortgage');
+            assert(property.is_mortgaged == true, 'Property is not mortgaged');
+
+            let mortgage_amount: u256 = property.cost_of_property / 2;
+            let interest: u256 = mortgage_amount * 10 / 100; // 10% interest
+            let repay_amount: u256 = mortgage_amount + interest;
+
+            self.transfer_from(caller, get_contract_address(), game_id, repay_amount);
+
+            property.is_mortgaged = false;
+            world.write_model(@property);
+
+            true
+        }
+
+        fn collect_rent(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
+            let mut world = self.world_default();
+            let caller = get_caller_address();
+            let property: Property = world.read_model((property_id, game_id));
+            let zero_address: ContractAddress = contract_address_const::<0>();
+
+            assert(property.owner != zero_address, 'Property is unowned');
+            assert(property.owner != caller, 'You cannot pay rent to yourself');
+            assert(property.is_mortgaged == false, 'No rent on mortgaged properties');
+
+            let rent_amount: u256 = match property.development {
+                0 => property.rent_site_only,
+                1 => property.rent_one_house,
+                2 => property.rent_two_houses,
+                3 => property.rent_three_houses,
+                4 => property.rent_four_houses,
+                5 => property.rent_hotel,
+                _ => panic!("Invalid development level"),
+            };
+
+            self.transfer_from(caller, property.owner, game_id, rent_amount);
+
+            true
+        }
+
+        fn buy_house_or_hotel(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
+            let mut world = self.world_default();
+            let caller = get_caller_address();
+            let mut property: Property = world.read_model((property_id, game_id));
+            let contract_address = get_contract_address();
+
+            assert(property.owner == caller, 'Only the owner ');
+            assert(property.is_mortgaged == false, 'Cannot develop');
+            assert(property.development < 5, 'Maximum development ');
+
+            let cost: u256 = property.cost_of_house;
+            self.transfer_from(caller, contract_address, game_id, cost);
+
+            property.development += 1; // Increases to 5 (hotel) max
+
+            world.write_model(@property);
+
+            true
+        }
+
+        fn sell_house_or_hotel(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
+            let mut world = self.world_default();
+            let caller = get_caller_address();
+            let mut property: Property = world.read_model((property_id, game_id));
+            let contract_address = get_contract_address();
+
+            assert(property.owner == caller, 'Only the owner ');
+            assert(property.development > 0, 'No houses to sell');
+
+            let refund: u256 = property.cost_of_house / 2;
+
+            self.transfer_from(contract_address, caller, game_id, refund);
+
+            property.development -= 1;
+
+            world.write_model(@property);
+
+            true
+        }
+
 
         /// Start game
         /// Change game status to ONGOING

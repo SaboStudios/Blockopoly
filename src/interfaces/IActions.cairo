@@ -34,6 +34,12 @@ pub trait IActions<T> {
     fn retrieve_player(ref self: T, addr: ContractAddress) -> Player;
     fn get_property(ref self: T, id: u8, game_id: u256) -> Property;
     fn buy_property(ref self: T, property_id: u8, game_id: u256) -> bool;
+    fn sell_property(ref self: T, property_id: u8, game_id: u256) -> bool;
+    fn mortgage_property(ref self: T, property_id: u8, game_id: u256) -> bool;
+    fn unmortgage_property(ref self: T, property_id: u8, game_id: u256) -> bool;
+    fn collect_rent(ref self: T, property_id: u8, game_id: u256) -> bool;
+    fn buy_house_or_hotel(ref self: T, property_id: u8, game_id: u256) -> bool;
+    fn sell_house_or_hotel(ref self: T, property_id: u8, game_id: u256) -> bool;
     fn get_players_balance(ref self: T, player: ContractAddress, game_id: u256) -> u256;
     fn transfer_from(
         ref self: T, from: ContractAddress, to: ContractAddress, game_id: u256, amount: u256,
