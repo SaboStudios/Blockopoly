@@ -5,8 +5,6 @@ pub mod systems {
 }
 pub mod interfaces {
     pub mod IActions;
-    pub mod IBlockopoly;
-    pub mod IBlockopolyNFT;
 }
 
 pub mod model {
