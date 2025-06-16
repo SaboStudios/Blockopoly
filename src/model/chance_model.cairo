@@ -31,7 +31,7 @@ pub struct ChanceCard {
     pub id: u8,
     #[key]
     pub game_id: u256,
-    pub text: ByteArray,
+    pub text: felt252,
 }
 
 pub trait ChanceTrait {
