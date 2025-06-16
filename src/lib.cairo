@@ -15,6 +15,9 @@ pub mod model {
     pub mod rail_road_model;
     pub mod chance_model;
     pub mod community_chest_model;
+    pub mod jail_model;
+    pub mod go_free_parking_model;
+    pub mod tax_model;
 }
 
 pub mod tests {

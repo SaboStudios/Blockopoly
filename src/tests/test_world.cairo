@@ -31,6 +31,9 @@ mod tests {
     };
     use dojo_starter::model::chance_model::{Chance, m_Chance};
     use dojo_starter::model::community_chest_model::{CommunityChest, m_CommunityChest};
+    use dojo_starter::model::jail_model::{Jail, m_Jail};
+    use dojo_starter::model::go_free_parking_model::{Go, m_Go};
+    use dojo_starter::model::tax_model::{Tax, m_Tax};
     use starknet::{testing, get_caller_address, contract_address_const};
 
     fn namespace_def() -> NamespaceDef {
@@ -54,6 +57,9 @@ mod tests {
                 TestResource::Model(m_RailRoadToId::TEST_CLASS_HASH),
                 TestResource::Model(m_Chance::TEST_CLASS_HASH),
                 TestResource::Model(m_CommunityChest::TEST_CLASS_HASH),
+                TestResource::Model(m_Jail::TEST_CLASS_HASH),
+                TestResource::Model(m_Go::TEST_CLASS_HASH),
+                TestResource::Model(m_Tax::TEST_CLASS_HASH),
                 TestResource::Event(actions::e_PlayerCreated::TEST_CLASS_HASH),
                 TestResource::Event(actions::e_GameCreated::TEST_CLASS_HASH),
                 TestResource::Event(actions::e_PlayerJoined::TEST_CLASS_HASH),
@@ -373,11 +379,11 @@ mod tests {
         actions_system.mint(caller_1, game_id, 10000);
 
         testing::set_contract_address(caller_1);
-        actions_system.buy_property(1, game_id);
+        actions_system.buy_property(11, game_id);
 
         let game: Game = actions_system.retrieve_game(game_id);
         assert(game.created_by == username, 'Wrong game id');
-        let property = actions_system.get_property(1, game_id);
+        let property = actions_system.get_property(11, game_id);
         assert(property.owner == caller_1, 'invalid property txn');
     }
 
@@ -431,13 +437,13 @@ mod tests {
         actions_system.mint(caller_2, game_id, 10000);
 
         testing::set_contract_address(caller_1);
-        actions_system.buy_property(1, game_id);
-        actions_system.sell_property(1, game_id);
+        actions_system.buy_property(11, game_id);
+        actions_system.sell_property(11, game_id);
 
         testing::set_contract_address(caller_2);
-        actions_system.buy_property(1, game_id);
+        actions_system.buy_property(11, game_id);
 
-        let property = actions_system.get_property(1, game_id);
+        let property = actions_system.get_property(11, game_id);
         assert(property.owner == caller_2, 'invalid property txn');
     }
 
@@ -467,7 +473,7 @@ mod tests {
 
         testing::set_contract_address(caller_1);
 
-        actions_system.buy_property(1, game_id);
+        actions_system.buy_property(11, game_id);
 
         testing::set_contract_address(caller_2);
         actions_system.sell_property(1, game_id);
@@ -499,12 +505,12 @@ mod tests {
         actions_system.mint(caller_2, game_id, 10000);
 
         testing::set_contract_address(caller_1);
-        actions_system.buy_property(1, game_id);
+        actions_system.buy_property(11, game_id);
 
         testing::set_contract_address(caller_2);
-        actions_system.buy_property(1, game_id);
+        actions_system.buy_property(11, game_id);
 
-        let property = actions_system.get_property(1, game_id);
+        let property = actions_system.get_property(11, game_id);
         assert(property.owner == caller_2, 'invalid property txn');
     }
 
@@ -530,12 +536,17 @@ mod tests {
         actions_system.mint(caller_1, game_id, 10000);
 
         testing::set_contract_address(caller_1);
-        actions_system.buy_property(1, game_id);
+        actions_system.buy_property(11, game_id);
         let balance_before_mortgage = actions_system.get_players_balance(caller_1, game_id);
-        actions_system.mortgage_property(1, game_id);
+        actions_system.mortgage_property(11, game_id);
         let balance_after_mortgage = actions_system.get_players_balance(caller_1, game_id);
-        let property = actions_system.get_property(1, game_id);
+        let property = actions_system.get_property(11, game_id);
         assert(property.is_mortgaged, 'invalid is_mortgaged txn');
+        println!(
+            "Balance before mortgage: {}, Balance after mortgage: {}",
+            balance_before_mortgage,
+            balance_after_mortgage,
+        );
         assert(balance_after_mortgage > balance_before_mortgage, 'Mortgage Bal update failed');
     }
 
@@ -563,11 +574,10 @@ mod tests {
         actions_system.mint(caller_1, game_id, 10000);
 
         testing::set_contract_address(caller_1);
-        actions_system.buy_property(1, game_id);
+        actions_system.buy_property(11, game_id);
         testing::set_contract_address(caller_2);
-        actions_system.mortgage_property(1, game_id);
-
-        let property = actions_system.get_property(1, game_id);
+        actions_system.mortgage_property(11, game_id);
+        let property = actions_system.get_property(11, game_id);
         assert(property.is_mortgaged, 'invalid is_mortgaged txn');
     }
 
@@ -593,12 +603,12 @@ mod tests {
         actions_system.mint(caller_1, game_id, 10000);
 
         testing::set_contract_address(caller_1);
-        actions_system.buy_property(1, game_id);
-        actions_system.mortgage_property(1, game_id);
+        actions_system.buy_property(11, game_id);
+        actions_system.mortgage_property(11, game_id);
         let balance_before_unmortgage = actions_system.get_players_balance(caller_1, game_id);
-        actions_system.unmortgage_property(1, game_id);
+        actions_system.unmortgage_property(11, game_id);
         let balance_after_unmortgage = actions_system.get_players_balance(caller_1, game_id);
-        let property = actions_system.get_property(1, game_id);
+        let property = actions_system.get_property(11, game_id);
         assert(!property.is_mortgaged, 'invalid is_mortgaged txn');
         assert(balance_after_unmortgage < balance_before_unmortgage, 'Mortgage Bal update failed');
     }
@@ -625,11 +635,11 @@ mod tests {
         actions_system.mint(caller_1, game_id, 10000);
 
         testing::set_contract_address(caller_1);
-        actions_system.buy_property(1, game_id);
+        actions_system.buy_property(11, game_id);
 
-        actions_system.buy_house_or_hotel(1, game_id);
+        actions_system.buy_house_or_hotel(11, game_id);
 
-        let property = actions_system.get_property(1, game_id);
+        let property = actions_system.get_property(11, game_id);
         assert(property.development == 1, 'invalid  uy property txn');
     }
 
@@ -658,12 +668,12 @@ mod tests {
         actions_system.mint(caller_2, game_id, 10000);
 
         testing::set_contract_address(caller_1);
-        actions_system.buy_property(1, game_id);
+        actions_system.buy_property(11, game_id);
 
         testing::set_contract_address(caller_2);
         actions_system.buy_house_or_hotel(1, game_id);
 
-        let property = actions_system.get_property(1, game_id);
+        let property = actions_system.get_property(11, game_id);
         assert(property.development == 1, 'invalid  uy property txn');
     }
 
@@ -690,7 +700,7 @@ mod tests {
         actions_system.mint(caller_1, game_id, 10000);
 
         testing::set_contract_address(caller_1);
-        actions_system.buy_property(1, game_id);
+        actions_system.buy_property(11, game_id);
 
         actions_system.buy_house_or_hotel(1, game_id);
         actions_system.buy_house_or_hotel(1, game_id);
@@ -722,14 +732,14 @@ mod tests {
         actions_system.mint(caller_1, game_id, 10000);
 
         testing::set_contract_address(caller_1);
-        actions_system.buy_property(1, game_id);
+        actions_system.buy_property(11, game_id);
 
-        actions_system.buy_house_or_hotel(1, game_id);
-        actions_system.buy_house_or_hotel(1, game_id);
-        actions_system.buy_house_or_hotel(1, game_id);
-        actions_system.sell_house_or_hotel(1, game_id);
+        actions_system.buy_house_or_hotel(11, game_id);
+        actions_system.buy_house_or_hotel(11, game_id);
+        actions_system.buy_house_or_hotel(11, game_id);
+        actions_system.sell_house_or_hotel(11, game_id);
 
-        let property = actions_system.get_property(1, game_id);
+        let property = actions_system.get_property(11, game_id);
         assert(property.development == 2, 'invalid  uy property txn');
     }
 
@@ -758,12 +768,12 @@ mod tests {
         actions_system.mint(caller_2, game_id, 10000);
 
         testing::set_contract_address(caller_1);
-        actions_system.buy_property(1, game_id);
+        actions_system.buy_property(11, game_id);
 
         testing::set_contract_address(caller_2);
         actions_system.sell_house_or_hotel(1, game_id);
 
-        let property = actions_system.get_property(1, game_id);
+        let property = actions_system.get_property(11, game_id);
         assert(property.development == 1, 'invalid  uy property txn');
     }
 
@@ -790,7 +800,7 @@ mod tests {
         actions_system.mint(caller_1, game_id, 10000);
 
         testing::set_contract_address(caller_1);
-        actions_system.buy_property(1, game_id);
+        actions_system.buy_property(11, game_id);
 
         actions_system.buy_house_or_hotel(1, game_id);
         actions_system.buy_house_or_hotel(1, game_id);
