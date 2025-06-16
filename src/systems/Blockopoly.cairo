@@ -2,7 +2,6 @@
 // use starknet::ContractAddress;
 // use dojo_starter::interfaces::IBlockopoly::IBlockopoly;
 
-
 // #[dojo::contract]
 // pub mod Blockopoly {
 //     use openzeppelin::access::ownable::OwnableComponent;
@@ -13,7 +12,6 @@
 //     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 //     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 
-
 //     #[abi(embed_v0)]
 //     impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
 //     #[abi(embed_v0)]
@@ -23,7 +21,6 @@
 //     #[abi(embed_v0)]
 //     impl OwnableImpl = OwnableComponent::OwnableImpl<ContractState>;
 //     impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
-
 
 //     #[storage]
 //     pub struct Storage {
@@ -41,7 +38,6 @@
 //         #[flat]
 //         OwnableEvent: OwnableComponent::Event,
 //     }
-
 
 //     #[abi(embed_v0)]
 //     impl BlockopolyImpl of IBlockopoly<ContractState> {

@@ -903,7 +903,6 @@ pub mod actions {
         fn world_default(self: @ContractState) -> dojo::world::WorldStorage {
             self.world(@"blockopoly")
         }
-
     }
 }
 
