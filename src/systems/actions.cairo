@@ -904,9 +904,6 @@ pub mod actions {
             self.world(@"blockopoly")
         }
 
-         fn initialize_properties(self: @ContractState) -> bool{
-            true
-        }
     }
 }
 
