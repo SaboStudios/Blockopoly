@@ -1,6 +1,7 @@
 use dojo_starter::model::game_model::{GameMode, Game};
 use dojo_starter::model::player_model::{PlayerSymbol, Player};
 use dojo_starter::model::property_model::{Property};
+use dojo_starter::model::utility_model::{Utility};
 use starknet::{ContractAddress};
 
 // define the interface
@@ -24,15 +25,24 @@ pub trait IActions<T> {
         rent_two_houses: u256,
         rent_three_houses: u256,
         rent_four_houses: u256,
-        cost_of_house: u256,
         rent_hotel: u256,
+        cost_of_house: u256,
         is_mortgaged: bool,
         group_id: u8,
+    );
+    fn generate_utilities(
+        ref self: T,
+        id: u8,
+        game_id: u256,
+        name: felt252,
+        cost_of_utility: u256,
+        is_mortgaged: bool,
     );
     fn join_game(ref self: T, player_symbol: PlayerSymbol, game_id: u256);
     fn retrieve_game(ref self: T, game_id: u256) -> Game;
     fn retrieve_player(ref self: T, addr: ContractAddress) -> Player;
     fn get_property(ref self: T, id: u8, game_id: u256) -> Property;
+    fn get_utility(ref self: T, id: u8, game_id: u256) -> Utility;
     fn buy_property(ref self: T, property_id: u8, game_id: u256) -> bool;
     fn sell_property(ref self: T, property_id: u8, game_id: u256) -> bool;
     fn mortgage_property(ref self: T, property_id: u8, game_id: u256) -> bool;

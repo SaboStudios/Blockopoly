@@ -3,6 +3,7 @@
 pub mod actions {
     use dojo_starter::interfaces::IActions::IActions;
     use dojo_starter::model::property_model::{Property, PropertyTrait, PropertyToId, IdToProperty};
+    use dojo_starter::model::utility_model::{Utility, UtilityTrait, UtilityToId, IdToUtility};
     use dojo_starter::model::game_model::{
         GameMode, Game, GameBalance, GameTrait, GameCounter, GameStatus,
     };
@@ -129,8 +130,8 @@ pub mod actions {
             rent_two_houses: u256,
             rent_three_houses: u256,
             rent_four_houses: u256,
-            cost_of_house: u256,
             rent_hotel: u256,
+            cost_of_house: u256,
             is_mortgaged: bool,
             group_id: u8,
         ) {
@@ -161,10 +162,37 @@ pub mod actions {
             world.write_model(@id_to_property);
         }
 
+        fn generate_utilities(
+            ref self: ContractState,
+            id: u8,
+            game_id: u256,
+            name: felt252,
+            cost_of_utility: u256,
+            is_mortgaged: bool,
+        ) {
+            let mut world = self.world_default();
+            let mut utility: Utility = world.read_model((id, game_id));
+
+            utility = UtilityTrait::new(id, game_id, name, cost_of_utility);
+
+            let utility_to_id: UtilityToId = UtilityToId { name, id };
+            let id_to_utility: IdToUtility = IdToUtility { id, name };
+
+            world.write_model(@utility);
+            world.write_model(@utility_to_id);
+            world.write_model(@id_to_utility);
+        }
+
         fn get_property(ref self: ContractState, id: u8, game_id: u256) -> Property {
             let mut world = self.world_default();
-            let property = world.read_model((id, game_id));
+            let property: Property = world.read_model((id, game_id));
             property
+        }
+
+        fn get_utility(ref self: ContractState, id: u8, game_id: u256) -> Utility {
+            let mut world = self.world_default();
+            let utility: Utility = world.read_model((id, game_id));
+            utility
         }
 
 
@@ -255,20 +283,131 @@ pub mod actions {
             }
             self
                 .generate_properties(
-                    1, game_id, 'Eth_Lane', 200, 10, 100, 200, 300, 400, 300, 500, false, 4,
+                    1, game_id, 'Axone Avenue', 60, 2, 10, 30, 90, 160, 250, 50, false, 1,
                 );
             self
                 .generate_properties(
-                    2, game_id, 'Sol_Street', 220, 12, 110, 220, 330, 440, 310, 520, false, 4,
+                    3, game_id, 'Onlydust Avenue', 60, 4, 20, 60, 180, 320, 450, 50, false, 1,
                 );
             self
                 .generate_properties(
-                    3, game_id, 'Zk_Avenue', 180, 8, 90, 180, 270, 360, 290, 460, false, 3,
+                    6, game_id, 'ZkSync Lane', 100, 6, 30, 90, 270, 400, 550, 50, false, 2,
                 );
             self
                 .generate_properties(
-                    4, game_id, 'Node_Block', 240, 15, 130, 260, 390, 520, 320, 580, false, 5,
+                    8, game_id, 'Starknet Lane', 100, 6, 30, 90, 270, 400, 550, 50, false, 2,
                 );
+            self
+                .generate_properties(
+                    9, game_id, 'Linea Lane', 120, 8, 40, 100, 300, 450, 600, 50, false, 2,
+                );
+            self
+                .generate_properties(
+                    11, game_id, 'Arbitrium Avenue', 140, 10, 50, 150, 450, 625, 750, 100, false, 3,
+                );
+            self
+                .generate_properties(
+                    13,
+                    game_id,
+                    'Optimistic Avenue',
+                    140,
+                    10,
+                    50,
+                    150,
+                    450,
+                    625,
+                    750,
+                    100,
+                    false,
+                    3,
+                );
+            self
+                .generate_properties(
+                    14, game_id, 'Base Avenue', 160, 12, 60, 180, 500, 700, 900, 100, false, 3,
+                );
+            self
+                .generate_properties(
+                    16, game_id, 'Cosmos Lane', 180, 14, 70, 200, 550, 750, 950, 100, false, 4,
+                );
+            self
+                .generate_properties(
+                    18, game_id, 'Polkadot Lane', 180, 14, 70, 200, 550, 750, 950, 100, false, 4,
+                );
+            self
+                .generate_properties(
+                    19, game_id, 'Near Lane', 200, 16, 80, 220, 600, 800, 1000, 100, false, 4,
+                );
+            self
+                .generate_properties(
+                    21, game_id, 'Uniswap Avenue', 220, 18, 90, 250, 700, 875, 1050, 150, false, 5,
+                );
+            self
+                .generate_properties(
+                    23, game_id, 'MakerDAO Avenue', 220, 18, 90, 250, 700, 875, 1050, 150, false, 5,
+                );
+            self
+                .generate_properties(
+                    24, game_id, 'Aave Avenue', 240, 20, 100, 300, 750, 925, 1100, 150, false, 5,
+                );
+            self
+                .generate_properties(
+                    26, game_id, 'Lisk Lane', 260, 22, 110, 330, 800, 975, 1150, 150, false, 6,
+                );
+            self
+                .generate_properties(
+                    27, game_id, 'Rootstock Lane', 260, 22, 110, 330, 800, 975, 1150, 150, false, 6,
+                );
+            self
+                .generate_properties(
+                    29, game_id, 'Ark Lane', 280, 22, 120, 360, 850, 1025, 1200, 150, false, 6,
+                );
+            self
+                .generate_properties(
+                    31,
+                    game_id,
+                    'Avalanche Avenue',
+                    300,
+                    26,
+                    130,
+                    390,
+                    900,
+                    1100,
+                    1275,
+                    200,
+                    false,
+                    7,
+                );
+            self
+                .generate_properties(
+                    32, game_id, 'Solana Drive', 300, 26, 130, 390, 900, 1100, 1275, 200, false, 7,
+                );
+            self
+                .generate_properties(
+                    34,
+                    game_id,
+                    'Ethereum Avenue',
+                    320,
+                    28,
+                    150,
+                    450,
+                    1000,
+                    1200,
+                    1400,
+                    200,
+                    false,
+                    7,
+                );
+            self
+                .generate_properties(
+                    37, game_id, 'CoreDao Park', 350, 35, 175, 500, 1100, 1300, 1500, 200, false, 8,
+                );
+            self
+                .generate_properties(
+                    39, game_id, 'Bitcoin Lane', 400, 50, 200, 600, 1400, 1700, 2000, 200, false, 8,
+                );
+
+            self.generate_utilities(1, game_id, 'Power Plant', 150, false);
+            self.generate_utilities(2, game_id, 'Water Works', 150, false);
 
             world.write_model(@new_game);
 

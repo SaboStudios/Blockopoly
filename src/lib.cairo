@@ -11,6 +11,7 @@ pub mod model {
     pub mod game_model;
     pub mod player_model;
     pub mod property_model;
+    pub mod utility_model;
 }
 
 pub mod tests {
