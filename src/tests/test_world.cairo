@@ -23,6 +23,9 @@ mod tests {
     use dojo_starter::model::property_model::{
         Property, m_Property, IdToProperty, m_IdToProperty, PropertyToId, m_PropertyToId,
     };
+    use dojo_starter::model::utility_model::{
+        Utility, m_Utility, IdToUtility, m_IdToUtility, UtilityToId, m_UtilityToId,
+    };
     use starknet::{testing, get_caller_address, contract_address_const};
 
     fn namespace_def() -> NamespaceDef {
@@ -38,6 +41,9 @@ mod tests {
                 TestResource::Model(m_UsernameToAddress::TEST_CLASS_HASH),
                 TestResource::Model(m_AddressToUsername::TEST_CLASS_HASH),
                 TestResource::Model(m_GameCounter::TEST_CLASS_HASH),
+                TestResource::Model(m_Utility::TEST_CLASS_HASH),
+                TestResource::Model(m_IdToUtility::TEST_CLASS_HASH),
+                TestResource::Model(m_UtilityToId::TEST_CLASS_HASH),
                 TestResource::Event(actions::e_PlayerCreated::TEST_CLASS_HASH),
                 TestResource::Event(actions::e_GameCreated::TEST_CLASS_HASH),
                 TestResource::Event(actions::e_PlayerJoined::TEST_CLASS_HASH),
