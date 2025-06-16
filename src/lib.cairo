@@ -12,6 +12,9 @@ pub mod model {
     pub mod player_model;
     pub mod property_model;
     pub mod utility_model;
+    pub mod rail_road_model;
+    pub mod chance_model;
+    pub mod community_chest_model;
 }
 
 pub mod tests {

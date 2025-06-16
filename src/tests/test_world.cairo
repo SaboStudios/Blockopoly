@@ -26,6 +26,11 @@ mod tests {
     use dojo_starter::model::utility_model::{
         Utility, m_Utility, IdToUtility, m_IdToUtility, UtilityToId, m_UtilityToId,
     };
+    use dojo_starter::model::rail_road_model::{
+        RailRoad, m_RailRoad, IdToRailRoad, m_IdToRailRoad, RailRoadToId, m_RailRoadToId,
+    };
+    use dojo_starter::model::chance_model::{Chance, m_Chance};
+    use dojo_starter::model::community_chest_model::{CommunityChest, m_CommunityChest};
     use starknet::{testing, get_caller_address, contract_address_const};
 
     fn namespace_def() -> NamespaceDef {
@@ -44,6 +49,11 @@ mod tests {
                 TestResource::Model(m_Utility::TEST_CLASS_HASH),
                 TestResource::Model(m_IdToUtility::TEST_CLASS_HASH),
                 TestResource::Model(m_UtilityToId::TEST_CLASS_HASH),
+                TestResource::Model(m_RailRoad::TEST_CLASS_HASH),
+                TestResource::Model(m_IdToRailRoad::TEST_CLASS_HASH),
+                TestResource::Model(m_RailRoadToId::TEST_CLASS_HASH),
+                TestResource::Model(m_Chance::TEST_CLASS_HASH),
+                TestResource::Model(m_CommunityChest::TEST_CLASS_HASH),
                 TestResource::Event(actions::e_PlayerCreated::TEST_CLASS_HASH),
                 TestResource::Event(actions::e_GameCreated::TEST_CLASS_HASH),
                 TestResource::Event(actions::e_PlayerJoined::TEST_CLASS_HASH),

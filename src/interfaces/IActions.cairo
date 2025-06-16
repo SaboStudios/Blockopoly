@@ -2,6 +2,9 @@ use dojo_starter::model::game_model::{GameMode, Game};
 use dojo_starter::model::player_model::{PlayerSymbol, Player};
 use dojo_starter::model::property_model::{Property};
 use dojo_starter::model::utility_model::{Utility};
+use dojo_starter::model::rail_road_model::{RailRoad};
+use dojo_starter::model::community_chest_model::{CommunityChest};
+use dojo_starter::model::chance_model::{Chance};
 use starknet::{ContractAddress};
 
 // define the interface
@@ -30,19 +33,19 @@ pub trait IActions<T> {
         is_mortgaged: bool,
         group_id: u8,
     );
-    fn generate_utilities(
-        ref self: T,
-        id: u8,
-        game_id: u256,
-        name: felt252,
-        cost_of_utility: u256,
-        is_mortgaged: bool,
-    );
+    fn generate_chance(ref self: T, id: u8, game_id: u256);
+
+    fn generate_community_chest(ref self: T, id: u8, game_id: u256);
+    fn generate_utilitity(ref self: T, id: u8, game_id: u256, name: felt252, is_mortgaged: bool);
+    fn generate_railroad(ref self: T, id: u8, game_id: u256, name: felt252, is_mortgaged: bool);
     fn join_game(ref self: T, player_symbol: PlayerSymbol, game_id: u256);
-    fn retrieve_game(ref self: T, game_id: u256) -> Game;
-    fn retrieve_player(ref self: T, addr: ContractAddress) -> Player;
-    fn get_property(ref self: T, id: u8, game_id: u256) -> Property;
-    fn get_utility(ref self: T, id: u8, game_id: u256) -> Utility;
+    fn retrieve_game(self: @T, game_id: u256) -> Game;
+    fn retrieve_player(self: @T, addr: ContractAddress) -> Player;
+    fn get_property(self: @T, id: u8, game_id: u256) -> Property;
+    fn get_utility(self: @T, id: u8, game_id: u256) -> Utility;
+    fn get_chance(self: @T, id: u8, game_id: u256) -> Chance;
+    fn get_community_chest(self: @T, id: u8, game_id: u256) -> CommunityChest;
+    fn get_railroad(self: @T, id: u8, game_id: u256) -> RailRoad;
     fn buy_property(ref self: T, property_id: u8, game_id: u256) -> bool;
     fn sell_property(ref self: T, property_id: u8, game_id: u256) -> bool;
     fn mortgage_property(ref self: T, property_id: u8, game_id: u256) -> bool;
@@ -50,7 +53,7 @@ pub trait IActions<T> {
     fn collect_rent(ref self: T, property_id: u8, game_id: u256) -> bool;
     fn buy_house_or_hotel(ref self: T, property_id: u8, game_id: u256) -> bool;
     fn sell_house_or_hotel(ref self: T, property_id: u8, game_id: u256) -> bool;
-    fn get_players_balance(ref self: T, player: ContractAddress, game_id: u256) -> u256;
+    fn get_players_balance(self: @T, player: ContractAddress, game_id: u256) -> u256;
     fn transfer_from(
         ref self: T, from: ContractAddress, to: ContractAddress, game_id: u256, amount: u256,
     );

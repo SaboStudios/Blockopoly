@@ -30,7 +30,7 @@ pub struct IdToUtility {
 }
 
 pub trait UtilityTrait {
-    fn new(id: u8, game_id: u256, name: felt252, cost_of_utility: u256) -> Utility;
+    fn new(id: u8, game_id: u256, name: felt252) -> Utility;
     fn set_owner(utility: Utility, new_owner: ContractAddress);
     fn get_rent_amount(utility: Utility, utilities_owned: u8, dice_rolled: u8) -> u256;
     fn mortgage(utility: Utility);
@@ -38,14 +38,14 @@ pub trait UtilityTrait {
 }
 
 impl UtilityImpl of UtilityTrait {
-    fn new(id: u8, game_id: u256, name: felt252, cost_of_utility: u256) -> Utility {
+    fn new(id: u8, game_id: u256, name: felt252) -> Utility {
         let zero_address: ContractAddress = contract_address_const::<0>();
         Utility {
             id,
             game_id,
             name,
             owner: zero_address,
-            cost_of_utility,
+            cost_of_utility: 150,
             is_mortgaged: false,
             for_sale: true,
         }

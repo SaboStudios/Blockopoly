@@ -4,12 +4,15 @@ pub mod actions {
     use dojo_starter::interfaces::IActions::IActions;
     use dojo_starter::model::property_model::{Property, PropertyTrait, PropertyToId, IdToProperty};
     use dojo_starter::model::utility_model::{Utility, UtilityTrait, UtilityToId, IdToUtility};
+    use dojo_starter::model::rail_road_model::{RailRoad, RailRoadTrait, RailRoadToId, IdToRailRoad};
     use dojo_starter::model::game_model::{
         GameMode, Game, GameBalance, GameTrait, GameCounter, GameStatus,
     };
     use dojo_starter::model::player_model::{
         Player, PlayerSymbol, UsernameToAddress, AddressToUsername, PlayerTrait,
     };
+    use dojo_starter::model::chance_model::{Chance, ChanceTrait};
+    use dojo_starter::model::community_chest_model::{CommunityChest, CommunityChestTrait};
     use starknet::{
         ContractAddress, get_caller_address, get_block_timestamp, contract_address_const,
         get_contract_address,
@@ -162,18 +165,13 @@ pub mod actions {
             world.write_model(@id_to_property);
         }
 
-        fn generate_utilities(
-            ref self: ContractState,
-            id: u8,
-            game_id: u256,
-            name: felt252,
-            cost_of_utility: u256,
-            is_mortgaged: bool,
+        fn generate_utilitity(
+            ref self: ContractState, id: u8, game_id: u256, name: felt252, is_mortgaged: bool,
         ) {
             let mut world = self.world_default();
             let mut utility: Utility = world.read_model((id, game_id));
 
-            utility = UtilityTrait::new(id, game_id, name, cost_of_utility);
+            utility = UtilityTrait::new(id, game_id, name);
 
             let utility_to_id: UtilityToId = UtilityToId { name, id };
             let id_to_utility: IdToUtility = IdToUtility { id, name };
@@ -183,16 +181,65 @@ pub mod actions {
             world.write_model(@id_to_utility);
         }
 
-        fn get_property(ref self: ContractState, id: u8, game_id: u256) -> Property {
+        fn generate_railroad(
+            ref self: ContractState, id: u8, game_id: u256, name: felt252, is_mortgaged: bool,
+        ) {
+            let mut world = self.world_default();
+            let mut railroad: RailRoad = world.read_model((id, game_id));
+
+            railroad = RailRoadTrait::new(id, game_id, name);
+
+            let railroad_to_id: RailRoadToId = RailRoadToId { name, id };
+            let id_to_railroad: IdToRailRoad = IdToRailRoad { id, name };
+
+            world.write_model(@railroad);
+            world.write_model(@railroad_to_id);
+            world.write_model(@id_to_railroad);
+        }
+
+        fn generate_chance(ref self: ContractState, id: u8, game_id: u256) {
+            let mut world = self.world_default();
+            let mut chance: Chance = world.read_model((id, game_id));
+
+            chance = ChanceTrait::new(id, game_id);
+
+            world.write_model(@chance);
+        }
+        fn generate_community_chest(ref self: ContractState, id: u8, game_id: u256) {
+            let mut world = self.world_default();
+            let mut community_chest: CommunityChest = world.read_model((id, game_id));
+
+            community_chest = CommunityChestTrait::new(id, game_id);
+
+            world.write_model(@community_chest);
+        }
+        fn get_chance(self: @ContractState, id: u8, game_id: u256) -> Chance {
+            let mut world = self.world_default();
+            let chance: Chance = world.read_model((id, game_id));
+            chance
+        }
+        fn get_community_chest(self: @ContractState, id: u8, game_id: u256) -> CommunityChest {
+            let mut world = self.world_default();
+            let community_chest: CommunityChest = world.read_model((id, game_id));
+            community_chest
+        }
+
+        fn get_property(self: @ContractState, id: u8, game_id: u256) -> Property {
             let mut world = self.world_default();
             let property: Property = world.read_model((id, game_id));
             property
         }
 
-        fn get_utility(ref self: ContractState, id: u8, game_id: u256) -> Utility {
+        fn get_utility(self: @ContractState, id: u8, game_id: u256) -> Utility {
             let mut world = self.world_default();
             let utility: Utility = world.read_model((id, game_id));
             utility
+        }
+
+        fn get_railroad(self: @ContractState, id: u8, game_id: u256) -> RailRoad {
+            let mut world = self.world_default();
+            let railroad: RailRoad = world.read_model((id, game_id));
+            railroad
         }
 
 
@@ -406,8 +453,21 @@ pub mod actions {
                     39, game_id, 'Bitcoin Lane', 400, 50, 200, 600, 1400, 1700, 2000, 200, false, 8,
                 );
 
-            self.generate_utilities(1, game_id, 'Power Plant', 150, false);
-            self.generate_utilities(2, game_id, 'Water Works', 150, false);
+            self.generate_utilitity(12, game_id, 'Chainlink Power Plant', false);
+            self.generate_utilitity(28, game_id, 'Graph Water Works', false);
+
+            self.generate_railroad(5, game_id, 'IPFS Railroad', false);
+            self.generate_railroad(15, game_id, 'Pinata Railroad', false);
+            self.generate_railroad(25, game_id, 'Open Zeppelin Railroad', false);
+            self.generate_railroad(35, game_id, 'Cartridge Railroad', false);
+
+            self.generate_chance(7, game_id);
+            self.generate_chance(22, game_id);
+            self.generate_chance(36, game_id);
+
+            self.generate_community_chest(2, game_id);
+            self.generate_community_chest(17, game_id);
+            self.generate_community_chest(33, game_id);
 
             world.write_model(@new_game);
 
@@ -981,7 +1041,7 @@ pub mod actions {
             world.write_model(@game);
         }
 
-        fn retrieve_game(ref self: ContractState, game_id: u256) -> Game {
+        fn retrieve_game(self: @ContractState, game_id: u256) -> Game {
             // Get default world
             let mut world = self.world_default();
             //get the game state
@@ -1018,7 +1078,7 @@ pub mod actions {
 
 
         fn get_players_balance(
-            ref self: ContractState, player: ContractAddress, game_id: u256,
+            self: @ContractState, player: ContractAddress, game_id: u256,
         ) -> u256 {
             let world = self.world_default();
 
@@ -1026,7 +1086,7 @@ pub mod actions {
             players_balance.balance
         }
 
-        fn retrieve_player(ref self: ContractState, addr: ContractAddress) -> Player {
+        fn retrieve_player(self: @ContractState, addr: ContractAddress) -> Player {
             // Get default world
             let mut world = self.world_default();
             let player: Player = world.read_model(addr);
