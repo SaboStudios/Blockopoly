@@ -60,6 +60,7 @@ pub trait PropertyTrait {
     fn lift_mortgage(property: Property);
 }
 
+
 impl PropertyImpl of PropertyTrait {
     fn new(
         id: u8,
