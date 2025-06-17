@@ -15,10 +15,13 @@ mod tests {
     use dojo_starter::model::game_model::{
         Game, m_Game, GameMode, GameStatus, GameCounter, m_GameCounter, GameBalance, m_GameBalance,
     };
+
     use dojo_starter::model::player_model::{
         Player, m_Player, UsernameToAddress, m_UsernameToAddress, AddressToUsername,
-        m_AddressToUsername, PlayerSymbol,
+        m_AddressToUsername,
     };
+
+    use dojo_starter::model::game_player_model::{GamePlayer, m_GamePlayer, PlayerSymbol};
 
     use dojo_starter::model::property_model::{
         Property, m_Property, IdToProperty, m_IdToProperty, PropertyToId, m_PropertyToId,
@@ -60,6 +63,7 @@ mod tests {
                 TestResource::Model(m_Jail::TEST_CLASS_HASH),
                 TestResource::Model(m_Go::TEST_CLASS_HASH),
                 TestResource::Model(m_Tax::TEST_CLASS_HASH),
+                TestResource::Model(m_GamePlayer::TEST_CLASS_HASH),
                 TestResource::Event(actions::e_PlayerCreated::TEST_CLASS_HASH),
                 TestResource::Event(actions::e_GameCreated::TEST_CLASS_HASH),
                 TestResource::Event(actions::e_PlayerJoined::TEST_CLASS_HASH),
@@ -111,7 +115,7 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
 
         let player: Player = actions_system.retrieve_player(caller_1);
 
@@ -133,10 +137,10 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_2);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
     }
 
     #[test]
@@ -154,10 +158,10 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username1, false);
+        actions_system.register_new_player(username1);
     }
     #[test]
     #[should_panic]
@@ -174,28 +178,12 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username1, false);
+        actions_system.register_new_player(username1);
     }
 
-    #[test]
-    #[should_panic]
-    fn test_player_registration_bot_tries_registering() {
-        let caller_1 = contract_address_const::<'aji'>();
-        let username = 'Aji';
-
-        let ndef = namespace_def();
-        let mut world = spawn_test_world([ndef].span());
-        world.sync_perms_and_inits(contract_defs());
-
-        let (contract_address, _) = world.dns(@"actions").unwrap();
-        let actions_system = IActionsDispatcher { contract_address };
-
-        testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, true);
-    }
 
     #[test]
     fn test_create_game() {
@@ -210,7 +198,7 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
         let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
@@ -234,7 +222,7 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
         let _game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
@@ -276,10 +264,10 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_2);
-        actions_system.register_new_player(username_1, false);
+        actions_system.register_new_player(username_1);
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
         actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
@@ -304,10 +292,10 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_2);
-        actions_system.register_new_player(username_1, false);
+        actions_system.register_new_player(username_1);
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
         actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
@@ -332,10 +320,10 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_2);
-        actions_system.register_new_player(username_1, false);
+        actions_system.register_new_player(username_1);
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_2);
         actions_system.join_game(PlayerSymbol::Hat, 1);
@@ -370,7 +358,7 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
         let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
@@ -401,7 +389,7 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
         let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
@@ -427,7 +415,7 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
         let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
@@ -462,7 +450,7 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
         let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
@@ -495,7 +483,7 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
         let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
@@ -527,7 +515,7 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
         let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
@@ -565,7 +553,7 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
         let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
@@ -594,7 +582,7 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
         let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
@@ -626,7 +614,7 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
         let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
@@ -658,7 +646,7 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
         let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
@@ -691,7 +679,7 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
         let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
@@ -723,7 +711,7 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
         let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
@@ -758,7 +746,7 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
         let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
@@ -791,7 +779,7 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username, false);
+        actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
         let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);

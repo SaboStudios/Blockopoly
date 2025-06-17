@@ -9,8 +9,9 @@ pub mod actions {
         GameMode, Game, GameBalance, GameTrait, GameCounter, GameStatus,
     };
     use dojo_starter::model::player_model::{
-        Player, PlayerSymbol, UsernameToAddress, AddressToUsername, PlayerTrait,
+        Player, UsernameToAddress, AddressToUsername, PlayerTrait,
     };
+    use dojo_starter::model::game_player_model::{GamePlayer, PlayerSymbol, GamePlayerTrait};
     use dojo_starter::model::chance_model::{Chance, ChanceTrait};
     use dojo_starter::model::community_chest_model::{CommunityChest, CommunityChestTrait};
     use dojo_starter::model::jail_model::{Jail};
@@ -85,8 +86,7 @@ pub mod actions {
 
             address_map.username
         }
-        fn register_new_player(ref self: ContractState, username: felt252, is_bot: bool) {
-            assert(!is_bot, 'Bot detected');
+        fn register_new_player(ref self: ContractState, username: felt252) {
             let mut world = self.world_default();
 
             let caller: ContractAddress = get_caller_address();
@@ -107,7 +107,7 @@ pub mod actions {
 
             assert(existing_username == 0, 'USERNAME ALREADY CREATED');
 
-            let new_player: Player = PlayerTrait::new(username, caller, is_bot, timestamp);
+            let new_player: Player = PlayerTrait::new(username, caller, timestamp);
             let username_to_address: UsernameToAddress = UsernameToAddress {
                 username, address: caller,
             };
@@ -1131,6 +1131,14 @@ pub mod actions {
             // Get default world
             let mut world = self.world_default();
             let player: Player = world.read_model(addr);
+
+            player
+        }
+
+        fn retrieve_game_player(self: @ContractState, addr: ContractAddress) -> GamePlayer {
+            // Get default world
+            let mut world = self.world_default();
+            let player: GamePlayer = world.read_model(addr);
 
             player
         }

@@ -1,5 +1,6 @@
 use dojo_starter::model::game_model::{GameMode, Game};
-use dojo_starter::model::player_model::{PlayerSymbol, Player};
+use dojo_starter::model::game_player_model::{PlayerSymbol, GamePlayer};
+use dojo_starter::model::player_model::{Player};
 use dojo_starter::model::property_model::{Property};
 use dojo_starter::model::utility_model::{Utility};
 use dojo_starter::model::rail_road_model::{RailRoad};
@@ -14,7 +15,7 @@ use starknet::{ContractAddress};
 #[starknet::interface]
 pub trait IActions<T> {
     fn roll_dice(ref self: T) -> (u8, u8);
-    fn register_new_player(ref self: T, username: felt252, is_bot: bool);
+    fn register_new_player(ref self: T, username: felt252);
     fn create_new_game(
         ref self: T, game_mode: GameMode, player_symbol: PlayerSymbol, number_of_players: u8,
     ) -> u256;
@@ -46,6 +47,7 @@ pub trait IActions<T> {
     fn join_game(ref self: T, player_symbol: PlayerSymbol, game_id: u256);
     fn retrieve_game(self: @T, game_id: u256) -> Game;
     fn retrieve_player(self: @T, addr: ContractAddress) -> Player;
+    fn retrieve_game_player(self: @T, addr: ContractAddress) -> GamePlayer;
     fn get_property(self: @T, id: u8, game_id: u256) -> Property;
     fn get_utility(self: @T, id: u8, game_id: u256) -> Utility;
     fn get_chance(self: @T, id: u8, game_id: u256) -> Chance;
