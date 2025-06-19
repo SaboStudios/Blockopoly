@@ -18,6 +18,7 @@ pub mod model {
     pub mod jail_model;
     pub mod go_free_parking_model;
     pub mod tax_model;
+    pub mod game_player_model;
 }
 
 pub mod tests {
