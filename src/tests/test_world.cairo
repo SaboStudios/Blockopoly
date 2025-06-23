@@ -18,7 +18,7 @@ mod tests {
 
     use dojo_starter::model::player_model::{
         Player, m_Player, UsernameToAddress, m_UsernameToAddress, AddressToUsername,
-        m_AddressToUsername,
+        m_AddressToUsername, IsRegistered, m_IsRegistered,
     };
 
     use dojo_starter::model::game_player_model::{GamePlayer, m_GamePlayer, PlayerSymbol};
@@ -51,6 +51,7 @@ mod tests {
                 TestResource::Model(m_GameBalance::TEST_CLASS_HASH),
                 TestResource::Model(m_UsernameToAddress::TEST_CLASS_HASH),
                 TestResource::Model(m_AddressToUsername::TEST_CLASS_HASH),
+                TestResource::Model(m_IsRegistered::TEST_CLASS_HASH),
                 TestResource::Model(m_GameCounter::TEST_CLASS_HASH),
                 TestResource::Model(m_Utility::TEST_CLASS_HASH),
                 TestResource::Model(m_IdToUtility::TEST_CLASS_HASH),

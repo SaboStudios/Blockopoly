@@ -37,6 +37,7 @@ pub trait IActions<T> {
         is_mortgaged: bool,
         group_id: u8,
     );
+
     fn generate_chance(ref self: T, id: u8, game_id: u256);
     fn generate_jail(ref self: T, id: u8, game_id: u256, name: felt252);
     fn generate_go(ref self: T, id: u8, game_id: u256, name: felt252);
@@ -56,6 +57,7 @@ pub trait IActions<T> {
     fn get_community_chest(self: @T, id: u8, game_id: u256) -> CommunityChest;
     fn get_railroad(self: @T, id: u8, game_id: u256) -> RailRoad;
     fn get_tax(self: @T, id: u8, game_id: u256) -> Tax;
+    fn is_registered(self: @T, address: ContractAddress) -> bool;
     fn buy_property(ref self: T, property_id: u8, game_id: u256) -> bool;
     fn sell_property(ref self: T, property_id: u8, game_id: u256) -> bool;
     fn mortgage_property(ref self: T, property_id: u8, game_id: u256) -> bool;

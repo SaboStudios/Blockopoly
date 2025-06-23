@@ -7,6 +7,7 @@ pub struct Player {
     #[key]
     pub address: ContractAddress,
     pub username: felt252,
+    pub is_registered: bool,
     pub new_owner: ContractAddress,
     pub balance: u256,
     pub total_games_played: u256,
@@ -27,6 +28,7 @@ impl PlayerImpl of PlayerTrait {
         Player {
             address,
             username,
+            is_registered: true,
             created_at,
             updated_at: created_at,
             new_owner: zero_address,
@@ -53,4 +55,12 @@ pub struct AddressToUsername {
     #[key]
     pub address: ContractAddress,
     pub username: felt252,
+}
+
+#[derive(Drop, Copy, Serde)]
+#[dojo::model]
+pub struct IsRegistered {
+    #[key]
+    pub address: ContractAddress,
+    pub is_registered: bool,
 }

@@ -9,7 +9,7 @@ pub mod actions {
         GameMode, Game, GameBalance, GameTrait, GameCounter, GameStatus,
     };
     use dojo_starter::model::player_model::{
-        Player, UsernameToAddress, AddressToUsername, PlayerTrait,
+        Player, UsernameToAddress, AddressToUsername, PlayerTrait, IsRegistered,
     };
     use dojo_starter::model::game_player_model::{GamePlayer, PlayerSymbol, GamePlayerTrait};
     use dojo_starter::model::chance_model::{Chance, ChanceTrait};
@@ -66,6 +66,12 @@ pub mod actions {
 
     #[abi(embed_v0)]
     impl ActionsImpl of IActions<ContractState> {
+
+        fn is_registered(self: @ContractState, address: ContractAddress) -> bool {
+            let mut world = self.world_default();
+            let is_registered: IsRegistered = world.read_model(address);
+            is_registered.is_registered
+        }
         fn roll_dice(ref self: ContractState) -> (u8, u8) {
             let seed = get_block_timestamp();
 
@@ -114,7 +120,10 @@ pub mod actions {
             let address_to_username: AddressToUsername = AddressToUsername {
                 address: caller, username,
             };
+            let mut is_registered: IsRegistered = world.read_model(caller);
+            is_registered.is_registered = true;
 
+            world.write_model(@is_registered);
             world.write_model(@new_player);
             world.write_model(@username_to_address);
             world.write_model(@address_to_username);
