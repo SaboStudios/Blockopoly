@@ -6,7 +6,7 @@ pub mod actions {
     use dojo_starter::model::utility_model::{Utility, UtilityTrait, UtilityToId, IdToUtility};
     use dojo_starter::model::rail_road_model::{RailRoad, RailRoadTrait, RailRoadToId, IdToRailRoad};
     use dojo_starter::model::game_model::{
-        GameMode, Game, GameBalance, GameTrait, GameCounter, GameStatus,
+        GameType, Game, GameBalance, GameTrait, GameCounter, GameStatus,
     };
     use dojo_starter::model::player_model::{
         Player, UsernameToAddress, AddressToUsername, PlayerTrait, IsRegistered,
@@ -66,7 +66,6 @@ pub mod actions {
 
     #[abi(embed_v0)]
     impl ActionsImpl of IActions<ContractState> {
-
         fn is_registered(self: @ContractState, address: ContractAddress) -> bool {
             let mut world = self.world_default();
             let is_registered: IsRegistered = world.read_model(address);
@@ -304,7 +303,7 @@ pub mod actions {
 
         fn create_new_game(
             ref self: ContractState,
-            game_mode: GameMode,
+            game_type: GameType,
             player_symbol: PlayerSymbol,
             number_of_players: u8,
         ) -> u256 {
@@ -321,45 +320,33 @@ pub mod actions {
             let game_id = self.create_new_game_id();
             let timestamp = get_block_timestamp();
 
-            let player_hat = match player_symbol {
-                PlayerSymbol::Hat => caller_username,
-                _ => 0,
-            };
-
-            let player_car = match player_symbol {
-                PlayerSymbol::Car => caller_username,
-                _ => 0,
-            };
-            let player_dog = match player_symbol {
-                PlayerSymbol::Dog => caller_username,
-                _ => 0,
-            };
-            let player_thimble = match player_symbol {
-                PlayerSymbol::Thimble => caller_username,
-                _ => 0,
-            };
-            let player_iron = match player_symbol {
-                PlayerSymbol::Iron => caller_username,
-                _ => 0,
-            };
-            let player_battleship = match player_symbol {
-                PlayerSymbol::Battleship => caller_username,
-                _ => 0,
-            };
-            let player_boot = match player_symbol {
-                PlayerSymbol::Boot => caller_username,
-                _ => 0,
-            };
-            let player_wheelbarrow = match player_symbol {
-                PlayerSymbol::Wheelbarrow => caller_username,
-                _ => 0,
+            // Initialize player symbols
+            let (
+                player_hat,
+                player_car,
+                player_dog,
+                player_thimble,
+                player_iron,
+                player_battleship,
+                player_boot,
+                player_wheelbarrow,
+            ) =
+                match player_symbol {
+                PlayerSymbol::Hat => (caller_username, 0, 0, 0, 0, 0, 0, 0),
+                PlayerSymbol::Car => (0, caller_username, 0, 0, 0, 0, 0, 0),
+                PlayerSymbol::Dog => (0, 0, caller_username, 0, 0, 0, 0, 0),
+                PlayerSymbol::Thimble => (0, 0, 0, caller_username, 0, 0, 0, 0),
+                PlayerSymbol::Iron => (0, 0, 0, 0, caller_username, 0, 0, 0),
+                PlayerSymbol::Battleship => (0, 0, 0, 0, 0, caller_username, 0, 0),
+                PlayerSymbol::Boot => (0, 0, 0, 0, 0, 0, caller_username, 0),
+                PlayerSymbol::Wheelbarrow => (0, 0, 0, 0, 0, 0, 0, caller_username),
             };
 
             // Create a new game
             let mut new_game: Game = GameTrait::new(
                 game_id,
                 caller_username,
-                game_mode,
+                game_type,
                 player_hat,
                 player_car,
                 player_dog,
@@ -370,161 +357,22 @@ pub mod actions {
                 player_wheelbarrow,
                 number_of_players,
             );
-
-            // If it's a multiplayer game, set status to Pending,
-            // else mark it as Ongoing (for single-player).
-            if game_mode == GameMode::MultiPlayer {
-                new_game.status = GameStatus::Pending;
-            } else {
-                new_game.status = GameStatus::Ongoing;
+            // Generate tiles
+            self.generate_board_tiles(game_id);
+            // Set visibility based on game mode
+            let mut emitted_game_id = game_id;
+            if (game_type == GameType::PrivateGame) {
+                emitted_game_id = 0;
             }
-            // Special tiles
-            self.generate_go(1, game_id, 'Go');
-            self.generate_community_chest(2, game_id);
-            self
-                .generate_properties(
-                    3, game_id, 'Axone Avenue', 60, 2, 10, 30, 90, 160, 250, 50, false, 1,
-                );
-            self.generate_tax(4, game_id, 'Income Tax', 200);
-            self.generate_railroad(5, game_id, 'IPFS Railroad', false);
-            self
-                .generate_properties(
-                    6, game_id, 'Onlydust Avenue', 60, 4, 20, 60, 180, 320, 450, 50, false, 1,
-                );
-            self.generate_chance(7, game_id);
-            self
-                .generate_properties(
-                    8, game_id, 'ZkSync Lane', 100, 6, 30, 90, 270, 400, 550, 50, false, 2,
-                );
-            self
-                .generate_properties(
-                    9, game_id, 'Starknet Lane', 100, 6, 30, 90, 270, 400, 550, 50, false, 2,
-                );
-            self.generate_jail(10, game_id, 'Visiting Jail');
-            self
-                .generate_properties(
-                    11, game_id, 'Linea Lane', 120, 8, 40, 100, 300, 450, 600, 50, false, 2,
-                );
-            self.generate_utilitity(12, game_id, 'Chainlink Power Plant', false);
-            self
-                .generate_properties(
-                    13, game_id, 'Arbitrium Avenue', 140, 10, 50, 150, 450, 625, 750, 100, false, 3,
-                );
-            self.generate_community_chest(14, game_id);
-            self
-                .generate_properties(
-                    15,
-                    game_id,
-                    'Optimistic Avenue',
-                    140,
-                    10,
-                    50,
-                    150,
-                    450,
-                    625,
-                    750,
-                    100,
-                    false,
-                    3,
-                );
-            self.generate_railroad(16, game_id, 'Pinata Railroad', false);
-            self
-                .generate_properties(
-                    17, game_id, 'Base Avenue', 160, 12, 60, 180, 500, 700, 900, 100, false, 3,
-                );
-            self
-                .generate_properties(
-                    18, game_id, 'Cosmos Lane', 180, 14, 70, 200, 550, 750, 950, 100, false, 4,
-                );
-            self.generate_chance(19, game_id);
-            self
-                .generate_properties(
-                    20, game_id, 'Polkadot Lane', 180, 14, 70, 200, 550, 750, 950, 100, false, 4,
-                );
-            self.generate_go(21, game_id, 'Free Parking');
-            self
-                .generate_properties(
-                    22, game_id, 'Near Lane', 200, 16, 80, 220, 600, 800, 1000, 100, false, 4,
-                );
-            self.generate_community_chest(23, game_id);
-            self
-                .generate_properties(
-                    24, game_id, 'Uniswap Avenue', 220, 18, 90, 250, 700, 875, 1050, 150, false, 5,
-                );
-            self.generate_railroad(25, game_id, 'Open Zeppelin Railroad', false);
-            self
-                .generate_properties(
-                    26, game_id, 'MakerDAO Avenue', 220, 18, 90, 250, 700, 875, 1050, 150, false, 5,
-                );
-            self
-                .generate_properties(
-                    27, game_id, 'Aave Avenue', 240, 20, 100, 300, 750, 925, 1100, 150, false, 5,
-                );
-            self.generate_utilitity(28, game_id, 'Graph Water Works', false);
-            self
-                .generate_properties(
-                    29, game_id, 'Lisk Lane', 260, 22, 110, 330, 800, 975, 1150, 150, false, 6,
-                );
-            self.generate_jail(30, game_id, 'Go to Jail');
-            self
-                .generate_properties(
-                    31, game_id, 'Rootstock Lane', 260, 22, 110, 330, 800, 975, 1150, 150, false, 6,
-                );
-            self
-                .generate_properties(
-                    32, game_id, 'Ark Lane', 280, 22, 120, 360, 850, 1025, 1200, 150, false, 6,
-                );
-            self.generate_community_chest(33, game_id);
-            self
-                .generate_properties(
-                    34,
-                    game_id,
-                    'Avalanche Avenue',
-                    300,
-                    26,
-                    130,
-                    390,
-                    900,
-                    1100,
-                    1275,
-                    200,
-                    false,
-                    7,
-                );
-            self.generate_railroad(35, game_id, 'Cartridge Railroad', false);
-            self.generate_chance(36, game_id);
-            self
-                .generate_properties(
-                    37, game_id, 'Solana Drive', 300, 26, 130, 390, 900, 1100, 1275, 200, false, 7,
-                );
-            self.generate_tax(38, game_id, 'Luxury Tax', 100);
-            self
-                .generate_properties(
-                    39,
-                    game_id,
-                    'Ethereum Avenue',
-                    320,
-                    28,
-                    150,
-                    450,
-                    1000,
-                    1200,
-                    1400,
-                    200,
-                    false,
-                    7,
-                );
-            self
-                .generate_properties(
-                    40, game_id, 'Bitcoin Lane', 400, 50, 200, 600, 1400, 1700, 2000, 200, false, 8,
-                );
 
+            // Save game to storage
             world.write_model(@new_game);
 
-            world.emit_event(@GameCreated { game_id, timestamp });
+            world.emit_event(@GameCreated { game_id: emitted_game_id, timestamp });
 
             game_id
         }
+
 
         fn sell_property(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
             let mut world = self.world_default();
@@ -677,7 +525,7 @@ pub mod actions {
             assert(game.is_initialised, 'GAME NOT INITIALISED');
 
             // Assert that game is a Multiplayer game
-            assert(game.mode == GameMode::MultiPlayer, 'GAME NOT MULTIPLAYER');
+            // assert(game.mode == GameType::MultiPlayer, 'GAME NOT MULTIPLAYER');
 
             // Assert that game is in Pending state
             assert(game.status == GameStatus::Pending, 'GAME NOT PENDING');
@@ -1159,6 +1007,149 @@ pub mod actions {
         /// can't be const.
         fn world_default(self: @ContractState) -> dojo::world::WorldStorage {
             self.world(@"blockopoly")
+        }
+
+        fn generate_board_tiles(ref self: ContractState, game_id: u256) {
+            // Special tiles
+            self.generate_go(1, game_id, 'Go');
+            self.generate_community_chest(2, game_id);
+            self
+                .generate_properties(
+                    3, game_id, 'Axone Avenue', 60, 2, 10, 30, 90, 160, 250, 50, false, 1,
+                );
+            self.generate_tax(4, game_id, 'Income Tax', 200);
+            self.generate_railroad(5, game_id, 'IPFS Railroad', false);
+            self
+                .generate_properties(
+                    6, game_id, 'Onlydust Avenue', 60, 4, 20, 60, 180, 320, 450, 50, false, 1,
+                );
+            self.generate_chance(7, game_id);
+            self
+                .generate_properties(
+                    8, game_id, 'ZkSync Lane', 100, 6, 30, 90, 270, 400, 550, 50, false, 2,
+                );
+            self
+                .generate_properties(
+                    9, game_id, 'Starknet Lane', 100, 6, 30, 90, 270, 400, 550, 50, false, 2,
+                );
+            self.generate_jail(10, game_id, 'Visiting Jail');
+            self
+                .generate_properties(
+                    11, game_id, 'Linea Lane', 120, 8, 40, 100, 300, 450, 600, 50, false, 2,
+                );
+            self.generate_utilitity(12, game_id, 'Chainlink Power Plant', false);
+            self
+                .generate_properties(
+                    13, game_id, 'Arbitrium Avenue', 140, 10, 50, 150, 450, 625, 750, 100, false, 3,
+                );
+            self.generate_community_chest(14, game_id);
+            self
+                .generate_properties(
+                    15,
+                    game_id,
+                    'Optimistic Avenue',
+                    140,
+                    10,
+                    50,
+                    150,
+                    450,
+                    625,
+                    750,
+                    100,
+                    false,
+                    3,
+                );
+            self.generate_railroad(16, game_id, 'Pinata Railroad', false);
+            self
+                .generate_properties(
+                    17, game_id, 'Base Avenue', 160, 12, 60, 180, 500, 700, 900, 100, false, 3,
+                );
+            self
+                .generate_properties(
+                    18, game_id, 'Cosmos Lane', 180, 14, 70, 200, 550, 750, 950, 100, false, 4,
+                );
+            self.generate_chance(19, game_id);
+            self
+                .generate_properties(
+                    20, game_id, 'Polkadot Lane', 180, 14, 70, 200, 550, 750, 950, 100, false, 4,
+                );
+            self.generate_go(21, game_id, 'Free Parking');
+            self
+                .generate_properties(
+                    22, game_id, 'Near Lane', 200, 16, 80, 220, 600, 800, 1000, 100, false, 4,
+                );
+            self.generate_community_chest(23, game_id);
+            self
+                .generate_properties(
+                    24, game_id, 'Uniswap Avenue', 220, 18, 90, 250, 700, 875, 1050, 150, false, 5,
+                );
+            self.generate_railroad(25, game_id, 'Open Zeppelin Railroad', false);
+            self
+                .generate_properties(
+                    26, game_id, 'MakerDAO Avenue', 220, 18, 90, 250, 700, 875, 1050, 150, false, 5,
+                );
+            self
+                .generate_properties(
+                    27, game_id, 'Aave Avenue', 240, 20, 100, 300, 750, 925, 1100, 150, false, 5,
+                );
+            self.generate_utilitity(28, game_id, 'Graph Water Works', false);
+            self
+                .generate_properties(
+                    29, game_id, 'Lisk Lane', 260, 22, 110, 330, 800, 975, 1150, 150, false, 6,
+                );
+            self.generate_jail(30, game_id, 'Go to Jail');
+            self
+                .generate_properties(
+                    31, game_id, 'Rootstock Lane', 260, 22, 110, 330, 800, 975, 1150, 150, false, 6,
+                );
+            self
+                .generate_properties(
+                    32, game_id, 'Ark Lane', 280, 22, 120, 360, 850, 1025, 1200, 150, false, 6,
+                );
+            self.generate_community_chest(33, game_id);
+            self
+                .generate_properties(
+                    34,
+                    game_id,
+                    'Avalanche Avenue',
+                    300,
+                    26,
+                    130,
+                    390,
+                    900,
+                    1100,
+                    1275,
+                    200,
+                    false,
+                    7,
+                );
+            self.generate_railroad(35, game_id, 'Cartridge Railroad', false);
+            self.generate_chance(36, game_id);
+            self
+                .generate_properties(
+                    37, game_id, 'Solana Drive', 300, 26, 130, 390, 900, 1100, 1275, 200, false, 7,
+                );
+            self.generate_tax(38, game_id, 'Luxury Tax', 100);
+            self
+                .generate_properties(
+                    39,
+                    game_id,
+                    'Ethereum Avenue',
+                    320,
+                    28,
+                    150,
+                    450,
+                    1000,
+                    1200,
+                    1400,
+                    200,
+                    false,
+                    7,
+                );
+            self
+                .generate_properties(
+                    40, game_id, 'Bitcoin Lane', 400, 50, 200, 600, 1400, 1700, 2000, 200, false, 8,
+                );
         }
     }
 }

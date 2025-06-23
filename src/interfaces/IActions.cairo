@@ -1,4 +1,4 @@
-use dojo_starter::model::game_model::{GameMode, Game};
+use dojo_starter::model::game_model::{GameType, Game};
 use dojo_starter::model::game_player_model::{PlayerSymbol, GamePlayer};
 use dojo_starter::model::player_model::{Player};
 use dojo_starter::model::property_model::{Property};
@@ -17,7 +17,7 @@ pub trait IActions<T> {
     fn roll_dice(ref self: T) -> (u8, u8);
     fn register_new_player(ref self: T, username: felt252);
     fn create_new_game(
-        ref self: T, game_mode: GameMode, player_symbol: PlayerSymbol, number_of_players: u8,
+        ref self: T, game_type: GameType, player_symbol: PlayerSymbol, number_of_players: u8,
     ) -> u256;
     fn get_username_from_address(self: @T, address: ContractAddress) -> felt252;
     fn create_new_game_id(ref self: T) -> u256;
