@@ -20,7 +20,7 @@ pub struct GameBalance {
 }
 
 
-#[derive(Drop, Serde)]
+#[derive(Drop, Clone, Serde)]
 #[dojo::model]
 pub struct Game {
     #[key]
@@ -55,6 +55,7 @@ pub struct Game {
     pub player_battleship: felt252, // item use address on the board
     pub player_boot: felt252, // item use address on the board
     pub player_wheelbarrow: felt252,
+    pub players_joined: u8,
 }
 
 pub trait GameTrait {
@@ -161,6 +162,7 @@ impl GameImpl of GameTrait {
             battleship: 'battleship',
             boot: 'boot',
             wheelbarrow: 'wheelbarrow',
+            players_joined: 0,
         }
     }
 
