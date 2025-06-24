@@ -20,7 +20,7 @@ pub struct GameBalance {
 }
 
 
-#[derive(Drop, Serde)]
+#[derive(Drop, Clone, Serde)]
 #[dojo::model]
 pub struct Game {
     #[key]
@@ -28,7 +28,7 @@ pub struct Game {
     pub created_by: felt252, // Address of the game creator
     pub is_initialised: bool, // Indicate whether game with given Id has been created/initialised
     pub status: GameStatus, // Status of the game
-    pub mode: GameMode, // Mode of the game
+    pub mode: GameType, // Mode of the game
     pub ready_to_start: bool, // Indicate whether game can be started
     pub winner: felt252, // First winner position 
     pub next_player: felt252, // Address of the player to make the next move
@@ -55,6 +55,7 @@ pub struct Game {
     pub player_battleship: felt252, // item use address on the board
     pub player_boot: felt252, // item use address on the board
     pub player_wheelbarrow: felt252,
+    pub players_joined: u8,
 }
 
 pub trait GameTrait {
@@ -62,7 +63,7 @@ pub trait GameTrait {
     fn new(
         id: u256,
         created_by: felt252,
-        game_mode: GameMode,
+        game_type: GameType,
         player_hat: felt252,
         player_car: felt252,
         player_dog: felt252,
@@ -90,9 +91,9 @@ pub enum GameStatus {
 // Represents the game mode
 // Can either be SinglePlayer or Multiplayer
 #[derive(Serde, Copy, Drop, Introspect, PartialEq)]
-pub enum GameMode {
-    SinglePlayer, // Play with computer
-    MultiPlayer // Play online with friends
+pub enum GameType {
+    PublicGame, // Play with computer
+    PrivateGame // Play online with friends
 }
 
 
@@ -100,7 +101,7 @@ impl GameImpl of GameTrait {
     fn new(
         id: u256,
         created_by: felt252,
-        game_mode: GameMode,
+        game_type: GameType,
         player_hat: felt252,
         player_car: felt252,
         player_dog: felt252,
@@ -117,7 +118,7 @@ impl GameImpl of GameTrait {
             created_by,
             is_initialised: true,
             status: GameStatus::Pending,
-            mode: game_mode,
+            mode: game_type,
             ready_to_start: false,
             player_hat,
             player_car,
@@ -161,6 +162,7 @@ impl GameImpl of GameTrait {
             battleship: 'battleship',
             boot: 'boot',
             wheelbarrow: 'wheelbarrow',
+            players_joined: 0,
         }
     }
 

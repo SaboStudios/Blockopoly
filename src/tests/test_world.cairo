@@ -13,12 +13,12 @@ mod tests {
 
 
     use dojo_starter::model::game_model::{
-        Game, m_Game, GameMode, GameStatus, GameCounter, m_GameCounter, GameBalance, m_GameBalance,
+        Game, m_Game, GameType, GameStatus, GameCounter, m_GameCounter, GameBalance, m_GameBalance,
     };
 
     use dojo_starter::model::player_model::{
         Player, m_Player, UsernameToAddress, m_UsernameToAddress, AddressToUsername,
-        m_AddressToUsername,
+        m_AddressToUsername, IsRegistered, m_IsRegistered,
     };
 
     use dojo_starter::model::game_player_model::{GamePlayer, m_GamePlayer, PlayerSymbol};
@@ -51,6 +51,7 @@ mod tests {
                 TestResource::Model(m_GameBalance::TEST_CLASS_HASH),
                 TestResource::Model(m_UsernameToAddress::TEST_CLASS_HASH),
                 TestResource::Model(m_AddressToUsername::TEST_CLASS_HASH),
+                TestResource::Model(m_IsRegistered::TEST_CLASS_HASH),
                 TestResource::Model(m_GameCounter::TEST_CLASS_HASH),
                 TestResource::Model(m_Utility::TEST_CLASS_HASH),
                 TestResource::Model(m_IdToUtility::TEST_CLASS_HASH),
@@ -201,7 +202,7 @@ mod tests {
         actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
-        let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
+        let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
         assert(game_id == 1, 'Wrong game id');
 
         let game: Game = actions_system.retrieve_game(game_id);
@@ -225,10 +226,10 @@ mod tests {
         actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
-        let _game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
+        let _game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
 
         testing::set_contract_address(caller_1);
-        let game_id_1 = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
+        let game_id_1 = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
         assert(game_id_1 == 2, 'Wrong game id');
     }
 
@@ -245,7 +246,7 @@ mod tests {
         let actions_system = IActionsDispatcher { contract_address };
 
         testing::set_contract_address(caller_1);
-        let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
+        let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
         assert(game_id == 1, 'Wrong game id');
     }
 
@@ -270,7 +271,7 @@ mod tests {
         actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
-        actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
 
         testing::set_contract_address(caller_2);
         actions_system.join_game(PlayerSymbol::Dog, 1);
@@ -298,7 +299,7 @@ mod tests {
         actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
-        actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
 
         testing::set_contract_address(caller_2);
         actions_system.join_game(PlayerSymbol::Hat, 1);
@@ -361,7 +362,7 @@ mod tests {
         actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
-        let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
+        let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
         assert(game_id == 1, 'Wrong game id');
 
         actions_system.mint(caller_1, game_id, 10000);
@@ -392,7 +393,7 @@ mod tests {
         actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
-        let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
+        let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
         assert(game_id == 1, 'Wrong game id');
 
         actions_system.mint(caller_1, game_id, 10000);
@@ -418,7 +419,7 @@ mod tests {
         actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
-        let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
+        let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
         assert(game_id == 1, 'Wrong game id');
 
         actions_system.mint(caller_1, game_id, 10000);
@@ -453,7 +454,7 @@ mod tests {
         actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
-        let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
+        let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
         assert(game_id == 1, 'Wrong game id');
 
         actions_system.mint(caller_1, game_id, 10000);
@@ -486,7 +487,7 @@ mod tests {
         actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
-        let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
+        let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
         assert(game_id == 1, 'Wrong game id');
 
         actions_system.mint(caller_1, game_id, 10000);
@@ -518,7 +519,7 @@ mod tests {
         actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
-        let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
+        let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
         assert(game_id == 1, 'Wrong game id');
 
         actions_system.mint(caller_1, game_id, 10000);
@@ -556,7 +557,7 @@ mod tests {
         actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
-        let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
+        let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
         assert(game_id == 1, 'Wrong game id');
 
         actions_system.mint(caller_1, game_id, 10000);
@@ -585,7 +586,7 @@ mod tests {
         actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
-        let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
+        let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
         assert(game_id == 1, 'Wrong game id');
 
         actions_system.mint(caller_1, game_id, 10000);
@@ -617,7 +618,7 @@ mod tests {
         actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
-        let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
+        let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
         assert(game_id == 1, 'Wrong game id');
 
         actions_system.mint(caller_1, game_id, 10000);
@@ -649,7 +650,7 @@ mod tests {
         actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
-        let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
+        let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
         assert(game_id == 1, 'Wrong game id');
 
         actions_system.mint(caller_1, game_id, 10000);
@@ -682,7 +683,7 @@ mod tests {
         actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
-        let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
+        let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
         assert(game_id == 1, 'Wrong game id');
 
         actions_system.mint(caller_1, game_id, 10000);
@@ -714,7 +715,7 @@ mod tests {
         actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
-        let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
+        let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
         assert(game_id == 1, 'Wrong game id');
 
         actions_system.mint(caller_1, game_id, 10000);
@@ -749,7 +750,7 @@ mod tests {
         actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
-        let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
+        let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
         assert(game_id == 1, 'Wrong game id');
 
         actions_system.mint(caller_1, game_id, 10000);
@@ -782,7 +783,7 @@ mod tests {
         actions_system.register_new_player(username);
 
         testing::set_contract_address(caller_1);
-        let game_id = actions_system.create_new_game(GameMode::MultiPlayer, PlayerSymbol::Hat, 4);
+        let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
         assert(game_id == 1, 'Wrong game id');
 
         actions_system.mint(caller_1, game_id, 10000);

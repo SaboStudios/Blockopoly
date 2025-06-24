@@ -6,10 +6,10 @@ pub mod actions {
     use dojo_starter::model::utility_model::{Utility, UtilityTrait, UtilityToId, IdToUtility};
     use dojo_starter::model::rail_road_model::{RailRoad, RailRoadTrait, RailRoadToId, IdToRailRoad};
     use dojo_starter::model::game_model::{
-        GameMode, Game, GameBalance, GameTrait, GameCounter, GameStatus,
+        GameType, Game, GameBalance, GameTrait, GameCounter, GameStatus,
     };
     use dojo_starter::model::player_model::{
-        Player, UsernameToAddress, AddressToUsername, PlayerTrait,
+        Player, UsernameToAddress, AddressToUsername, PlayerTrait, IsRegistered,
     };
     use dojo_starter::model::game_player_model::{GamePlayer, PlayerSymbol, GamePlayerTrait};
     use dojo_starter::model::chance_model::{Chance, ChanceTrait};
@@ -66,6 +66,11 @@ pub mod actions {
 
     #[abi(embed_v0)]
     impl ActionsImpl of IActions<ContractState> {
+        fn is_registered(self: @ContractState, address: ContractAddress) -> bool {
+            let mut world = self.world_default();
+            let is_registered: IsRegistered = world.read_model(address);
+            is_registered.is_registered
+        }
         fn roll_dice(ref self: ContractState) -> (u8, u8) {
             let seed = get_block_timestamp();
 
@@ -114,7 +119,10 @@ pub mod actions {
             let address_to_username: AddressToUsername = AddressToUsername {
                 address: caller, username,
             };
+            let mut is_registered: IsRegistered = world.read_model(caller);
+            is_registered.is_registered = true;
 
+            world.write_model(@is_registered);
             world.write_model(@new_player);
             world.write_model(@username_to_address);
             world.write_model(@address_to_username);
@@ -295,7 +303,7 @@ pub mod actions {
 
         fn create_new_game(
             ref self: ContractState,
-            game_mode: GameMode,
+            game_type: GameType,
             player_symbol: PlayerSymbol,
             number_of_players: u8,
         ) -> u256 {
@@ -312,45 +320,33 @@ pub mod actions {
             let game_id = self.create_new_game_id();
             let timestamp = get_block_timestamp();
 
-            let player_hat = match player_symbol {
-                PlayerSymbol::Hat => caller_username,
-                _ => 0,
-            };
-
-            let player_car = match player_symbol {
-                PlayerSymbol::Car => caller_username,
-                _ => 0,
-            };
-            let player_dog = match player_symbol {
-                PlayerSymbol::Dog => caller_username,
-                _ => 0,
-            };
-            let player_thimble = match player_symbol {
-                PlayerSymbol::Thimble => caller_username,
-                _ => 0,
-            };
-            let player_iron = match player_symbol {
-                PlayerSymbol::Iron => caller_username,
-                _ => 0,
-            };
-            let player_battleship = match player_symbol {
-                PlayerSymbol::Battleship => caller_username,
-                _ => 0,
-            };
-            let player_boot = match player_symbol {
-                PlayerSymbol::Boot => caller_username,
-                _ => 0,
-            };
-            let player_wheelbarrow = match player_symbol {
-                PlayerSymbol::Wheelbarrow => caller_username,
-                _ => 0,
+            // Initialize player symbols
+            let (
+                player_hat,
+                player_car,
+                player_dog,
+                player_thimble,
+                player_iron,
+                player_battleship,
+                player_boot,
+                player_wheelbarrow,
+            ) =
+                match player_symbol {
+                PlayerSymbol::Hat => (caller_username, 0, 0, 0, 0, 0, 0, 0),
+                PlayerSymbol::Car => (0, caller_username, 0, 0, 0, 0, 0, 0),
+                PlayerSymbol::Dog => (0, 0, caller_username, 0, 0, 0, 0, 0),
+                PlayerSymbol::Thimble => (0, 0, 0, caller_username, 0, 0, 0, 0),
+                PlayerSymbol::Iron => (0, 0, 0, 0, caller_username, 0, 0, 0),
+                PlayerSymbol::Battleship => (0, 0, 0, 0, 0, caller_username, 0, 0),
+                PlayerSymbol::Boot => (0, 0, 0, 0, 0, 0, caller_username, 0),
+                PlayerSymbol::Wheelbarrow => (0, 0, 0, 0, 0, 0, 0, caller_username),
             };
 
             // Create a new game
             let mut new_game: Game = GameTrait::new(
                 game_id,
                 caller_username,
-                game_mode,
+                game_type,
                 player_hat,
                 player_car,
                 player_dog,
@@ -361,161 +357,76 @@ pub mod actions {
                 player_wheelbarrow,
                 number_of_players,
             );
-
-            // If it's a multiplayer game, set status to Pending,
-            // else mark it as Ongoing (for single-player).
-            if game_mode == GameMode::MultiPlayer {
-                new_game.status = GameStatus::Pending;
-            } else {
-                new_game.status = GameStatus::Ongoing;
+            // Generate tiles
+            self.generate_board_tiles(game_id);
+            // Set visibility based on game mode
+            let mut emitted_game_id = game_id;
+            if (game_type == GameType::PrivateGame) {
+                emitted_game_id = 0;
             }
-            // Special tiles
-            self.generate_go(1, game_id, 'Go');
-            self.generate_community_chest(2, game_id);
-            self
-                .generate_properties(
-                    3, game_id, 'Axone Avenue', 60, 2, 10, 30, 90, 160, 250, 50, false, 1,
-                );
-            self.generate_tax(4, game_id, 'Income Tax', 200);
-            self.generate_railroad(5, game_id, 'IPFS Railroad', false);
-            self
-                .generate_properties(
-                    6, game_id, 'Onlydust Avenue', 60, 4, 20, 60, 180, 320, 450, 50, false, 1,
-                );
-            self.generate_chance(7, game_id);
-            self
-                .generate_properties(
-                    8, game_id, 'ZkSync Lane', 100, 6, 30, 90, 270, 400, 550, 50, false, 2,
-                );
-            self
-                .generate_properties(
-                    9, game_id, 'Starknet Lane', 100, 6, 30, 90, 270, 400, 550, 50, false, 2,
-                );
-            self.generate_jail(10, game_id, 'Visiting Jail');
-            self
-                .generate_properties(
-                    11, game_id, 'Linea Lane', 120, 8, 40, 100, 300, 450, 600, 50, false, 2,
-                );
-            self.generate_utilitity(12, game_id, 'Chainlink Power Plant', false);
-            self
-                .generate_properties(
-                    13, game_id, 'Arbitrium Avenue', 140, 10, 50, 150, 450, 625, 750, 100, false, 3,
-                );
-            self.generate_community_chest(14, game_id);
-            self
-                .generate_properties(
-                    15,
-                    game_id,
-                    'Optimistic Avenue',
-                    140,
-                    10,
-                    50,
-                    150,
-                    450,
-                    625,
-                    750,
-                    100,
-                    false,
-                    3,
-                );
-            self.generate_railroad(16, game_id, 'Pinata Railroad', false);
-            self
-                .generate_properties(
-                    17, game_id, 'Base Avenue', 160, 12, 60, 180, 500, 700, 900, 100, false, 3,
-                );
-            self
-                .generate_properties(
-                    18, game_id, 'Cosmos Lane', 180, 14, 70, 200, 550, 750, 950, 100, false, 4,
-                );
-            self.generate_chance(19, game_id);
-            self
-                .generate_properties(
-                    20, game_id, 'Polkadot Lane', 180, 14, 70, 200, 550, 750, 950, 100, false, 4,
-                );
-            self.generate_go(21, game_id, 'Free Parking');
-            self
-                .generate_properties(
-                    22, game_id, 'Near Lane', 200, 16, 80, 220, 600, 800, 1000, 100, false, 4,
-                );
-            self.generate_community_chest(23, game_id);
-            self
-                .generate_properties(
-                    24, game_id, 'Uniswap Avenue', 220, 18, 90, 250, 700, 875, 1050, 150, false, 5,
-                );
-            self.generate_railroad(25, game_id, 'Open Zeppelin Railroad', false);
-            self
-                .generate_properties(
-                    26, game_id, 'MakerDAO Avenue', 220, 18, 90, 250, 700, 875, 1050, 150, false, 5,
-                );
-            self
-                .generate_properties(
-                    27, game_id, 'Aave Avenue', 240, 20, 100, 300, 750, 925, 1100, 150, false, 5,
-                );
-            self.generate_utilitity(28, game_id, 'Graph Water Works', false);
-            self
-                .generate_properties(
-                    29, game_id, 'Lisk Lane', 260, 22, 110, 330, 800, 975, 1150, 150, false, 6,
-                );
-            self.generate_jail(30, game_id, 'Go to Jail');
-            self
-                .generate_properties(
-                    31, game_id, 'Rootstock Lane', 260, 22, 110, 330, 800, 975, 1150, 150, false, 6,
-                );
-            self
-                .generate_properties(
-                    32, game_id, 'Ark Lane', 280, 22, 120, 360, 850, 1025, 1200, 150, false, 6,
-                );
-            self.generate_community_chest(33, game_id);
-            self
-                .generate_properties(
-                    34,
-                    game_id,
-                    'Avalanche Avenue',
-                    300,
-                    26,
-                    130,
-                    390,
-                    900,
-                    1100,
-                    1275,
-                    200,
-                    false,
-                    7,
-                );
-            self.generate_railroad(35, game_id, 'Cartridge Railroad', false);
-            self.generate_chance(36, game_id);
-            self
-                .generate_properties(
-                    37, game_id, 'Solana Drive', 300, 26, 130, 390, 900, 1100, 1275, 200, false, 7,
-                );
-            self.generate_tax(38, game_id, 'Luxury Tax', 100);
-            self
-                .generate_properties(
-                    39,
-                    game_id,
-                    'Ethereum Avenue',
-                    320,
-                    28,
-                    150,
-                    450,
-                    1000,
-                    1200,
-                    1400,
-                    200,
-                    false,
-                    7,
-                );
-            self
-                .generate_properties(
-                    40, game_id, 'Bitcoin Lane', 400, 50, 200, 600, 1400, 1700, 2000, 200, false, 8,
-                );
 
+            new_game.players_joined += 1;
+
+            // Save game to storage
             world.write_model(@new_game);
 
-            world.emit_event(@GameCreated { game_id, timestamp });
+            world.emit_event(@GameCreated { game_id: emitted_game_id, timestamp });
 
             game_id
         }
+
+        /// Allows a registered player to join a pending game by selecting a symbol.
+        /// Automatically starts the game once the required number of players have joined.
+        fn join_game(ref self: ContractState, player_symbol: PlayerSymbol, game_id: u256) {
+            // Load world state
+            let mut world = self.world_default();
+
+            // Retrieve game from storage
+            let mut game: Game = world.read_model(game_id);
+
+            // Ensure the game has been initialized
+            assert(game.is_initialised, 'GAME NOT INITIALISED');
+
+            // Ensure the game still has room for new players
+            assert(game.players_joined < game.number_of_players, 'ROOM FILLED');
+
+            // Ensure the game is in the Pending state
+            assert(game.status == GameStatus::Pending, 'GAME NOT PENDING');
+
+            // Get the caller's address and corresponding username
+            let caller_address = get_caller_address();
+            let caller_username = self.get_username_from_address(caller_address);
+
+            // Ensure the caller is a registered player
+            assert(caller_username != 0, 'PLAYER NOT REGISTERED');
+
+            // Ensure the player hasn't already joined under a different symbol
+            self.assert_player_not_already_joined(game.clone(), caller_username);
+
+            // Attempt to join the game with the selected symbol
+            self.try_join_symbol(game.clone(), player_symbol, caller_username, game_id);
+
+            // Emit event for player joining
+            world
+                .emit_event(
+                    @PlayerJoined {
+                        game_id, username: caller_username, timestamp: get_block_timestamp(),
+                    },
+                );
+
+            // Recount players and update the joined count
+            game.players_joined = self.count_joined_players(game.clone());
+
+            // Start the game if all players have joined
+            if game.players_joined == game.number_of_players {
+                game.status = GameStatus::Ongoing;
+                world.emit_event(@GameStarted { game_id, timestamp: get_block_timestamp() });
+            }
+
+            // Persist the updated game state
+            world.write_model(@game);
+        }
+
 
         fn sell_property(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
             let mut world = self.world_default();
@@ -656,432 +567,6 @@ pub mod actions {
         }
 
 
-        /// Start game
-        /// Change game status to ONGOING
-        fn join_game(ref self: ContractState, player_symbol: PlayerSymbol, game_id: u256) {
-            // Get world state
-            let mut world = self.world_default();
-
-            //get the game state
-            let mut game: Game = world.read_model(game_id);
-
-            assert(game.is_initialised, 'GAME NOT INITIALISED');
-
-            // Assert that game is a Multiplayer game
-            assert(game.mode == GameMode::MultiPlayer, 'GAME NOT MULTIPLAYER');
-
-            // Assert that game is in Pending state
-            assert(game.status == GameStatus::Pending, 'GAME NOT PENDING');
-
-            // Get the account address of the caller
-            let caller_address = get_caller_address();
-            let caller_username = self.get_username_from_address(caller_address);
-
-            assert(caller_username != 0, 'PLAYER NOT REGISTERED');
-
-            // Verify that player has not already joined the game
-            assert(game.player_hat != caller_username, 'ALREADY SELECTED HAT');
-            assert(game.player_car != caller_username, 'ALREADY SELECTED CAR');
-            assert(game.player_dog != caller_username, 'ALREADY SELECTED DOG');
-            assert(game.player_thimble != caller_username, 'ALREADY SELECTED THIMBLE');
-            assert(game.player_iron != caller_username, 'ALREADY SELECTED IRON');
-            assert(game.player_battleship != caller_username, 'ALREADY SELECTED BATTLESHIP');
-            assert(game.player_boot != caller_username, 'ALREADY SELECTED BOOT');
-            assert(game.player_wheelbarrow != caller_username, 'ALREADY SELECTED WHEELBARROW');
-
-            /// Game starts automatically once the last player joins
-
-            // Verify that symbol is available
-            // Assign symbol to player if available
-
-            match player_symbol {
-                PlayerSymbol::Hat => {
-                    if (game.player_hat == 0) {
-                        game.player_hat = caller_username;
-                        world
-                            .emit_event(
-                                @PlayerJoined {
-                                    game_id,
-                                    username: caller_username,
-                                    timestamp: get_block_timestamp(),
-                                },
-                            )
-                    } else {
-                        panic!("HAT already selected");
-                    }
-                },
-                PlayerSymbol::Car => {
-                    if (game.player_car == 0) {
-                        game.player_car = caller_username;
-                        world
-                            .emit_event(
-                                @PlayerJoined {
-                                    game_id,
-                                    username: caller_username,
-                                    timestamp: get_block_timestamp(),
-                                },
-                            )
-                    } else {
-                        panic!("CAR already selected");
-                    }
-                },
-                PlayerSymbol::Dog => {
-                    if (game.player_dog == 0) {
-                        game.player_dog = caller_username;
-                        world
-                            .emit_event(
-                                @PlayerJoined {
-                                    game_id,
-                                    username: caller_username,
-                                    timestamp: get_block_timestamp(),
-                                },
-                            )
-                    } else {
-                        panic!("Dog already selected");
-                    }
-                },
-                PlayerSymbol::Thimble => {
-                    if (game.player_thimble == 0) {
-                        game.player_thimble = caller_username;
-                        world
-                            .emit_event(
-                                @PlayerJoined {
-                                    game_id,
-                                    username: caller_username,
-                                    timestamp: get_block_timestamp(),
-                                },
-                            )
-                    } else {
-                        panic!("Thimble already selected");
-                    }
-                },
-                PlayerSymbol::Iron => {
-                    if (game.player_iron == 0) {
-                        game.player_iron = caller_username;
-                        world
-                            .emit_event(
-                                @PlayerJoined {
-                                    game_id,
-                                    username: caller_username,
-                                    timestamp: get_block_timestamp(),
-                                },
-                            )
-                    } else {
-                        panic!("Iron already selected");
-                    }
-                },
-                PlayerSymbol::Battleship => {
-                    if (game.player_battleship == 0) {
-                        game.player_battleship = caller_username;
-                        world
-                            .emit_event(
-                                @PlayerJoined {
-                                    game_id,
-                                    username: caller_username,
-                                    timestamp: get_block_timestamp(),
-                                },
-                            )
-                    } else {
-                        panic!("Battleship already selected");
-                    }
-                },
-                PlayerSymbol::Boot => {
-                    if (game.player_boot == 0) {
-                        game.player_boot = caller_username;
-                        world
-                            .emit_event(
-                                @PlayerJoined {
-                                    game_id,
-                                    username: caller_username,
-                                    timestamp: get_block_timestamp(),
-                                },
-                            )
-                    } else {
-                        panic!("Boot already selected");
-                    }
-                },
-                PlayerSymbol::Wheelbarrow => {
-                    if (game.player_wheelbarrow == 0) {
-                        game.player_wheelbarrow = caller_username;
-                        world
-                            .emit_event(
-                                @PlayerJoined {
-                                    game_id,
-                                    username: caller_username,
-                                    timestamp: get_block_timestamp(),
-                                },
-                            )
-                    } else {
-                        panic!("Wheelbarrow already selected");
-                    }
-                },
-            }
-
-            // Start game automatically once the last player joins
-
-            const TWO_PLAYERS: u8 = 2;
-            const THREE_PLAYERS: u8 = 3;
-            const FOUR_PLAYERS: u8 = 4;
-            const FIVE_PLAYERS: u8 = 5;
-            const SIX_PLAYERS: u8 = 6;
-            const SEVEN_PLAYERS: u8 = 7;
-            const EIGHT_PLAYERS: u8 = 8;
-
-            match game.number_of_players {
-                0 => panic!("Number of players cannot be 0"),
-                1 => panic!("Number of players cannot be 1"),
-                2 => {
-                    let mut players_joined_count: u8 = 0;
-
-                    if (game.player_hat != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_car != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_dog != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_thimble != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_iron != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_battleship != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_boot != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_wheelbarrow != 0) {
-                        players_joined_count += 1;
-                    }
-
-                    // Start game once all players have joined
-                    if (players_joined_count == TWO_PLAYERS) {
-                        game.status = GameStatus::Ongoing;
-                        world
-                            .emit_event(@GameStarted { game_id, timestamp: get_block_timestamp() });
-                    }
-                },
-                3 => {
-                    let mut players_joined_count: u8 = 0;
-
-                    if (game.player_hat != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_car != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_dog != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_thimble != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_iron != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_battleship != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_boot != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_wheelbarrow != 0) {
-                        players_joined_count += 1;
-                    }
-
-                    // Start game once all players have joined
-                    if (players_joined_count == THREE_PLAYERS) {
-                        game.status = GameStatus::Ongoing;
-                        world
-                            .emit_event(@GameStarted { game_id, timestamp: get_block_timestamp() });
-                    }
-                },
-                4 => {
-                    let mut players_joined_count: u8 = 0;
-
-                    if (game.player_hat != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_car != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_dog != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_thimble != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_iron != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_battleship != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_boot != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_wheelbarrow != 0) {
-                        players_joined_count += 1;
-                    }
-
-                    // Start game once all players have joined
-                    if (players_joined_count == FOUR_PLAYERS) {
-                        game.status = GameStatus::Ongoing;
-                        world
-                            .emit_event(@GameStarted { game_id, timestamp: get_block_timestamp() });
-                    }
-                },
-                5 => {
-                    let mut players_joined_count: u8 = 0;
-
-                    if (game.player_hat != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_car != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_dog != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_thimble != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_iron != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_battleship != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_boot != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_wheelbarrow != 0) {
-                        players_joined_count += 1;
-                    }
-
-                    // Start game once all players have joined
-                    if (players_joined_count == FIVE_PLAYERS) {
-                        game.status = GameStatus::Ongoing;
-                        world
-                            .emit_event(@GameStarted { game_id, timestamp: get_block_timestamp() });
-                    }
-                },
-                6 => {
-                    let mut players_joined_count: u8 = 0;
-
-                    if (game.player_hat != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_car != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_dog != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_thimble != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_iron != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_battleship != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_boot != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_wheelbarrow != 0) {
-                        players_joined_count += 1;
-                    }
-
-                    // Start game once all players have joined
-                    if (players_joined_count == SIX_PLAYERS) {
-                        game.status = GameStatus::Ongoing;
-                        world
-                            .emit_event(@GameStarted { game_id, timestamp: get_block_timestamp() });
-                    }
-                },
-                7 => {
-                    let mut players_joined_count: u8 = 0;
-
-                    if (game.player_hat != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_car != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_dog != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_thimble != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_iron != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_battleship != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_boot != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_wheelbarrow != 0) {
-                        players_joined_count += 1;
-                    }
-
-                    // Start game once all players have joined
-                    if (players_joined_count == SEVEN_PLAYERS) {
-                        game.status = GameStatus::Ongoing;
-                        world
-                            .emit_event(@GameStarted { game_id, timestamp: get_block_timestamp() });
-                    }
-                },
-                8 => {
-                    let mut players_joined_count: u8 = 0;
-
-                    if (game.player_hat != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_car != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_dog != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_thimble != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_iron != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_battleship != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_boot != 0) {
-                        players_joined_count += 1;
-                    }
-                    if (game.player_wheelbarrow != 0) {
-                        players_joined_count += 1;
-                    }
-
-                    // Start game once all players have joined
-                    if (players_joined_count == EIGHT_PLAYERS) {
-                        game.status = GameStatus::Ongoing;
-                        world
-                            .emit_event(@GameStarted { game_id, timestamp: get_block_timestamp() });
-                    }
-                },
-                _ => panic!("Invalid number of players"),
-            };
-
-            // Update the game state in the world
-            world.write_model(@game);
-        }
-
         fn retrieve_game(self: @ContractState, game_id: u256) -> Game {
             // Get default world
             let mut world = self.world_default();
@@ -1150,6 +635,239 @@ pub mod actions {
         /// can't be const.
         fn world_default(self: @ContractState) -> dojo::world::WorldStorage {
             self.world(@"blockopoly")
+        }
+
+        fn generate_board_tiles(ref self: ContractState, game_id: u256) {
+            // Special tiles
+            self.generate_go(1, game_id, 'Go');
+            self.generate_community_chest(2, game_id);
+            self
+                .generate_properties(
+                    3, game_id, 'Axone Avenue', 60, 2, 10, 30, 90, 160, 250, 50, false, 1,
+                );
+            self.generate_tax(4, game_id, 'Income Tax', 200);
+            self.generate_railroad(5, game_id, 'IPFS Railroad', false);
+            self
+                .generate_properties(
+                    6, game_id, 'Onlydust Avenue', 60, 4, 20, 60, 180, 320, 450, 50, false, 1,
+                );
+            self.generate_chance(7, game_id);
+            self
+                .generate_properties(
+                    8, game_id, 'ZkSync Lane', 100, 6, 30, 90, 270, 400, 550, 50, false, 2,
+                );
+            self
+                .generate_properties(
+                    9, game_id, 'Starknet Lane', 100, 6, 30, 90, 270, 400, 550, 50, false, 2,
+                );
+            self.generate_jail(10, game_id, 'Visiting Jail');
+            self
+                .generate_properties(
+                    11, game_id, 'Linea Lane', 120, 8, 40, 100, 300, 450, 600, 50, false, 2,
+                );
+            self.generate_utilitity(12, game_id, 'Chainlink Power Plant', false);
+            self
+                .generate_properties(
+                    13, game_id, 'Arbitrium Avenue', 140, 10, 50, 150, 450, 625, 750, 100, false, 3,
+                );
+            self.generate_community_chest(14, game_id);
+            self
+                .generate_properties(
+                    15,
+                    game_id,
+                    'Optimistic Avenue',
+                    140,
+                    10,
+                    50,
+                    150,
+                    450,
+                    625,
+                    750,
+                    100,
+                    false,
+                    3,
+                );
+            self.generate_railroad(16, game_id, 'Pinata Railroad', false);
+            self
+                .generate_properties(
+                    17, game_id, 'Base Avenue', 160, 12, 60, 180, 500, 700, 900, 100, false, 3,
+                );
+            self
+                .generate_properties(
+                    18, game_id, 'Cosmos Lane', 180, 14, 70, 200, 550, 750, 950, 100, false, 4,
+                );
+            self.generate_chance(19, game_id);
+            self
+                .generate_properties(
+                    20, game_id, 'Polkadot Lane', 180, 14, 70, 200, 550, 750, 950, 100, false, 4,
+                );
+            self.generate_go(21, game_id, 'Free Parking');
+            self
+                .generate_properties(
+                    22, game_id, 'Near Lane', 200, 16, 80, 220, 600, 800, 1000, 100, false, 4,
+                );
+            self.generate_community_chest(23, game_id);
+            self
+                .generate_properties(
+                    24, game_id, 'Uniswap Avenue', 220, 18, 90, 250, 700, 875, 1050, 150, false, 5,
+                );
+            self.generate_railroad(25, game_id, 'Open Zeppelin Railroad', false);
+            self
+                .generate_properties(
+                    26, game_id, 'MakerDAO Avenue', 220, 18, 90, 250, 700, 875, 1050, 150, false, 5,
+                );
+            self
+                .generate_properties(
+                    27, game_id, 'Aave Avenue', 240, 20, 100, 300, 750, 925, 1100, 150, false, 5,
+                );
+            self.generate_utilitity(28, game_id, 'Graph Water Works', false);
+            self
+                .generate_properties(
+                    29, game_id, 'Lisk Lane', 260, 22, 110, 330, 800, 975, 1150, 150, false, 6,
+                );
+            self.generate_jail(30, game_id, 'Go to Jail');
+            self
+                .generate_properties(
+                    31, game_id, 'Rootstock Lane', 260, 22, 110, 330, 800, 975, 1150, 150, false, 6,
+                );
+            self
+                .generate_properties(
+                    32, game_id, 'Ark Lane', 280, 22, 120, 360, 850, 1025, 1200, 150, false, 6,
+                );
+            self.generate_community_chest(33, game_id);
+            self
+                .generate_properties(
+                    34,
+                    game_id,
+                    'Avalanche Avenue',
+                    300,
+                    26,
+                    130,
+                    390,
+                    900,
+                    1100,
+                    1275,
+                    200,
+                    false,
+                    7,
+                );
+            self.generate_railroad(35, game_id, 'Cartridge Railroad', false);
+            self.generate_chance(36, game_id);
+            self
+                .generate_properties(
+                    37, game_id, 'Solana Drive', 300, 26, 130, 390, 900, 1100, 1275, 200, false, 7,
+                );
+            self.generate_tax(38, game_id, 'Luxury Tax', 100);
+            self
+                .generate_properties(
+                    39,
+                    game_id,
+                    'Ethereum Avenue',
+                    320,
+                    28,
+                    150,
+                    450,
+                    1000,
+                    1200,
+                    1400,
+                    200,
+                    false,
+                    7,
+                );
+            self
+                .generate_properties(
+                    40, game_id, 'Bitcoin Lane', 400, 50, 200, 600, 1400, 1700, 2000, 200, false, 8,
+                );
+        }
+
+        fn try_join_symbol(
+            ref self: ContractState,
+            mut game: Game,
+            symbol: PlayerSymbol,
+            username: felt252,
+            game_id: u256,
+        ) {
+            let mut world = self.world_default();
+            let timestamp = get_block_timestamp();
+
+            match symbol {
+                PlayerSymbol::Hat => {
+                    assert(game.player_hat == 0, 'HAT already selected');
+                    game.player_hat = username;
+                },
+                PlayerSymbol::Car => {
+                    assert(game.player_car == 0, 'CAR already selected');
+                    game.player_car = username;
+                },
+                PlayerSymbol::Dog => {
+                    assert(game.player_dog == 0, 'DOG already selected');
+                    game.player_dog = username;
+                },
+                PlayerSymbol::Thimble => {
+                    assert(game.player_thimble == 0, 'THIMBLE already selected');
+                    game.player_thimble = username;
+                },
+                PlayerSymbol::Iron => {
+                    assert(game.player_iron == 0, 'IRON already selected');
+                    game.player_iron = username;
+                },
+                PlayerSymbol::Battleship => {
+                    assert(game.player_battleship == 0, 'BATTLESHIP already selected');
+                    game.player_battleship = username;
+                },
+                PlayerSymbol::Boot => {
+                    assert(game.player_boot == 0, 'BOOT already selected');
+                    game.player_boot = username;
+                },
+                PlayerSymbol::Wheelbarrow => {
+                    assert(game.player_wheelbarrow == 0, 'WHEELBARROW already selected');
+                    game.player_wheelbarrow = username;
+                },
+            }
+        }
+
+        fn count_joined_players(ref self: ContractState, mut game: Game) -> u8 {
+            let mut count: u8 = 0;
+
+            if game.player_hat != 0 {
+                count += 1;
+            }
+            if game.player_car != 0 {
+                count += 1;
+            }
+            if game.player_dog != 0 {
+                count += 1;
+            }
+            if game.player_thimble != 0 {
+                count += 1;
+            }
+            if game.player_iron != 0 {
+                count += 1;
+            }
+            if game.player_battleship != 0 {
+                count += 1;
+            }
+            if game.player_boot != 0 {
+                count += 1;
+            }
+            if game.player_wheelbarrow != 0 {
+                count += 1;
+            }
+
+            count
+        }
+
+        fn assert_player_not_already_joined(
+            ref self: ContractState, game: Game, username: felt252,
+        ) {
+            assert(game.player_hat != username, 'ALREADY SELECTED HAT');
+            assert(game.player_car != username, 'ALREADY SELECTED CAR');
+            assert(game.player_dog != username, 'ALREADY SELECTED DOG');
+            assert(game.player_thimble != username, 'ALREADY SELECTED THIMBLE');
+            assert(game.player_iron != username, 'ALREADY SELECTED IRON');
+            assert(game.player_battleship != username, 'ALREADY SELECTED BATTLESHIP');
+            assert(game.player_boot != username, 'ALREADY SELECTED BOOT');
+            assert(game.player_wheelbarrow != username, 'ALREADY SELECTED WHEELBARROW');
         }
     }
 }

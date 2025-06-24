@@ -1,4 +1,4 @@
-use dojo_starter::model::game_model::{GameMode, Game};
+use dojo_starter::model::game_model::{GameType, Game};
 use dojo_starter::model::game_player_model::{PlayerSymbol, GamePlayer};
 use dojo_starter::model::player_model::{Player};
 use dojo_starter::model::property_model::{Property};
@@ -17,7 +17,7 @@ pub trait IActions<T> {
     fn roll_dice(ref self: T) -> (u8, u8);
     fn register_new_player(ref self: T, username: felt252);
     fn create_new_game(
-        ref self: T, game_mode: GameMode, player_symbol: PlayerSymbol, number_of_players: u8,
+        ref self: T, game_type: GameType, player_symbol: PlayerSymbol, number_of_players: u8,
     ) -> u256;
     fn get_username_from_address(self: @T, address: ContractAddress) -> felt252;
     fn create_new_game_id(ref self: T) -> u256;
@@ -37,6 +37,7 @@ pub trait IActions<T> {
         is_mortgaged: bool,
         group_id: u8,
     );
+
     fn generate_chance(ref self: T, id: u8, game_id: u256);
     fn generate_jail(ref self: T, id: u8, game_id: u256, name: felt252);
     fn generate_go(ref self: T, id: u8, game_id: u256, name: felt252);
@@ -56,6 +57,7 @@ pub trait IActions<T> {
     fn get_community_chest(self: @T, id: u8, game_id: u256) -> CommunityChest;
     fn get_railroad(self: @T, id: u8, game_id: u256) -> RailRoad;
     fn get_tax(self: @T, id: u8, game_id: u256) -> Tax;
+    fn is_registered(self: @T, address: ContractAddress) -> bool;
     fn buy_property(ref self: T, property_id: u8, game_id: u256) -> bool;
     fn sell_property(ref self: T, property_id: u8, game_id: u256) -> bool;
     fn mortgage_property(ref self: T, property_id: u8, game_id: u256) -> bool;
