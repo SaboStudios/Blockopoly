@@ -31,10 +31,11 @@ pub struct IdToUtility {
 
 pub trait UtilityTrait {
     fn new(id: u8, game_id: u256, name: felt252) -> Utility;
-    fn set_owner(utility: Utility, new_owner: ContractAddress);
+    fn change_utility_ownership(utility: Utility, new_owner: ContractAddress, owner: ContractAddress);
     fn get_rent_amount(utility: Utility, utilities_owned: u8, dice_rolled: u8) -> u256;
-    fn mortgage(utility: Utility);
-    fn lift_mortgage(utility: Utility);
+    fn mortgage_utility(utility: Utility, owner: ContractAddress) -> bool;
+    fn lift_utility_mortgage(utility: Utility, owner: ContractAddress) -> bool;
+    fn up_utility_up_for_sale(ref self: Utility, owner: ContractAddress) -> bool;
 }
 
 impl UtilityImpl of UtilityTrait {
@@ -52,10 +53,13 @@ impl UtilityImpl of UtilityTrait {
     }
 
 
-    fn set_owner(mut utility: Utility, new_owner: ContractAddress) {
-        utility.owner = new_owner;
+
+    // use ref state
+    fn change_utility_ownership(mut utility: Utility, new_owner: ContractAddress, owner: ContractAddress) {
+        //implement after checks especially ownership ...
     }
 
+    // change to no change state
     fn get_rent_amount(mut utility: Utility, utilities_owned: u8, dice_rolled: u8) -> u256 {
         let mut rent = 0;
         if utility.is_mortgaged {
@@ -71,11 +75,20 @@ impl UtilityImpl of UtilityTrait {
         rent
     }
 
-    fn mortgage(mut utility: Utility) {
-        utility.is_mortgaged = true;
+    //change to ref state changing
+    fn mortgage_utility(mut utility: Utility, owner: ContractAddress) -> bool {
+        true
     }
 
-    fn lift_mortgage(mut utility: Utility) {
-        utility.is_mortgaged = false;
+    //change to ref state changing
+    fn lift_utility_mortgage(mut utility: Utility, owner: ContractAddress) -> bool {
+        true
+    }
+
+    // 
+    fn up_utility_up_for_sale(ref self: Utility, owner: ContractAddress) -> bool {
+
+        // implement after checks ... to chage the state for_sale
+        true
     }
 }

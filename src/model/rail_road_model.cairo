@@ -31,10 +31,10 @@ pub struct IdToRailRoad {
 
 pub trait RailRoadTrait {
     fn new(id: u8, game_id: u256, name: felt252) -> RailRoad;
-    fn set_owner(railroad: RailRoad, new_owner: ContractAddress);
+    fn change_railroad_ownership(railroad: RailRoad, new_owner: ContractAddress, owner: ContractAddress) -> bool;
     fn get_rent_amount(railroad: RailRoad, railroad_owned: u8) -> u256;
-    fn mortgage(railroad: RailRoad);
-    fn lift_mortgage(railroad: RailRoad);
+    fn mortgage(railroad: RailRoad, owner: ContractAddress);
+    fn lift_mortgage(railroad: RailRoad, owner: ContractAddress);
 }
 
 impl RailRoadImpl of RailRoadTrait {
@@ -52,10 +52,14 @@ impl RailRoadImpl of RailRoadTrait {
     }
 
 
-    fn set_owner(mut railroad: RailRoad, new_owner: ContractAddress) {
-        railroad.owner = new_owner;
+    // change to ref
+    fn change_railroad_ownership(railroad: RailRoad, new_owner: ContractAddress, owner: ContractAddress) -> bool {
+        // after checks 
+
+        true
     }
 
+    // change to non changing state
     fn get_rent_amount(mut railroad: RailRoad, railroad_owned: u8) -> u256 {
         let mut rent = 0;
         if railroad.is_mortgaged {
@@ -79,11 +83,13 @@ impl RailRoadImpl of RailRoadTrait {
         rent
     }
 
-    fn mortgage(mut railroad: RailRoad) {
-        railroad.is_mortgaged = true;
+
+    // change to ref 
+    fn mortgage(mut railroad: RailRoad, owner: ContractAddress) {
+        // railroad.is_mortgaged = true;
     }
 
-    fn lift_mortgage(mut railroad: RailRoad) {
-        railroad.is_mortgaged = false;
+    fn lift_mortgage(mut railroad: RailRoad, owner: ContractAddress) {
+        // railroad.is_mortgaged = false;
     }
 }

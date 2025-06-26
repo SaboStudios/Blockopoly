@@ -21,6 +21,10 @@ pub mod model {
     pub mod game_player_model;
 }
 
+pub mod events {
+    
+}
+
 pub mod tests {
     mod test_world;
 }

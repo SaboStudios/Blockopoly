@@ -8,7 +8,6 @@ pub struct Player {
     pub address: ContractAddress,
     pub username: felt252,
     pub is_registered: bool,
-    pub new_owner: ContractAddress,
     pub balance: u256,
     pub total_games_played: u256,
     pub total_games_completed: u256,
@@ -24,14 +23,13 @@ pub trait PlayerTrait {
 
 impl PlayerImpl of PlayerTrait {
     fn new(username: felt252, address: ContractAddress, created_at: u64) -> Player {
-        let zero_address: ContractAddress = contract_address_const::<0>();
+        // let zero_address: ContractAddress = contract_address_const::<0>();
         Player {
             address,
             username,
             is_registered: true,
             created_at,
             updated_at: created_at,
-            new_owner: zero_address,
             balance: 0,
             total_games_played: 0,
             total_games_completed: 0,
