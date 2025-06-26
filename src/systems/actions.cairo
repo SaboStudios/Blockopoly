@@ -91,6 +91,7 @@ pub mod actions {
 
             address_map.username
         }
+        
         fn register_new_player(ref self: ContractState, username: felt252) {
             let mut world = self.world_default();
 
@@ -131,129 +132,6 @@ pub mod actions {
                     @PlayerCreated { username, player: caller, timestamp: get_block_timestamp() },
                 );
         }
-
-
-        // to be moved to the property model
-        // fn generate_properties(
-        //     ref self: ContractState,
-        //     id: u8,
-        //     game_id: u256,
-        //     name: felt252,
-        //     cost_of_property: u256,
-        //     rent_site_only: u256,
-        //     rent_one_house: u256,
-        //     rent_two_houses: u256,
-        //     rent_three_houses: u256,
-        //     rent_four_houses: u256,
-        //     rent_hotel: u256,
-        //     cost_of_house: u256,
-        //     is_mortgaged: bool,
-        //     group_id: u8,
-        // ) {
-        //     let mut world = self.world_default();
-        //     let mut property: Property = world.read_model((id, game_id));
-
-        //     property =
-        //         PropertyTrait::new(
-        //             id,
-        //             game_id,
-        //             name,
-        //             cost_of_property,
-        //             rent_site_only,
-        //             rent_one_house,
-        //             rent_two_houses,
-        //             rent_three_houses,
-        //             rent_four_houses,
-        //             rent_hotel,
-        //             cost_of_house,
-        //             group_id,
-        //         );
-
-        //     let property_to_id: PropertyToId = PropertyToId { name, id };
-        //     let id_to_property: IdToProperty = IdToProperty { id, name };
-
-        //     world.write_model(@property);
-        //     world.write_model(@property_to_id);
-        //     world.write_model(@id_to_property);
-        // }
-
-
-        // to be moved to it model
-        // fn generate_utilitity(
-        //     ref self: ContractState, id: u8, game_id: u256, name: felt252, is_mortgaged: bool,
-        // ) {
-        //     let mut world = self.world_default();
-        //     let mut utility: Utility = world.read_model((id, game_id));
-
-        //     utility = UtilityTrait::new(id, game_id, name);
-
-        //     let utility_to_id: UtilityToId = UtilityToId { name, id };
-        //     let id_to_utility: IdToUtility = IdToUtility { id, name };
-
-        //     world.write_model(@utility);
-        //     world.write_model(@utility_to_id);
-        //     world.write_model(@id_to_utility);
-        // }
-
-        // to be moved to it model
-        // fn generate_railroad(
-        //     ref self: ContractState, id: u8, game_id: u256, name: felt252, is_mortgaged: bool,
-        // ) {
-        //     let mut world = self.world_default();
-        //     let mut railroad: RailRoad = world.read_model((id, game_id));
-
-        //     railroad = RailRoadTrait::new(id, game_id, name);
-
-        //     let railroad_to_id: RailRoadToId = RailRoadToId { name, id };
-        //     let id_to_railroad: IdToRailRoad = IdToRailRoad { id, name };
-
-        //     world.write_model(@railroad);
-        //     world.write_model(@railroad_to_id);
-        //     world.write_model(@id_to_railroad);
-        // }
-
-        // to be moved to it model
-        // fn generate_chance(ref self: ContractState, id: u8, game_id: u256) {
-        //     let mut world = self.world_default();
-        //     let mut chance: Chance = world.read_model((id, game_id));
-
-        //     chance = ChanceTrait::new(id, game_id);
-
-        //     world.write_model(@chance);
-        // }
-
-        // to be moved to it model 
-        // fn generate_community_chest(ref self: ContractState, id: u8, game_id: u256) {
-        //     let mut world = self.world_default();
-        //     let mut community_chest: CommunityChest = world.read_model((id, game_id));
-
-        //     community_chest = CommunityChestTrait::new(id, game_id);
-
-        //     world.write_model(@community_chest);
-        // }
-
-        // to be moved to it model
-        // fn generate_jail(ref self: ContractState, id: u8, game_id: u256, name: felt252) {
-        //     let mut world = self.world_default();
-        //     let mut jail: Jail = world.read_model((id, game_id));
-        //     jail = Jail { id, game_id, name };
-        // }
-
-        // // to be moved to it model
-        // fn generate_go(ref self: ContractState, id: u8, game_id: u256, name: felt252) {
-        //     let mut world = self.world_default();
-        //     let mut go: Go = world.read_model((id, game_id));
-        //     go = Go { id, game_id, name };
-        // }
-
-        // to be moved to it model
-        // fn generate_tax(
-        //     ref self: ContractState, id: u8, game_id: u256, name: felt252, tax_amount: u256,
-        // ) {
-        //     let mut world = self.world_default();
-        //     let mut tax: Tax = world.read_model((id, game_id));
-        //     tax = Tax { id, game_id, name, tax_amount };
-        // }
 
         fn get_tax(self: @ContractState, id: u8, game_id: u256) -> Tax {
             let mut world = self.world_default();
@@ -334,7 +212,7 @@ pub mod actions {
             let caller_username = self.get_username_from_address(caller_address);
             assert(caller_username != 0, 'PLAYER NOT REGISTERED');
 
-            // let game_id = self.create_new_game_id();
+            let game_id = self.create_new_game_id();
             let game_id = 1;
             let timestamp = get_block_timestamp();
 
@@ -657,145 +535,145 @@ pub mod actions {
 
         fn generate_board_tiles(ref self: ContractState, game_id: u256) {
             // Special tiles
-            // self.generate_go(1, game_id, 'Go');
-            // self.generate_community_chest(2, game_id);
-            // self
-            //     .generate_properties(
-            //         3, game_id, 'Axone Avenue', 60, 2, 10, 30, 90, 160, 250, 50, false, 1,
-            //     );
-            // self.generate_tax(4, game_id, 'Income Tax', 200);
-            // self.generate_railroad(5, game_id, 'IPFS Railroad', false);
-            // self
-            //     .generate_properties(
-            //         6, game_id, 'Onlydust Avenue', 60, 4, 20, 60, 180, 320, 450, 50, false, 1,
-            //     );
-            // self.generate_chance(7, game_id);
-            // self
-            //     .generate_properties(
-            //         8, game_id, 'ZkSync Lane', 100, 6, 30, 90, 270, 400, 550, 50, false, 2,
-            //     );
-            // self
-            //     .generate_properties(
-            //         9, game_id, 'Starknet Lane', 100, 6, 30, 90, 270, 400, 550, 50, false, 2,
-            //     );
-            // self.generate_jail(10, game_id, 'Visiting Jail');
-            // self
-            //     .generate_properties(
-            //         11, game_id, 'Linea Lane', 120, 8, 40, 100, 300, 450, 600, 50, false, 2,
-            //     );
-            // self.generate_utilitity(12, game_id, 'Chainlink Power Plant', false);
-            // self
-            //     .generate_properties(
-            //         13, game_id, 'Arbitrium Avenue', 140, 10, 50, 150, 450, 625, 750, 100, false, 3,
-            //     );
-            // self.generate_community_chest(14, game_id);
-            // self
-            //     .generate_properties(
-            //         15,
-            //         game_id,
-            //         'Optimistic Avenue',
-            //         140,
-            //         10,
-            //         50,
-            //         150,
-            //         450,
-            //         625,
-            //         750,
-            //         100,
-            //         false,
-            //         3,
-            //     );
-            // self.generate_railroad(16, game_id, 'Pinata Railroad', false);
-            // self
-            //     .generate_properties(
-            //         17, game_id, 'Base Avenue', 160, 12, 60, 180, 500, 700, 900, 100, false, 3,
-            //     );
-            // self
-            //     .generate_properties(
-            //         18, game_id, 'Cosmos Lane', 180, 14, 70, 200, 550, 750, 950, 100, false, 4,
-            //     );
-            // self.generate_chance(19, game_id);
-            // self
-            //     .generate_properties(
-            //         20, game_id, 'Polkadot Lane', 180, 14, 70, 200, 550, 750, 950, 100, false, 4,
-            //     );
-            // self.generate_go(21, game_id, 'Free Parking');
-            // self
-            //     .generate_properties(
-            //         22, game_id, 'Near Lane', 200, 16, 80, 220, 600, 800, 1000, 100, false, 4,
-            //     );
-            // self.generate_community_chest(23, game_id);
-            // self
-            //     .generate_properties(
-            //         24, game_id, 'Uniswap Avenue', 220, 18, 90, 250, 700, 875, 1050, 150, false, 5,
-            //     );
-            // self.generate_railroad(25, game_id, 'Open Zeppelin Railroad', false);
-            // self
-            //     .generate_properties(
-            //         26, game_id, 'MakerDAO Avenue', 220, 18, 90, 250, 700, 875, 1050, 150, false, 5,
-            //     );
-            // self
-            //     .generate_properties(
-            //         27, game_id, 'Aave Avenue', 240, 20, 100, 300, 750, 925, 1100, 150, false, 5,
-            //     );
-            // self.generate_utilitity(28, game_id, 'Graph Water Works', false);
-            // self
-            //     .generate_properties(
-            //         29, game_id, 'Lisk Lane', 260, 22, 110, 330, 800, 975, 1150, 150, false, 6,
-            //     );
-            // self.generate_jail(30, game_id, 'Go to Jail');
-            // self
-            //     .generate_properties(
-            //         31, game_id, 'Rootstock Lane', 260, 22, 110, 330, 800, 975, 1150, 150, false, 6,
-            //     );
-            // self
-            //     .generate_properties(
-            //         32, game_id, 'Ark Lane', 280, 22, 120, 360, 850, 1025, 1200, 150, false, 6,
-            //     );
-            // self.generate_community_chest(33, game_id);
-            // self
-            //     .generate_properties(
-            //         34,
-            //         game_id,
-            //         'Avalanche Avenue',
-            //         300,
-            //         26,
-            //         130,
-            //         390,
-            //         900,
-            //         1100,
-            //         1275,
-            //         200,
-            //         false,
-            //         7,
-            //     );
-            // self.generate_railroad(35, game_id, 'Cartridge Railroad', false);
-            // self.generate_chance(36, game_id);
-            // self
-            //     .generate_properties(
-            //         37, game_id, 'Solana Drive', 300, 26, 130, 390, 900, 1100, 1275, 200, false, 7,
-            //     );
-            // self.generate_tax(38, game_id, 'Luxury Tax', 100);
-            // self
-            //     .generate_properties(
-            //         39,
-            //         game_id,
-            //         'Ethereum Avenue',
-            //         320,
-            //         28,
-            //         150,
-            //         450,
-            //         1000,
-            //         1200,
-            //         1400,
-            //         200,
-            //         false,
-            //         7,
-            //     );
-            // self
-            //     .generate_properties(
-            //         40, game_id, 'Bitcoin Lane', 400, 50, 200, 600, 1400, 1700, 2000, 200, false, 8,
-            //     );
+            self.generate_go(1, game_id, 'Go');
+            self.generate_community_chest(2, game_id);
+            self
+                .generate_properties(
+                    3, game_id, 'Axone Avenue', 60, 2, 10, 30, 90, 160, 250, 50, false, 1,
+                );
+            self.generate_tax(4, game_id, 'Income Tax', 200);
+            self.generate_railroad(5, game_id, 'IPFS Railroad', false);
+            self
+                .generate_properties(
+                    6, game_id, 'Onlydust Avenue', 60, 4, 20, 60, 180, 320, 450, 50, false, 1,
+                );
+            self.generate_chance(7, game_id);
+            self
+                .generate_properties(
+                    8, game_id, 'ZkSync Lane', 100, 6, 30, 90, 270, 400, 550, 50, false, 2,
+                );
+            self
+                .generate_properties(
+                    9, game_id, 'Starknet Lane', 100, 6, 30, 90, 270, 400, 550, 50, false, 2,
+                );
+            self.generate_jail(10, game_id, 'Visiting Jail');
+            self
+                .generate_properties(
+                    11, game_id, 'Linea Lane', 120, 8, 40, 100, 300, 450, 600, 50, false, 2,
+                );
+            self.generate_utilitity(12, game_id, 'Chainlink Power Plant', false);
+            self
+                .generate_properties(
+                    13, game_id, 'Arbitrium Avenue', 140, 10, 50, 150, 450, 625, 750, 100, false, 3,
+                );
+            self.generate_community_chest(14, game_id);
+            self
+                .generate_properties(
+                    15,
+                    game_id,
+                    'Optimistic Avenue',
+                    140,
+                    10,
+                    50,
+                    150,
+                    450,
+                    625,
+                    750,
+                    100,
+                    false,
+                    3,
+                );
+            self.generate_railroad(16, game_id, 'Pinata Railroad', false);
+            self
+                .generate_properties(
+                    17, game_id, 'Base Avenue', 160, 12, 60, 180, 500, 700, 900, 100, false, 3,
+                );
+            self
+                .generate_properties(
+                    18, game_id, 'Cosmos Lane', 180, 14, 70, 200, 550, 750, 950, 100, false, 4,
+                );
+            self.generate_chance(19, game_id);
+            self
+                .generate_properties(
+                    20, game_id, 'Polkadot Lane', 180, 14, 70, 200, 550, 750, 950, 100, false, 4,
+                );
+            self.generate_go(21, game_id, 'Free Parking');
+            self
+                .generate_properties(
+                    22, game_id, 'Near Lane', 200, 16, 80, 220, 600, 800, 1000, 100, false, 4,
+                );
+            self.generate_community_chest(23, game_id);
+            self
+                .generate_properties(
+                    24, game_id, 'Uniswap Avenue', 220, 18, 90, 250, 700, 875, 1050, 150, false, 5,
+                );
+            self.generate_railroad(25, game_id, 'Open Zeppelin Railroad', false);
+            self
+                .generate_properties(
+                    26, game_id, 'MakerDAO Avenue', 220, 18, 90, 250, 700, 875, 1050, 150, false, 5,
+                );
+            self
+                .generate_properties(
+                    27, game_id, 'Aave Avenue', 240, 20, 100, 300, 750, 925, 1100, 150, false, 5,
+                );
+            self.generate_utilitity(28, game_id, 'Graph Water Works', false);
+            self
+                .generate_properties(
+                    29, game_id, 'Lisk Lane', 260, 22, 110, 330, 800, 975, 1150, 150, false, 6,
+                );
+            self.generate_jail(30, game_id, 'Go to Jail');
+            self
+                .generate_properties(
+                    31, game_id, 'Rootstock Lane', 260, 22, 110, 330, 800, 975, 1150, 150, false, 6,
+                );
+            self
+                .generate_properties(
+                    32, game_id, 'Ark Lane', 280, 22, 120, 360, 850, 1025, 1200, 150, false, 6,
+                );
+            self.generate_community_chest(33, game_id);
+            self
+                .generate_properties(
+                    34,
+                    game_id,
+                    'Avalanche Avenue',
+                    300,
+                    26,
+                    130,
+                    390,
+                    900,
+                    1100,
+                    1275,
+                    200,
+                    false,
+                    7,
+                );
+            self.generate_railroad(35, game_id, 'Cartridge Railroad', false);
+            self.generate_chance(36, game_id);
+            self
+                .generate_properties(
+                    37, game_id, 'Solana Drive', 300, 26, 130, 390, 900, 1100, 1275, 200, false, 7,
+                );
+            self.generate_tax(38, game_id, 'Luxury Tax', 100);
+            self
+                .generate_properties(
+                    39,
+                    game_id,
+                    'Ethereum Avenue',
+                    320,
+                    28,
+                    150,
+                    450,
+                    1000,
+                    1200,
+                    1400,
+                    200,
+                    false,
+                    7,
+                );
+            self
+                .generate_properties(
+                    40, game_id, 'Bitcoin Lane', 400, 50, 200, 600, 1400, 1700, 2000, 200, false, 8,
+                );
         }
 
         fn try_join_symbol(
@@ -890,8 +768,134 @@ pub mod actions {
     }
 
     #[generate_trait]
-    impl PropertiesInternalImpl of IPropertiesInternal {
+    impl BoardTilesImpl of IBoardTiles {
 
+        fn generate_properties(
+            ref self: ContractState,
+            id: u8,
+            game_id: u256,
+            name: felt252,
+            cost_of_property: u256,
+            rent_site_only: u256,
+            rent_one_house: u256,
+            rent_two_houses: u256,
+            rent_three_houses: u256,
+            rent_four_houses: u256,
+            rent_hotel: u256,
+            cost_of_house: u256,
+            is_mortgaged: bool,
+            group_id: u8,
+        ) {
+            let mut world = self.world_default();
+            let mut property: Property = world.read_model((id, game_id));
+
+            property =
+                PropertyTrait::new(
+                    id,
+                    game_id,
+                    name,
+                    cost_of_property,
+                    rent_site_only,
+                    rent_one_house,
+                    rent_two_houses,
+                    rent_three_houses,
+                    rent_four_houses,
+                    rent_hotel,
+                    cost_of_house,
+                    group_id,
+                );
+
+            let property_to_id: PropertyToId = PropertyToId { name, id };
+            let id_to_property: IdToProperty = IdToProperty { id, name };
+
+            world.write_model(@property);
+            world.write_model(@property_to_id);
+            world.write_model(@id_to_property);
+        }
+
+
+        fn generate_go(ref self: ContractState, id: u8, game_id: u256, name: felt252) {
+            let mut world = self.world_default();
+            let mut go: Go = world.read_model((id, game_id));
+            go = Go { id, game_id, name };
+        }
+
+        fn create_new_game_id(ref self: ContractState) -> u256 {
+            let mut world = self.world_default();
+            let mut game_counter: GameCounter = world.read_model('v0');
+            let new_val = game_counter.current_val + 1;
+            game_counter.current_val = new_val;
+            world.write_model(@game_counter);
+            new_val
+        }
+
+        fn generate_tax(
+            ref self: ContractState, id: u8, game_id: u256, name: felt252, tax_amount: u256,
+        ) {
+            let mut world = self.world_default();
+            let mut tax: Tax = world.read_model((id, game_id));
+            tax = Tax { id, game_id, name, tax_amount };
+        }
+
+        fn generate_utilitity(
+            ref self: ContractState, id: u8, game_id: u256, name: felt252, is_mortgaged: bool,
+        ) {
+            let mut world = self.world_default();
+            let mut utility: Utility = world.read_model((id, game_id));
+
+            utility = UtilityTrait::new(id, game_id, name);
+
+            let utility_to_id: UtilityToId = UtilityToId { name, id };
+            let id_to_utility: IdToUtility = IdToUtility { id, name };
+
+            world.write_model(@utility);
+            world.write_model(@utility_to_id);
+            world.write_model(@id_to_utility);
+        }
+
+        // to be moved to it model
+        fn generate_railroad(
+            ref self: ContractState, id: u8, game_id: u256, name: felt252, is_mortgaged: bool,
+        ) {
+            let mut world = self.world_default();
+            let mut railroad: RailRoad = world.read_model((id, game_id));
+
+            railroad = RailRoadTrait::new(id, game_id, name);
+
+            let railroad_to_id: RailRoadToId = RailRoadToId { name, id };
+            let id_to_railroad: IdToRailRoad = IdToRailRoad { id, name };
+
+            world.write_model(@railroad);
+            world.write_model(@railroad_to_id);
+            world.write_model(@id_to_railroad);
+        }
+
+        // to be moved to it model
+        fn generate_chance(ref self: ContractState, id: u8, game_id: u256) {
+            let mut world = self.world_default();
+            let mut chance: Chance = world.read_model((id, game_id));
+
+            chance = ChanceTrait::new(id, game_id);
+
+            world.write_model(@chance);
+        }
+
+        // to be moved to it model 
+        fn generate_community_chest(ref self: ContractState, id: u8, game_id: u256) {
+            let mut world = self.world_default();
+            let mut community_chest: CommunityChest = world.read_model((id, game_id));
+
+            community_chest = CommunityChestTrait::new(id, game_id);
+
+            world.write_model(@community_chest);
+        }
+
+        // to be moved to it model
+        fn generate_jail(ref self: ContractState, id: u8, game_id: u256, name: felt252) {
+            let mut world = self.world_default();
+            let mut jail: Jail = world.read_model((id, game_id));
+            jail = Jail { id, game_id, name };
+        }
     }
 }
 
