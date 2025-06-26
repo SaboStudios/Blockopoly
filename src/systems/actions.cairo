@@ -66,11 +66,13 @@ pub mod actions {
 
     #[abi(embed_v0)]
     impl ActionsImpl of IActions<ContractState> {
+        
         fn is_registered(self: @ContractState, address: ContractAddress) -> bool {
             let mut world = self.world_default();
             let is_registered: IsRegistered = world.read_model(address);
             is_registered.is_registered
         }
+
         fn roll_dice(ref self: ContractState) -> (u8, u8) {
             let seed = get_block_timestamp();
 
@@ -83,7 +85,6 @@ pub mod actions {
             (dice1_roll, dice2_roll)
         }
 
-
         fn get_username_from_address(self: @ContractState, address: ContractAddress) -> felt252 {
             let mut world = self.world_default();
 
@@ -91,7 +92,7 @@ pub mod actions {
 
             address_map.username
         }
-        
+
         fn register_new_player(ref self: ContractState, username: felt252) {
             let mut world = self.world_default();
 
@@ -150,6 +151,7 @@ pub mod actions {
             let chance: Chance = world.read_model((id, game_id));
             chance
         }
+
         fn get_community_chest(self: @ContractState, id: u8, game_id: u256) -> CommunityChest {
             let mut world = self.world_default();
             let community_chest: CommunityChest = world.read_model((id, game_id));
@@ -183,17 +185,6 @@ pub mod actions {
         fn start_game(ref self: ContractState, game_id: u256) -> bool {
             true
         }
-
-
-        // to stay and call models
-        // fn create_new_game_id(ref self: ContractState) -> u256 {
-        //     let mut world = self.world_default();
-        //     let mut game_counter: GameCounter = world.read_model('v0');
-        //     let new_val = game_counter.current_val + 1;
-        //     game_counter.current_val = new_val;
-        //     world.write_model(@game_counter);
-        //     new_val
-        // }
 
         // to stay and call models
         fn create_new_game(
@@ -358,6 +349,7 @@ pub mod actions {
             world.write_model(@property);
             true
         }
+
         fn mortgage_property(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
             let mut world = self.world_default();
             let caller = get_caller_address();
@@ -683,8 +675,8 @@ pub mod actions {
             username: felt252,
             game_id: u256,
         ) {
-            // let mut world = self.world_default();
-            // let timestamp = get_block_timestamp();
+            let mut world = self.world_default();
+            let timestamp = get_block_timestamp();
 
             match symbol {
                 PlayerSymbol::Hat => {
