@@ -23,7 +23,7 @@ pub trait PlayerTrait {
 
 impl PlayerImpl of PlayerTrait {
     fn new(username: felt252, address: ContractAddress, created_at: u64) -> Player {
-        let zero_address: ContractAddress = contract_address_const::<0>();
+        // let zero_address: ContractAddress = contract_address_const::<0>();
         Player {
             address,
             username,
