@@ -66,9 +66,9 @@ pub mod actions {
 
     #[abi(embed_v0)]
     impl ActionsImpl of IActions<ContractState> {
-        
+
         fn is_registered(self: @ContractState, address: ContractAddress) -> bool {
-            let mut world = self.world_default();
+            let world = self.world_default();
             let is_registered: IsRegistered = world.read_model(address);
             is_registered.is_registered
         }
@@ -86,7 +86,7 @@ pub mod actions {
         }
 
         fn get_username_from_address(self: @ContractState, address: ContractAddress) -> felt252 {
-            let mut world = self.world_default();
+            let world = self.world_default();
 
             let address_map: AddressToUsername = world.read_model(address);
 
@@ -135,49 +135,49 @@ pub mod actions {
         }
 
         fn get_tax(self: @ContractState, id: u8, game_id: u256) -> Tax {
-            let mut world = self.world_default();
+            let world = self.world_default();
             let tax: Tax = world.read_model((id, game_id));
             tax
         }
 
         fn get_go(self: @ContractState, id: u8, game_id: u256) -> Go {
-            let mut world = self.world_default();
+            let world = self.world_default();
             let go: Go = world.read_model((id, game_id));
             go
         }
 
         fn get_chance(self: @ContractState, id: u8, game_id: u256) -> Chance {
-            let mut world = self.world_default();
+            let world = self.world_default();
             let chance: Chance = world.read_model((id, game_id));
             chance
         }
 
         fn get_community_chest(self: @ContractState, id: u8, game_id: u256) -> CommunityChest {
-            let mut world = self.world_default();
+            let world = self.world_default();
             let community_chest: CommunityChest = world.read_model((id, game_id));
             community_chest
         }
 
         fn get_property(self: @ContractState, id: u8, game_id: u256) -> Property {
-            let mut world = self.world_default();
+            let world = self.world_default();
             let property: Property = world.read_model((id, game_id));
             property
         }
 
         fn get_utility(self: @ContractState, id: u8, game_id: u256) -> Utility {
-            let mut world = self.world_default();
+            let world = self.world_default();
             let utility: Utility = world.read_model((id, game_id));
             utility
         }
 
         fn get_railroad(self: @ContractState, id: u8, game_id: u256) -> RailRoad {
-            let mut world = self.world_default();
+            let world = self.world_default();
             let railroad: RailRoad = world.read_model((id, game_id));
             railroad
         }
 
         fn get_jail(self: @ContractState, id: u8, game_id: u256) -> Jail {
-            let mut world = self.world_default();
+            let world = self.world_default();
             let jail: Jail = world.read_model((id, game_id));
             jail
         }
@@ -204,7 +204,6 @@ pub mod actions {
             assert(caller_username != 0, 'PLAYER NOT REGISTERED');
 
             let game_id = self.create_new_game_id();
-            let game_id = 1;
             let timestamp = get_block_timestamp();
 
             // Initialize player symbols
@@ -341,9 +340,10 @@ pub mod actions {
             } else {
                 assert(property.for_sale == true, 'Property is not for sale');
                 self.transfer_from(caller, property.owner, game_id, amount);
+                property.change_game_property_ownership(caller, property.owner);
             }
 
-            property.owner = caller;
+            // property.owner = caller;
             property.for_sale = false;
 
             world.write_model(@property);
