@@ -20,32 +20,33 @@ pub trait IActions<T> {
         ref self: T, game_type: GameType, player_symbol: PlayerSymbol, number_of_players: u8,
     ) -> u256;
     fn get_username_from_address(self: @T, address: ContractAddress) -> felt252;
-    fn create_new_game_id(ref self: T) -> u256;
-    fn generate_properties(
-        ref self: T,
-        id: u8,
-        game_id: u256,
-        name: felt252,
-        cost_of_property: u256,
-        rent_site_only: u256,
-        rent_one_house: u256,
-        rent_two_houses: u256,
-        rent_three_houses: u256,
-        rent_four_houses: u256,
-        rent_hotel: u256,
-        cost_of_house: u256,
-        is_mortgaged: bool,
-        group_id: u8,
-    );
+    // fn create_new_game_id(ref self: T) -> u256;
+    // fn generate_properties(
+    //     ref self: T,
+    //     id: u8,
+    //     game_id: u256,
+    //     name: felt252,
+    //     cost_of_property: u256,
+    //     rent_site_only: u256,
+    //     rent_one_house: u256,
+    //     rent_two_houses: u256,
+    //     rent_three_houses: u256,
+    //     rent_four_houses: u256,
+    //     rent_hotel: u256,
+    //     cost_of_house: u256,
+    //     is_mortgaged: bool,
+    //     group_id: u8,
+    // );
 
-    fn generate_chance(ref self: T, id: u8, game_id: u256);
-    fn generate_jail(ref self: T, id: u8, game_id: u256, name: felt252);
-    fn generate_go(ref self: T, id: u8, game_id: u256, name: felt252);
-    fn generate_community_chest(ref self: T, id: u8, game_id: u256);
-    fn generate_utilitity(ref self: T, id: u8, game_id: u256, name: felt252, is_mortgaged: bool);
-    fn generate_railroad(ref self: T, id: u8, game_id: u256, name: felt252, is_mortgaged: bool);
-    fn generate_tax(ref self: T, id: u8, game_id: u256, name: felt252, tax_amount: u256);
+    // fn generate_chance(ref self: T, id: u8, game_id: u256);
+    // fn generate_jail(ref self: T, id: u8, game_id: u256, name: felt252);
+    // fn generate_go(ref self: T, id: u8, game_id: u256, name: felt252);
+    // fn generate_community_chest(ref self: T, id: u8, game_id: u256);
+    // fn generate_utilitity(ref self: T, id: u8, game_id: u256, name: felt252, is_mortgaged: bool);
+    // fn generate_railroad(ref self: T, id: u8, game_id: u256, name: felt252, is_mortgaged: bool);
+    // fn generate_tax(ref self: T, id: u8, game_id: u256, name: felt252, tax_amount: u256);
     fn join_game(ref self: T, player_symbol: PlayerSymbol, game_id: u256);
+    fn start_game(ref self: T, game_id: u256) -> bool;
     fn retrieve_game(self: @T, game_id: u256) -> Game;
     fn retrieve_player(self: @T, addr: ContractAddress) -> Player;
     fn retrieve_game_player(self: @T, addr: ContractAddress) -> GamePlayer;
