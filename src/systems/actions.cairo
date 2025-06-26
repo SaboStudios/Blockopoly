@@ -133,6 +133,7 @@ pub mod actions {
         }
 
 
+        // to be moved to the property model
         fn generate_properties(
             ref self: ContractState,
             id: u8,
@@ -176,6 +177,8 @@ pub mod actions {
             world.write_model(@id_to_property);
         }
 
+
+        // to be moved to it model
         fn generate_utilitity(
             ref self: ContractState, id: u8, game_id: u256, name: felt252, is_mortgaged: bool,
         ) {
@@ -192,6 +195,7 @@ pub mod actions {
             world.write_model(@id_to_utility);
         }
 
+        // to be moved to it model
         fn generate_railroad(
             ref self: ContractState, id: u8, game_id: u256, name: felt252, is_mortgaged: bool,
         ) {
@@ -208,6 +212,7 @@ pub mod actions {
             world.write_model(@id_to_railroad);
         }
 
+        // to be moved to it model
         fn generate_chance(ref self: ContractState, id: u8, game_id: u256) {
             let mut world = self.world_default();
             let mut chance: Chance = world.read_model((id, game_id));
@@ -216,6 +221,8 @@ pub mod actions {
 
             world.write_model(@chance);
         }
+
+        // to be moved to it model 
         fn generate_community_chest(ref self: ContractState, id: u8, game_id: u256) {
             let mut world = self.world_default();
             let mut community_chest: CommunityChest = world.read_model((id, game_id));
@@ -225,17 +232,21 @@ pub mod actions {
             world.write_model(@community_chest);
         }
 
+        // to be moved to it model
         fn generate_jail(ref self: ContractState, id: u8, game_id: u256, name: felt252) {
             let mut world = self.world_default();
             let mut jail: Jail = world.read_model((id, game_id));
             jail = Jail { id, game_id, name };
         }
 
+        // to be moved to it model
         fn generate_go(ref self: ContractState, id: u8, game_id: u256, name: felt252) {
             let mut world = self.world_default();
             let mut go: Go = world.read_model((id, game_id));
             go = Go { id, game_id, name };
         }
+
+        // to be moved to it model
         fn generate_tax(
             ref self: ContractState, id: u8, game_id: u256, name: felt252, tax_amount: u256,
         ) {
@@ -292,6 +303,7 @@ pub mod actions {
         }
 
 
+        // to stay and call models
         fn create_new_game_id(ref self: ContractState) -> u256 {
             let mut world = self.world_default();
             let mut game_counter: GameCounter = world.read_model('v0');
@@ -301,6 +313,7 @@ pub mod actions {
             new_val
         }
 
+        // to stay and call models
         fn create_new_game(
             ref self: ContractState,
             game_type: GameType,

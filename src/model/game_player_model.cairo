@@ -1,6 +1,6 @@
 use starknet::{ContractAddress};
 
-#[derive(Drop, Copy, Serde)]
+#[derive(Drop, Serde, Introspect)]
 #[dojo::model]
 pub struct GamePlayer {
     #[key]
@@ -11,41 +11,41 @@ pub struct GamePlayer {
     pub position: u8,
     pub jailed: bool,
     pub balance: u256,
+    pub properties_owned: Array<u8>,
+    pub is_bankrupt: bool,
+    pub is_active: bool,
 }
 
 
+
+
+
+
+// the GamePlayerTrait tell imposes the actions a player can perform within a game 
+
 pub trait GamePlayerTrait {
-    fn new(username: felt252, address: ContractAddress, game_id: u256) -> GamePlayer;
+    fn create_game_player(username: felt252, address: ContractAddress, game_id: u256, player_symbol: PlayerSymbol) -> GamePlayer;
     fn move(player: GamePlayer, steps: u8);
-    fn join_game(
-        address: ContractAddress, game_id: u256, player_symbol: PlayerSymbol,
-    ) -> GamePlayer;
-    fn pay_rent_to(from: GamePlayer, to: GamePlayer, amount: u256);
-    fn buy_property(from: GamePlayer, to: GamePlayer, amount: u256);
+    fn pay_game_player(ref self: GamePlayer, amount: u256) -> bool ;
+    fn deduct_game_player(ref self: GamePlayer, amount: u256) -> bool;
+    fn add_property_to_game_player(ref self: GamePlayer, property_id: u8) -> bool;
+    fn remove_property_from_game_player(ref self: GamePlayer, property_id: u8) -> bool;
+    fn declare_bankruptcy(ref self: GamePlayer) -> bool;
+    fn jail_game_player(ref self: GamePlayer) -> bool;
 }
 
 impl GamePlayerImpl of GamePlayerTrait {
-    fn new(username: felt252, address: ContractAddress, game_id: u256) -> GamePlayer {
+    fn create_game_player(username: felt252, address: ContractAddress, game_id: u256, player_symbol: PlayerSymbol) -> GamePlayer {
         GamePlayer {
             address,
             game_id,
-            player_symbol: PlayerSymbol::Hat,
+            player_symbol: player_symbol,
             balance: 0,
             position: 0,
             jailed: false,
-        }
-    }
-
-    fn join_game(
-        address: ContractAddress, game_id: u256, player_symbol: PlayerSymbol,
-    ) -> GamePlayer {
-        GamePlayer {
-            address,
-            game_id,
-            player_symbol: PlayerSymbol::Hat,
-            position: 0,
-            jailed: false,
-            balance: 0,
+            is_bankrupt: false,
+            is_active: true,
+            properties_owned: array![]
         }
     }
 
@@ -53,16 +53,28 @@ impl GamePlayerImpl of GamePlayerTrait {
         player.position += steps;
     }
 
-    fn pay_rent_to(mut from: GamePlayer, mut to: GamePlayer, amount: u256) {
-        assert(from.balance >= amount, 'insufficient amount');
-        from.balance -= amount;
-        to.balance += amount;
+    fn pay_game_player(ref self: GamePlayer, amount: u256) -> bool {
+        true
     }
 
-    fn buy_property(mut from: GamePlayer, mut to: GamePlayer, amount: u256) {
-        assert(from.balance >= amount, 'insufficient amount');
-        from.balance -= amount;
-        to.balance += amount;
+    fn deduct_game_player(ref self: GamePlayer, amount: u256) -> bool {
+        true
+    }
+
+    fn add_property_to_game_player(ref self: GamePlayer, property_id: u8) -> bool {
+        true
+    }
+
+    fn remove_property_from_game_player(ref self: GamePlayer, property_id: u8) -> bool {
+        true
+    }
+
+    fn declare_bankruptcy(ref self: GamePlayer) -> bool {
+        true
+    }
+
+    fn jail_game_player(ref self: GamePlayer) -> bool {
+        true
     }
 }
 
