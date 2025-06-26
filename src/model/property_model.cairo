@@ -56,8 +56,8 @@ pub trait PropertyTrait {
         group_id: u8,
     ) -> Property;
     fn get_rent_amount(property: Property, houses: u8, hotel: bool) -> u256;
-    fn mortgage(ref self: Property);
-    fn lift_mortgage(ref self: Property);
+    fn mortgage(ref self: Property, owner: ContractAddress);
+    fn lift_mortgage(ref self: Property, owner: ContractAddress);
     fn upgrade_property(ref self: Property, player: ContractAddress, upgrade_level: u8) -> bool;
     fn downgrade_property(ref self: Property, player: ContractAddress, downgrade_level: u8) -> bool;
     fn change_game_property_ownership(ref self: Property, new_owner: ContractAddress, owner: ContractAddress) -> bool;   
@@ -118,12 +118,12 @@ impl PropertyImpl of PropertyTrait {
         }
     }
 
-    fn mortgage(ref self: Property) {
-        property.is_mortgaged = true;
+    fn mortgage(ref self: Property, owner: ContractAddress) {
+        self.is_mortgaged = true;
     }
 
-    fn lift_mortgage(ref self: Property) {
-        property.is_mortgaged = false;
+    fn lift_mortgage(ref self: Property, owner: ContractAddress) {
+        self.is_mortgaged = false;
     }
 
     fn upgrade_property(ref self: Property, player: ContractAddress, upgrade_level: u8) -> bool {
