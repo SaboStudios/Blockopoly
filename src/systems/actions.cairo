@@ -6,7 +6,7 @@ pub mod actions {
     use dojo_starter::model::utility_model::{Utility, UtilityTrait, UtilityToId, IdToUtility};
     use dojo_starter::model::rail_road_model::{RailRoad, RailRoadTrait, RailRoadToId, IdToRailRoad};
     use dojo_starter::model::game_model::{
-        GameType, Game, GameBalance, GameTrait, GameCounter, GameStatus,
+        GameType, Game, GameBalance, GameTrait, GameCounter, GameStatus, IGameBalance
     };
     use dojo_starter::model::player_model::{
         Player, UsernameToAddress, AddressToUsername, PlayerTrait, IsRegistered,
@@ -328,8 +328,14 @@ pub mod actions {
         }
 
         fn buy_property(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
+            // get the world
             let mut world = self.world_default();
+            //get the game out and check it is ongoing
+            let found_game: Game = world.read_model(game_id);
+            assert!(found_game.status == GameStatus::Ongoing,"game has not started yet ");
+
             let caller = get_caller_address();
+
             let mut property: Property = world.read_model((property_id, game_id));
             let contract_address = get_contract_address();
             let zero_address: ContractAddress = contract_address_const::<0>();
@@ -337,13 +343,13 @@ pub mod actions {
 
             if property.owner == zero_address {
                 self.transfer_from(caller, contract_address, game_id, amount);
+
             } else {
                 assert(property.for_sale == true, 'Property is not for sale');
                 self.transfer_from(caller, property.owner, game_id, amount);
-                property.change_game_property_ownership(caller, property.owner);
             }
 
-            // property.owner = caller;
+            property.change_game_property_ownership(caller, property.owner);
             property.for_sale = false;
 
             world.write_model(@property);
@@ -355,15 +361,15 @@ pub mod actions {
             let caller = get_caller_address();
             let mut property: Property = world.read_model((property_id, game_id));
 
-            assert(property.owner == caller, 'Only the owner can mortgage ');
-            assert(property.is_mortgaged == false, 'Property is already mortgaged');
+            // call the property model trait
+            property.mortgage(caller);
 
             let amount: u256 = property.cost_of_property / 2;
             let contract_address = get_contract_address();
 
+            // call the game player model 
             self.transfer_from(contract_address, caller, game_id, amount);
 
-            property.is_mortgaged = true;
             world.write_model(@property);
 
             true
@@ -374,16 +380,16 @@ pub mod actions {
             let caller = get_caller_address();
             let mut property: Property = world.read_model((property_id, game_id));
 
-            assert(property.owner == caller, 'Only the owner can unmortgage');
-            assert(property.is_mortgaged == true, 'Property is not mortgaged');
+            // assert(property.owner == caller, 'Only the owner can unmortgage');
+            // assert(property.is_mortgaged == true, 'Property is not mortgaged');
 
+            property.lift_mortgage(caller);
             let mortgage_amount: u256 = property.cost_of_property / 2;
             let interest: u256 = mortgage_amount * 10 / 100; // 10% interest
             let repay_amount: u256 = mortgage_amount + interest;
 
             self.transfer_from(caller, get_contract_address(), game_id, repay_amount);
 
-            property.is_mortgaged = false;
             world.write_model(@property);
 
             true
@@ -474,9 +480,9 @@ pub mod actions {
 
             let mut sender: GameBalance = world.read_model((from, game_id));
             let mut recepient: GameBalance = world.read_model((to, game_id));
-            assert(sender.balance >= amount, 'insufficient funds');
-            sender.balance -= amount;
-            recepient.balance += amount;
+            sender.deduct_game_balance(amount);
+            recepient.increase_game_balance(amount);
+
             world.write_model(@sender);
             world.write_model(@recepient);
         }
