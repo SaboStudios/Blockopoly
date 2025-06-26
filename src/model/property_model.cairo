@@ -10,6 +10,7 @@ pub struct Property {
     pub name: felt252,
     pub owner: ContractAddress,
     pub cost_of_property: u256,
+    pub property_level: u8,
     pub rent_site_only: u256,
     pub rent_one_house: u256,
     pub rent_two_houses: u256,
@@ -54,10 +55,11 @@ pub trait PropertyTrait {
         rent_hotel: u256,
         group_id: u8,
     ) -> Property;
-    fn set_owner(property: Property, new_owner: ContractAddress);
     fn get_rent_amount(property: Property, houses: u8, hotel: bool) -> u256;
     fn mortgage(property: Property);
     fn lift_mortgage(property: Property);
+    fn upgrade_property(ref self: Property, player: ContractAddress, upgrade_level: u8) -> bool;
+    fn downgrade_property(ref self: Property, player: ContractAddress, downgrade_level: u8) -> bool;
 }
 
 
@@ -97,11 +99,6 @@ impl PropertyImpl of PropertyTrait {
         }
     }
 
-
-    fn set_owner(mut property: Property, new_owner: ContractAddress) {
-        property.owner = new_owner;
-    }
-
     fn get_rent_amount(mut property: Property, houses: u8, hotel: bool) -> u256 {
         if property.is_mortgaged {
             return 0;
@@ -125,5 +122,20 @@ impl PropertyImpl of PropertyTrait {
 
     fn lift_mortgage(mut property: Property) {
         property.is_mortgaged = false;
+    }
+
+    fn upgrade_property(ref self: Property, player: ContractAddress, upgrade_level: u8) -> bool {
+        // deals with the property level mostly after many checks
+        true
+    }
+
+    fn downgrade_property(ref self: Property, player: ContractAddress, downgrade_level: u8) -> bool {
+        // deals with the property level mostly after many checks
+        true
+    }
+
+    fn change_game_property_ownership(ref self: GameProperties, new_owner: ContractAddress, owner: ContractAddress) -> bool {
+        // deals with the field owner after many checks
+        true
     }
 }
