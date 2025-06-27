@@ -186,6 +186,10 @@ pub mod actions {
             true
         }
 
+        fn exit_game(ref self: T) -> bool {
+            true
+        }
+
         // to stay and call models
         fn create_new_game(
             ref self: ContractState,

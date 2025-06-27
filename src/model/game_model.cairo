@@ -28,7 +28,6 @@ pub struct GameListOfPlayers {
     pub list_of_addresses: Array<ContractAddress>,
 }
 
-
 #[derive(Drop, Clone, Serde)]
 #[dojo::model]
 pub struct Game {
