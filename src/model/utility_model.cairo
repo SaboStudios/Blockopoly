@@ -31,7 +31,9 @@ pub struct IdToUtility {
 
 pub trait UtilityTrait {
     fn new(id: u8, game_id: u256, name: felt252) -> Utility;
-    fn change_utility_ownership(utility: Utility, new_owner: ContractAddress, owner: ContractAddress);
+    fn change_utility_ownership(
+        utility: Utility, new_owner: ContractAddress, owner: ContractAddress,
+    );
     fn get_rent_amount(utility: Utility, utilities_owned: u8, dice_rolled: u8) -> u256;
     fn mortgage_utility(utility: Utility, owner: ContractAddress) -> bool;
     fn lift_utility_mortgage(utility: Utility, owner: ContractAddress) -> bool;
@@ -53,10 +55,10 @@ impl UtilityImpl of UtilityTrait {
     }
 
 
-
     // use ref state
-    fn change_utility_ownership(mut utility: Utility, new_owner: ContractAddress, owner: ContractAddress) {
-        //implement after checks especially ownership ...
+    fn change_utility_ownership(
+        mut utility: Utility, new_owner: ContractAddress, owner: ContractAddress,
+    ) { //implement after checks especially ownership ...
     }
 
     // change to no change state
@@ -85,9 +87,8 @@ impl UtilityImpl of UtilityTrait {
         true
     }
 
-    // 
+    //
     fn up_utility_up_for_sale(ref self: Utility, owner: ContractAddress) -> bool {
-
         // implement after checks ... to chage the state for_sale
         true
     }

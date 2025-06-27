@@ -31,7 +31,9 @@ pub struct IdToRailRoad {
 
 pub trait RailRoadTrait {
     fn new(id: u8, game_id: u256, name: felt252) -> RailRoad;
-    fn change_railroad_ownership(railroad: RailRoad, new_owner: ContractAddress, owner: ContractAddress) -> bool;
+    fn change_railroad_ownership(
+        railroad: RailRoad, new_owner: ContractAddress, owner: ContractAddress,
+    ) -> bool;
     fn get_rent_amount(railroad: RailRoad, railroad_owned: u8) -> u256;
     fn mortgage(railroad: RailRoad, owner: ContractAddress);
     fn lift_mortgage(railroad: RailRoad, owner: ContractAddress);
@@ -53,8 +55,10 @@ impl RailRoadImpl of RailRoadTrait {
 
 
     // change to ref
-    fn change_railroad_ownership(railroad: RailRoad, new_owner: ContractAddress, owner: ContractAddress) -> bool {
-        // after checks 
+    fn change_railroad_ownership(
+        railroad: RailRoad, new_owner: ContractAddress, owner: ContractAddress,
+    ) -> bool {
+        // after checks
 
         true
     }
@@ -84,12 +88,12 @@ impl RailRoadImpl of RailRoadTrait {
     }
 
 
-    // change to ref 
-    fn mortgage(mut railroad: RailRoad, owner: ContractAddress) {
-        // railroad.is_mortgaged = true;
+    // change to ref
+    fn mortgage(mut railroad: RailRoad, owner: ContractAddress) { // railroad.is_mortgaged = true;
     }
 
-    fn lift_mortgage(mut railroad: RailRoad, owner: ContractAddress) {
-        // railroad.is_mortgaged = false;
+    fn lift_mortgage(
+        mut railroad: RailRoad, owner: ContractAddress,
+    ) { // railroad.is_mortgaged = false;
     }
 }

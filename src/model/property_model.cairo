@@ -55,12 +55,14 @@ pub trait PropertyTrait {
         rent_hotel: u256,
         group_id: u8,
     ) -> Property;
-    fn get_rent_amount(property: Property, houses: u8, hotel: bool) -> u256;
-    fn mortgage(property: Property);
-    fn lift_mortgage(property: Property);
+    fn get_rent_amount(self: @Property) -> u256;
+    fn mortgage(ref self: Property, owner: ContractAddress);
+    fn lift_mortgage(ref self: Property, owner: ContractAddress);
     fn upgrade_property(ref self: Property, player: ContractAddress, upgrade_level: u8) -> bool;
     fn downgrade_property(ref self: Property, player: ContractAddress, downgrade_level: u8) -> bool;
-    fn change_game_property_ownership(ref self: Property, new_owner: ContractAddress, owner: ContractAddress) -> bool;   
+    fn change_game_property_ownership(
+        ref self: Property, new_owner: ContractAddress, owner: ContractAddress,
+    ) -> bool;
 }
 
 
@@ -101,29 +103,28 @@ impl PropertyImpl of PropertyTrait {
         }
     }
 
-    fn get_rent_amount(mut property: Property, houses: u8, hotel: bool) -> u256 {
-        if property.is_mortgaged {
+    fn get_rent_amount(self: @Property) -> u256 {
+        if *self.is_mortgaged {
             return 0;
         }
-        if hotel {
-            return property.rent_hotel;
-        }
-        match houses {
-            0 => property.rent_site_only,
-            1 => property.rent_one_house,
-            2 => property.rent_two_houses,
-            3 => property.rent_three_houses,
-            4 => property.rent_four_houses,
-            _ => property.rent_site_only // default fallback
+
+        match *self.property_level {
+            0 => *self.rent_site_only,
+            1 => *self.rent_one_house,
+            2 => *self.rent_two_houses,
+            3 => *self.rent_three_houses,
+            4 => *self.rent_four_houses,
+            5 => *self.rent_hotel,
+            _ => *self.rent_site_only // default fallback
         }
     }
 
-    fn mortgage(mut property: Property) {
-        property.is_mortgaged = true;
+    fn mortgage(ref self: Property, owner: ContractAddress) {
+        self.is_mortgaged = true;
     }
 
-    fn lift_mortgage(mut property: Property) {
-        property.is_mortgaged = false;
+    fn lift_mortgage(ref self: Property, owner: ContractAddress) {
+        self.is_mortgaged = false;
     }
 
     fn upgrade_property(ref self: Property, player: ContractAddress, upgrade_level: u8) -> bool {
@@ -131,12 +132,16 @@ impl PropertyImpl of PropertyTrait {
         true
     }
 
-    fn downgrade_property(ref self: Property, player: ContractAddress, downgrade_level: u8) -> bool {
+    fn downgrade_property(
+        ref self: Property, player: ContractAddress, downgrade_level: u8,
+    ) -> bool {
         // deals with the property level mostly after many checks
         true
     }
 
-    fn change_game_property_ownership(ref self: Property, new_owner: ContractAddress, owner: ContractAddress) -> bool {
+    fn change_game_property_ownership(
+        ref self: Property, new_owner: ContractAddress, owner: ContractAddress,
+    ) -> bool {
         // deals with the field owner after many checks
         true
     }

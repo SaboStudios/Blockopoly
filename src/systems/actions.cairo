@@ -6,7 +6,7 @@ pub mod actions {
     use dojo_starter::model::utility_model::{Utility, UtilityTrait, UtilityToId, IdToUtility};
     use dojo_starter::model::rail_road_model::{RailRoad, RailRoadTrait, RailRoadToId, IdToRailRoad};
     use dojo_starter::model::game_model::{
-        GameType, Game, GameBalance, GameTrait, GameCounter, GameStatus,
+        GameType, Game, GameBalance, GameTrait, GameCounter, GameStatus, IGameBalance,
     };
     use dojo_starter::model::player_model::{
         Player, UsernameToAddress, AddressToUsername, PlayerTrait, IsRegistered,
@@ -67,10 +67,11 @@ pub mod actions {
     #[abi(embed_v0)]
     impl ActionsImpl of IActions<ContractState> {
         fn is_registered(self: @ContractState, address: ContractAddress) -> bool {
-            let mut world = self.world_default();
+            let world = self.world_default();
             let is_registered: IsRegistered = world.read_model(address);
             is_registered.is_registered
         }
+
         fn roll_dice(ref self: ContractState) -> (u8, u8) {
             let seed = get_block_timestamp();
 
@@ -83,14 +84,14 @@ pub mod actions {
             (dice1_roll, dice2_roll)
         }
 
-
         fn get_username_from_address(self: @ContractState, address: ContractAddress) -> felt252 {
-            let mut world = self.world_default();
+            let world = self.world_default();
 
             let address_map: AddressToUsername = world.read_model(address);
 
             address_map.username
         }
+
         fn register_new_player(ref self: ContractState, username: felt252) {
             let mut world = self.world_default();
 
@@ -132,172 +133,50 @@ pub mod actions {
                 );
         }
 
-
-        // to be moved to the property model
-        // fn generate_properties(
-        //     ref self: ContractState,
-        //     id: u8,
-        //     game_id: u256,
-        //     name: felt252,
-        //     cost_of_property: u256,
-        //     rent_site_only: u256,
-        //     rent_one_house: u256,
-        //     rent_two_houses: u256,
-        //     rent_three_houses: u256,
-        //     rent_four_houses: u256,
-        //     rent_hotel: u256,
-        //     cost_of_house: u256,
-        //     is_mortgaged: bool,
-        //     group_id: u8,
-        // ) {
-        //     let mut world = self.world_default();
-        //     let mut property: Property = world.read_model((id, game_id));
-
-        //     property =
-        //         PropertyTrait::new(
-        //             id,
-        //             game_id,
-        //             name,
-        //             cost_of_property,
-        //             rent_site_only,
-        //             rent_one_house,
-        //             rent_two_houses,
-        //             rent_three_houses,
-        //             rent_four_houses,
-        //             rent_hotel,
-        //             cost_of_house,
-        //             group_id,
-        //         );
-
-        //     let property_to_id: PropertyToId = PropertyToId { name, id };
-        //     let id_to_property: IdToProperty = IdToProperty { id, name };
-
-        //     world.write_model(@property);
-        //     world.write_model(@property_to_id);
-        //     world.write_model(@id_to_property);
-        // }
-
-
-        // to be moved to it model
-        // fn generate_utilitity(
-        //     ref self: ContractState, id: u8, game_id: u256, name: felt252, is_mortgaged: bool,
-        // ) {
-        //     let mut world = self.world_default();
-        //     let mut utility: Utility = world.read_model((id, game_id));
-
-        //     utility = UtilityTrait::new(id, game_id, name);
-
-        //     let utility_to_id: UtilityToId = UtilityToId { name, id };
-        //     let id_to_utility: IdToUtility = IdToUtility { id, name };
-
-        //     world.write_model(@utility);
-        //     world.write_model(@utility_to_id);
-        //     world.write_model(@id_to_utility);
-        // }
-
-        // to be moved to it model
-        // fn generate_railroad(
-        //     ref self: ContractState, id: u8, game_id: u256, name: felt252, is_mortgaged: bool,
-        // ) {
-        //     let mut world = self.world_default();
-        //     let mut railroad: RailRoad = world.read_model((id, game_id));
-
-        //     railroad = RailRoadTrait::new(id, game_id, name);
-
-        //     let railroad_to_id: RailRoadToId = RailRoadToId { name, id };
-        //     let id_to_railroad: IdToRailRoad = IdToRailRoad { id, name };
-
-        //     world.write_model(@railroad);
-        //     world.write_model(@railroad_to_id);
-        //     world.write_model(@id_to_railroad);
-        // }
-
-        // to be moved to it model
-        // fn generate_chance(ref self: ContractState, id: u8, game_id: u256) {
-        //     let mut world = self.world_default();
-        //     let mut chance: Chance = world.read_model((id, game_id));
-
-        //     chance = ChanceTrait::new(id, game_id);
-
-        //     world.write_model(@chance);
-        // }
-
-        // to be moved to it model 
-        // fn generate_community_chest(ref self: ContractState, id: u8, game_id: u256) {
-        //     let mut world = self.world_default();
-        //     let mut community_chest: CommunityChest = world.read_model((id, game_id));
-
-        //     community_chest = CommunityChestTrait::new(id, game_id);
-
-        //     world.write_model(@community_chest);
-        // }
-
-        // to be moved to it model
-        // fn generate_jail(ref self: ContractState, id: u8, game_id: u256, name: felt252) {
-        //     let mut world = self.world_default();
-        //     let mut jail: Jail = world.read_model((id, game_id));
-        //     jail = Jail { id, game_id, name };
-        // }
-
-        // // to be moved to it model
-        // fn generate_go(ref self: ContractState, id: u8, game_id: u256, name: felt252) {
-        //     let mut world = self.world_default();
-        //     let mut go: Go = world.read_model((id, game_id));
-        //     go = Go { id, game_id, name };
-        // }
-
-        // to be moved to it model
-        // fn generate_tax(
-        //     ref self: ContractState, id: u8, game_id: u256, name: felt252, tax_amount: u256,
-        // ) {
-        //     let mut world = self.world_default();
-        //     let mut tax: Tax = world.read_model((id, game_id));
-        //     tax = Tax { id, game_id, name, tax_amount };
-        // }
-
         fn get_tax(self: @ContractState, id: u8, game_id: u256) -> Tax {
-            let mut world = self.world_default();
+            let world = self.world_default();
             let tax: Tax = world.read_model((id, game_id));
             tax
         }
 
         fn get_go(self: @ContractState, id: u8, game_id: u256) -> Go {
-            let mut world = self.world_default();
+            let world = self.world_default();
             let go: Go = world.read_model((id, game_id));
             go
         }
 
         fn get_chance(self: @ContractState, id: u8, game_id: u256) -> Chance {
-            let mut world = self.world_default();
+            let world = self.world_default();
             let chance: Chance = world.read_model((id, game_id));
             chance
         }
+
         fn get_community_chest(self: @ContractState, id: u8, game_id: u256) -> CommunityChest {
-            let mut world = self.world_default();
+            let world = self.world_default();
             let community_chest: CommunityChest = world.read_model((id, game_id));
             community_chest
         }
 
         fn get_property(self: @ContractState, id: u8, game_id: u256) -> Property {
-            let mut world = self.world_default();
+            let world = self.world_default();
             let property: Property = world.read_model((id, game_id));
             property
         }
 
         fn get_utility(self: @ContractState, id: u8, game_id: u256) -> Utility {
-            let mut world = self.world_default();
+            let world = self.world_default();
             let utility: Utility = world.read_model((id, game_id));
             utility
         }
 
         fn get_railroad(self: @ContractState, id: u8, game_id: u256) -> RailRoad {
-            let mut world = self.world_default();
+            let world = self.world_default();
             let railroad: RailRoad = world.read_model((id, game_id));
             railroad
         }
 
         fn get_jail(self: @ContractState, id: u8, game_id: u256) -> Jail {
-            let mut world = self.world_default();
+            let world = self.world_default();
             let jail: Jail = world.read_model((id, game_id));
             jail
         }
@@ -305,17 +184,6 @@ pub mod actions {
         fn start_game(ref self: ContractState, game_id: u256) -> bool {
             true
         }
-
-
-        // to stay and call models
-        // fn create_new_game_id(ref self: ContractState) -> u256 {
-        //     let mut world = self.world_default();
-        //     let mut game_counter: GameCounter = world.read_model('v0');
-        //     let new_val = game_counter.current_val + 1;
-        //     game_counter.current_val = new_val;
-        //     world.write_model(@game_counter);
-        //     new_val
-        // }
 
         // to stay and call models
         fn create_new_game(
@@ -334,8 +202,7 @@ pub mod actions {
             let caller_username = self.get_username_from_address(caller_address);
             assert(caller_username != 0, 'PLAYER NOT REGISTERED');
 
-            // let game_id = self.create_new_game_id();
-            let game_id = 1;
+            let game_id = self.create_new_game_id();
             let timestamp = get_block_timestamp();
 
             // Initialize player symbols
@@ -460,8 +327,14 @@ pub mod actions {
         }
 
         fn buy_property(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
+            // get the world
             let mut world = self.world_default();
+            //get the game out and check it is ongoing
+            let found_game: Game = world.read_model(game_id);
+            assert!(found_game.status == GameStatus::Ongoing, "game has not started yet ");
+
             let caller = get_caller_address();
+
             let mut property: Property = world.read_model((property_id, game_id));
             let contract_address = get_contract_address();
             let zero_address: ContractAddress = contract_address_const::<0>();
@@ -474,26 +347,27 @@ pub mod actions {
                 self.transfer_from(caller, property.owner, game_id, amount);
             }
 
-            property.owner = caller;
+            property.change_game_property_ownership(caller, property.owner);
             property.for_sale = false;
 
             world.write_model(@property);
             true
         }
+
         fn mortgage_property(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
             let mut world = self.world_default();
             let caller = get_caller_address();
             let mut property: Property = world.read_model((property_id, game_id));
 
-            assert(property.owner == caller, 'Only the owner can mortgage ');
-            assert(property.is_mortgaged == false, 'Property is already mortgaged');
+            // call the property model trait
+            property.mortgage(caller);
 
             let amount: u256 = property.cost_of_property / 2;
             let contract_address = get_contract_address();
 
+            // call the game player model
             self.transfer_from(contract_address, caller, game_id, amount);
 
-            property.is_mortgaged = true;
             world.write_model(@property);
 
             true
@@ -504,16 +378,21 @@ pub mod actions {
             let caller = get_caller_address();
             let mut property: Property = world.read_model((property_id, game_id));
 
-            assert(property.owner == caller, 'Only the owner can unmortgage');
-            assert(property.is_mortgaged == true, 'Property is not mortgaged');
+            // assert(property.owner == caller, 'Only the owner can unmortgage');
+            // assert(property.is_mortgaged == true, 'Property is not mortgaged');
 
             let mortgage_amount: u256 = property.cost_of_property / 2;
             let interest: u256 = mortgage_amount * 10 / 100; // 10% interest
             let repay_amount: u256 = mortgage_amount + interest;
 
+            let player_balance: GameBalance = world.read_model(());
+
+            // self.transfer_from(caller, get_contract_address(), game_id, repay_amount);
+
+            property.lift_mortgage(caller);
+
             self.transfer_from(caller, get_contract_address(), game_id, repay_amount);
 
-            property.is_mortgaged = false;
             world.write_model(@property);
 
             true
@@ -527,17 +406,9 @@ pub mod actions {
 
             assert(property.owner != zero_address, 'Property is unowned');
             assert(property.owner != caller, 'You cannot pay rent to yourself');
-            assert(property.is_mortgaged == false, 'No rent on mortgaged properties');
+            assert(!property.is_mortgaged, 'No rent on mortgaged properties');
 
-            let rent_amount: u256 = match property.development {
-                0 => property.rent_site_only,
-                1 => property.rent_one_house,
-                2 => property.rent_two_houses,
-                3 => property.rent_three_houses,
-                4 => property.rent_four_houses,
-                5 => property.rent_hotel,
-                _ => panic!("Invalid development level"),
-            };
+            let rent_amount: u256 = property.get_rent_amount();
 
             self.transfer_from(caller, property.owner, game_id, rent_amount);
 
@@ -604,12 +475,13 @@ pub mod actions {
 
             let mut sender: GameBalance = world.read_model((from, game_id));
             let mut recepient: GameBalance = world.read_model((to, game_id));
-            assert(sender.balance >= amount, 'insufficient funds');
-            sender.balance -= amount;
-            recepient.balance += amount;
+            sender.deduct_game_balance(amount);
+            recepient.increase_game_balance(amount);
+
             world.write_model(@sender);
             world.write_model(@recepient);
         }
+
 
         fn mint(ref self: ContractState, recepient: ContractAddress, game_id: u256, amount: u256) {
             let mut world = self.world_default();
@@ -657,145 +529,145 @@ pub mod actions {
 
         fn generate_board_tiles(ref self: ContractState, game_id: u256) {
             // Special tiles
-            // self.generate_go(1, game_id, 'Go');
-            // self.generate_community_chest(2, game_id);
-            // self
-            //     .generate_properties(
-            //         3, game_id, 'Axone Avenue', 60, 2, 10, 30, 90, 160, 250, 50, false, 1,
-            //     );
-            // self.generate_tax(4, game_id, 'Income Tax', 200);
-            // self.generate_railroad(5, game_id, 'IPFS Railroad', false);
-            // self
-            //     .generate_properties(
-            //         6, game_id, 'Onlydust Avenue', 60, 4, 20, 60, 180, 320, 450, 50, false, 1,
-            //     );
-            // self.generate_chance(7, game_id);
-            // self
-            //     .generate_properties(
-            //         8, game_id, 'ZkSync Lane', 100, 6, 30, 90, 270, 400, 550, 50, false, 2,
-            //     );
-            // self
-            //     .generate_properties(
-            //         9, game_id, 'Starknet Lane', 100, 6, 30, 90, 270, 400, 550, 50, false, 2,
-            //     );
-            // self.generate_jail(10, game_id, 'Visiting Jail');
-            // self
-            //     .generate_properties(
-            //         11, game_id, 'Linea Lane', 120, 8, 40, 100, 300, 450, 600, 50, false, 2,
-            //     );
-            // self.generate_utilitity(12, game_id, 'Chainlink Power Plant', false);
-            // self
-            //     .generate_properties(
-            //         13, game_id, 'Arbitrium Avenue', 140, 10, 50, 150, 450, 625, 750, 100, false, 3,
-            //     );
-            // self.generate_community_chest(14, game_id);
-            // self
-            //     .generate_properties(
-            //         15,
-            //         game_id,
-            //         'Optimistic Avenue',
-            //         140,
-            //         10,
-            //         50,
-            //         150,
-            //         450,
-            //         625,
-            //         750,
-            //         100,
-            //         false,
-            //         3,
-            //     );
-            // self.generate_railroad(16, game_id, 'Pinata Railroad', false);
-            // self
-            //     .generate_properties(
-            //         17, game_id, 'Base Avenue', 160, 12, 60, 180, 500, 700, 900, 100, false, 3,
-            //     );
-            // self
-            //     .generate_properties(
-            //         18, game_id, 'Cosmos Lane', 180, 14, 70, 200, 550, 750, 950, 100, false, 4,
-            //     );
-            // self.generate_chance(19, game_id);
-            // self
-            //     .generate_properties(
-            //         20, game_id, 'Polkadot Lane', 180, 14, 70, 200, 550, 750, 950, 100, false, 4,
-            //     );
-            // self.generate_go(21, game_id, 'Free Parking');
-            // self
-            //     .generate_properties(
-            //         22, game_id, 'Near Lane', 200, 16, 80, 220, 600, 800, 1000, 100, false, 4,
-            //     );
-            // self.generate_community_chest(23, game_id);
-            // self
-            //     .generate_properties(
-            //         24, game_id, 'Uniswap Avenue', 220, 18, 90, 250, 700, 875, 1050, 150, false, 5,
-            //     );
-            // self.generate_railroad(25, game_id, 'Open Zeppelin Railroad', false);
-            // self
-            //     .generate_properties(
-            //         26, game_id, 'MakerDAO Avenue', 220, 18, 90, 250, 700, 875, 1050, 150, false, 5,
-            //     );
-            // self
-            //     .generate_properties(
-            //         27, game_id, 'Aave Avenue', 240, 20, 100, 300, 750, 925, 1100, 150, false, 5,
-            //     );
-            // self.generate_utilitity(28, game_id, 'Graph Water Works', false);
-            // self
-            //     .generate_properties(
-            //         29, game_id, 'Lisk Lane', 260, 22, 110, 330, 800, 975, 1150, 150, false, 6,
-            //     );
-            // self.generate_jail(30, game_id, 'Go to Jail');
-            // self
-            //     .generate_properties(
-            //         31, game_id, 'Rootstock Lane', 260, 22, 110, 330, 800, 975, 1150, 150, false, 6,
-            //     );
-            // self
-            //     .generate_properties(
-            //         32, game_id, 'Ark Lane', 280, 22, 120, 360, 850, 1025, 1200, 150, false, 6,
-            //     );
-            // self.generate_community_chest(33, game_id);
-            // self
-            //     .generate_properties(
-            //         34,
-            //         game_id,
-            //         'Avalanche Avenue',
-            //         300,
-            //         26,
-            //         130,
-            //         390,
-            //         900,
-            //         1100,
-            //         1275,
-            //         200,
-            //         false,
-            //         7,
-            //     );
-            // self.generate_railroad(35, game_id, 'Cartridge Railroad', false);
-            // self.generate_chance(36, game_id);
-            // self
-            //     .generate_properties(
-            //         37, game_id, 'Solana Drive', 300, 26, 130, 390, 900, 1100, 1275, 200, false, 7,
-            //     );
-            // self.generate_tax(38, game_id, 'Luxury Tax', 100);
-            // self
-            //     .generate_properties(
-            //         39,
-            //         game_id,
-            //         'Ethereum Avenue',
-            //         320,
-            //         28,
-            //         150,
-            //         450,
-            //         1000,
-            //         1200,
-            //         1400,
-            //         200,
-            //         false,
-            //         7,
-            //     );
-            // self
-            //     .generate_properties(
-            //         40, game_id, 'Bitcoin Lane', 400, 50, 200, 600, 1400, 1700, 2000, 200, false, 8,
-            //     );
+            self.generate_go(1, game_id, 'Go');
+            self.generate_community_chest(2, game_id);
+            self
+                .generate_properties(
+                    3, game_id, 'Axone Avenue', 60, 2, 10, 30, 90, 160, 250, 50, false, 1,
+                );
+            self.generate_tax(4, game_id, 'Income Tax', 200);
+            self.generate_railroad(5, game_id, 'IPFS Railroad', false);
+            self
+                .generate_properties(
+                    6, game_id, 'Onlydust Avenue', 60, 4, 20, 60, 180, 320, 450, 50, false, 1,
+                );
+            self.generate_chance(7, game_id);
+            self
+                .generate_properties(
+                    8, game_id, 'ZkSync Lane', 100, 6, 30, 90, 270, 400, 550, 50, false, 2,
+                );
+            self
+                .generate_properties(
+                    9, game_id, 'Starknet Lane', 100, 6, 30, 90, 270, 400, 550, 50, false, 2,
+                );
+            self.generate_jail(10, game_id, 'Visiting Jail');
+            self
+                .generate_properties(
+                    11, game_id, 'Linea Lane', 120, 8, 40, 100, 300, 450, 600, 50, false, 2,
+                );
+            self.generate_utilitity(12, game_id, 'Chainlink Power Plant', false);
+            self
+                .generate_properties(
+                    13, game_id, 'Arbitrium Avenue', 140, 10, 50, 150, 450, 625, 750, 100, false, 3,
+                );
+            self.generate_community_chest(14, game_id);
+            self
+                .generate_properties(
+                    15,
+                    game_id,
+                    'Optimistic Avenue',
+                    140,
+                    10,
+                    50,
+                    150,
+                    450,
+                    625,
+                    750,
+                    100,
+                    false,
+                    3,
+                );
+            self.generate_railroad(16, game_id, 'Pinata Railroad', false);
+            self
+                .generate_properties(
+                    17, game_id, 'Base Avenue', 160, 12, 60, 180, 500, 700, 900, 100, false, 3,
+                );
+            self
+                .generate_properties(
+                    18, game_id, 'Cosmos Lane', 180, 14, 70, 200, 550, 750, 950, 100, false, 4,
+                );
+            self.generate_chance(19, game_id);
+            self
+                .generate_properties(
+                    20, game_id, 'Polkadot Lane', 180, 14, 70, 200, 550, 750, 950, 100, false, 4,
+                );
+            self.generate_go(21, game_id, 'Free Parking');
+            self
+                .generate_properties(
+                    22, game_id, 'Near Lane', 200, 16, 80, 220, 600, 800, 1000, 100, false, 4,
+                );
+            self.generate_community_chest(23, game_id);
+            self
+                .generate_properties(
+                    24, game_id, 'Uniswap Avenue', 220, 18, 90, 250, 700, 875, 1050, 150, false, 5,
+                );
+            self.generate_railroad(25, game_id, 'Open Zeppelin Railroad', false);
+            self
+                .generate_properties(
+                    26, game_id, 'MakerDAO Avenue', 220, 18, 90, 250, 700, 875, 1050, 150, false, 5,
+                );
+            self
+                .generate_properties(
+                    27, game_id, 'Aave Avenue', 240, 20, 100, 300, 750, 925, 1100, 150, false, 5,
+                );
+            self.generate_utilitity(28, game_id, 'Graph Water Works', false);
+            self
+                .generate_properties(
+                    29, game_id, 'Lisk Lane', 260, 22, 110, 330, 800, 975, 1150, 150, false, 6,
+                );
+            self.generate_jail(30, game_id, 'Go to Jail');
+            self
+                .generate_properties(
+                    31, game_id, 'Rootstock Lane', 260, 22, 110, 330, 800, 975, 1150, 150, false, 6,
+                );
+            self
+                .generate_properties(
+                    32, game_id, 'Ark Lane', 280, 22, 120, 360, 850, 1025, 1200, 150, false, 6,
+                );
+            self.generate_community_chest(33, game_id);
+            self
+                .generate_properties(
+                    34,
+                    game_id,
+                    'Avalanche Avenue',
+                    300,
+                    26,
+                    130,
+                    390,
+                    900,
+                    1100,
+                    1275,
+                    200,
+                    false,
+                    7,
+                );
+            self.generate_railroad(35, game_id, 'Cartridge Railroad', false);
+            self.generate_chance(36, game_id);
+            self
+                .generate_properties(
+                    37, game_id, 'Solana Drive', 300, 26, 130, 390, 900, 1100, 1275, 200, false, 7,
+                );
+            self.generate_tax(38, game_id, 'Luxury Tax', 100);
+            self
+                .generate_properties(
+                    39,
+                    game_id,
+                    'Ethereum Avenue',
+                    320,
+                    28,
+                    150,
+                    450,
+                    1000,
+                    1200,
+                    1400,
+                    200,
+                    false,
+                    7,
+                );
+            self
+                .generate_properties(
+                    40, game_id, 'Bitcoin Lane', 400, 50, 200, 600, 1400, 1700, 2000, 200, false, 8,
+                );
         }
 
         fn try_join_symbol(
@@ -805,8 +677,8 @@ pub mod actions {
             username: felt252,
             game_id: u256,
         ) {
-            // let mut world = self.world_default();
-            // let timestamp = get_block_timestamp();
+            let mut world = self.world_default();
+            let timestamp = get_block_timestamp();
 
             match symbol {
                 PlayerSymbol::Hat => {
@@ -890,8 +762,144 @@ pub mod actions {
     }
 
     #[generate_trait]
-    impl PropertiesInternalImpl of IPropertiesInternal {
+    impl PlayerGameBalanceImpl of IPlayerGameBalance {
+        fn check_if_player_is_capable_of_trans(
+            ref self: ContractState, amount: u256, balance: u256,
+        ) {
+            assert!(amount <= balance, "Insufficient balance");
+        }
+    }
 
+    #[generate_trait]
+    impl BoardTilesImpl of IBoardTiles {
+        fn generate_properties(
+            ref self: ContractState,
+            id: u8,
+            game_id: u256,
+            name: felt252,
+            cost_of_property: u256,
+            rent_site_only: u256,
+            rent_one_house: u256,
+            rent_two_houses: u256,
+            rent_three_houses: u256,
+            rent_four_houses: u256,
+            rent_hotel: u256,
+            cost_of_house: u256,
+            is_mortgaged: bool,
+            group_id: u8,
+        ) {
+            let mut world = self.world_default();
+            let mut property: Property = world.read_model((id, game_id));
+
+            property =
+                PropertyTrait::new(
+                    id,
+                    game_id,
+                    name,
+                    cost_of_property,
+                    rent_site_only,
+                    rent_one_house,
+                    rent_two_houses,
+                    rent_three_houses,
+                    rent_four_houses,
+                    rent_hotel,
+                    cost_of_house,
+                    group_id,
+                );
+
+            let property_to_id: PropertyToId = PropertyToId { name, id };
+            let id_to_property: IdToProperty = IdToProperty { id, name };
+
+            world.write_model(@property);
+            world.write_model(@property_to_id);
+            world.write_model(@id_to_property);
+        }
+
+
+        fn generate_go(ref self: ContractState, id: u8, game_id: u256, name: felt252) {
+            let mut world = self.world_default();
+            let mut go: Go = world.read_model((id, game_id));
+            go = Go { id, game_id, name };
+            world.write_model(@go);
+        }
+
+        fn create_new_game_id(ref self: ContractState) -> u256 {
+            let mut world = self.world_default();
+            let mut game_counter: GameCounter = world.read_model('v0');
+            let new_val = game_counter.current_val + 1;
+            game_counter.current_val = new_val;
+            world.write_model(@game_counter);
+            new_val
+        }
+
+        fn generate_tax(
+            ref self: ContractState, id: u8, game_id: u256, name: felt252, tax_amount: u256,
+        ) {
+            let mut world = self.world_default();
+            let mut tax: Tax = world.read_model((id, game_id));
+            tax = Tax { id, game_id, name, tax_amount };
+            world.write_model(@tax);
+        }
+
+        fn generate_utilitity(
+            ref self: ContractState, id: u8, game_id: u256, name: felt252, is_mortgaged: bool,
+        ) {
+            let mut world = self.world_default();
+            let mut utility: Utility = world.read_model((id, game_id));
+
+            utility = UtilityTrait::new(id, game_id, name);
+
+            let utility_to_id: UtilityToId = UtilityToId { name, id };
+            let id_to_utility: IdToUtility = IdToUtility { id, name };
+
+            world.write_model(@utility);
+            world.write_model(@utility_to_id);
+            world.write_model(@id_to_utility);
+        }
+
+        // to be moved to it model
+        fn generate_railroad(
+            ref self: ContractState, id: u8, game_id: u256, name: felt252, is_mortgaged: bool,
+        ) {
+            let mut world = self.world_default();
+            let mut railroad: RailRoad = world.read_model((id, game_id));
+
+            railroad = RailRoadTrait::new(id, game_id, name);
+
+            let railroad_to_id: RailRoadToId = RailRoadToId { name, id };
+            let id_to_railroad: IdToRailRoad = IdToRailRoad { id, name };
+
+            world.write_model(@railroad);
+            world.write_model(@railroad_to_id);
+            world.write_model(@id_to_railroad);
+        }
+
+        // to be moved to it model
+        fn generate_chance(ref self: ContractState, id: u8, game_id: u256) {
+            let mut world = self.world_default();
+            let mut chance: Chance = world.read_model((id, game_id));
+
+            chance = ChanceTrait::new(id, game_id);
+
+            world.write_model(@chance);
+        }
+
+        // to be moved to it model
+        fn generate_community_chest(ref self: ContractState, id: u8, game_id: u256) {
+            let mut world = self.world_default();
+            let mut community_chest: CommunityChest = world.read_model((id, game_id));
+
+            community_chest = CommunityChestTrait::new(id, game_id);
+
+            world.write_model(@community_chest);
+        }
+
+        // to be moved to it model
+        fn generate_jail(ref self: ContractState, id: u8, game_id: u256, name: felt252) {
+            let mut world = self.world_default();
+            let mut jail: Jail = world.read_model((id, game_id));
+            jail = Jail { id, game_id, name };
+        }
     }
 }
 
