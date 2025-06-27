@@ -58,7 +58,7 @@ impl UtilityImpl of UtilityTrait {
     // use ref state
     fn change_utility_ownership(
         mut utility: Utility, new_owner: ContractAddress, owner: ContractAddress,
-    ) {//implement after checks especially ownership ...
+    ) { //implement after checks especially ownership ...
     }
 
     // change to no change state

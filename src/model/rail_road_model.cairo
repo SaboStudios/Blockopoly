@@ -89,9 +89,11 @@ impl RailRoadImpl of RailRoadTrait {
 
 
     // change to ref
-    fn mortgage(mut railroad: RailRoad, owner: ContractAddress) {// railroad.is_mortgaged = true;
+    fn mortgage(mut railroad: RailRoad, owner: ContractAddress) { // railroad.is_mortgaged = true;
     }
 
-    fn lift_mortgage(mut railroad: RailRoad, owner: ContractAddress) {// railroad.is_mortgaged = false;
+    fn lift_mortgage(
+        mut railroad: RailRoad, owner: ContractAddress,
+    ) { // railroad.is_mortgaged = false;
     }
 }
