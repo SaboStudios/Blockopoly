@@ -821,6 +821,7 @@ pub mod actions {
             let mut world = self.world_default();
             let mut go: Go = world.read_model((id, game_id));
             go = Go { id, game_id, name };
+            world.write_model(go);
         }
 
         fn create_new_game_id(ref self: ContractState) -> u256 {
