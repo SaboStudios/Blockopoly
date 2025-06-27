@@ -20,6 +20,14 @@ pub struct GameBalance {
 }
 
 
+#[derive(Serde, Drop, Introspect, PartialEq)]
+#[dojo::model]
+pub struct GameListOfPlayers {
+    #[key]
+    pub game_id: u256,
+    pub list_of_addresses: Array<ContractAddress>,
+}
+
 #[derive(Drop, Clone, Serde)]
 #[dojo::model]
 pub struct Game {

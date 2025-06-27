@@ -46,4 +46,5 @@ pub trait IActions<T> {
         ref self: T, from: ContractAddress, to: ContractAddress, game_id: u256, amount: u256,
     );
     fn mint(ref self: T, recepient: ContractAddress, game_id: u256, amount: u256);
+    fn exit_game(ref self: T) -> bool;
 }

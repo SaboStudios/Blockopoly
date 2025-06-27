@@ -7,6 +7,7 @@ pub mod actions {
     use dojo_starter::model::rail_road_model::{RailRoad, RailRoadTrait, RailRoadToId, IdToRailRoad};
     use dojo_starter::model::game_model::{
         GameType, Game, GameBalance, GameTrait, GameCounter, GameStatus, IGameBalance,
+        GameListOfPlayers,
     };
     use dojo_starter::model::player_model::{
         Player, UsernameToAddress, AddressToUsername, PlayerTrait, IsRegistered,
@@ -185,6 +186,10 @@ pub mod actions {
             true
         }
 
+        fn exit_game(ref self: ContractState) -> bool {
+            true
+        }
+
         // to stay and call models
         fn create_new_game(
             ref self: ContractState,
@@ -255,6 +260,13 @@ pub mod actions {
             // Save game to storage
             world.write_model(@new_game);
 
+            //generate the objects for list of players
+            let mut game_player_list: GameListOfPlayers = world.read_model(game_id);
+            game_player_list.list_of_addresses.append(caller_address);
+
+            //save the list of players
+            world.write_model(@game_player_list);
+
             world.emit_event(@GameCreated { game_id: emitted_game_id, timestamp });
 
             game_id
@@ -301,6 +313,13 @@ pub mod actions {
 
             // Recount players and update the joined count
             game.players_joined = self.count_joined_players(game.clone());
+
+            // add players to the list of game_players
+            let mut game_player_list: GameListOfPlayers = world.read_model(game_id);
+            assert!(game_player_list.list_of_addresses.len() > 0, "invalid game id provided");
+            // assert!(game_player_list.list_of_addresses.len() < game.number_of_players, "game is
+            // full");
+            game_player_list.list_of_addresses.append(caller_address);
 
             // Start the game if all players have joined
             if game.players_joined == game.number_of_players {
