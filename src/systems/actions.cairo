@@ -383,16 +383,23 @@ pub mod actions {
             // assert(property.owner == caller, 'Only the owner can unmortgage');
             // assert(property.is_mortgaged == true, 'Property is not mortgaged');
 
-            property.lift_mortgage(caller);
             let mortgage_amount: u256 = property.cost_of_property / 2;
             let interest: u256 = mortgage_amount * 10 / 100; // 10% interest
             let repay_amount: u256 = mortgage_amount + interest;
+
+            let player_balance: GameBalance = world.read_model(());
+
+            self.transfer_from(caller, get_contract_address(), game_id, repay_amount);
+
+            property.lift_mortgage(caller);
 
             self.transfer_from(caller, get_contract_address(), game_id, repay_amount);
 
             world.write_model(@property);
 
             true
+
+            
         }
 
         fn collect_rent(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
@@ -486,6 +493,7 @@ pub mod actions {
             world.write_model(@sender);
             world.write_model(@recepient);
         }
+
 
         fn mint(ref self: ContractState, recepient: ContractAddress, game_id: u256, amount: u256) {
             let mut world = self.world_default();
@@ -762,6 +770,13 @@ pub mod actions {
             assert(game.player_battleship != username, 'ALREADY SELECTED BATTLESHIP');
             assert(game.player_boot != username, 'ALREADY SELECTED BOOT');
             assert(game.player_wheelbarrow != username, 'ALREADY SELECTED WHEELBARROW');
+        }
+    }
+
+    #[generate_trait]
+    impl PlayerGameBalanceImpl of IPlayerGameBalance {
+        fn check_if_player_is_capable_of_trans(ref self: ContractState, amount: u256, balance: u256) {
+            assert!(amount <= balance, "Insufficient balance");
         }
     }
 
