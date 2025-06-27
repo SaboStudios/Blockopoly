@@ -186,7 +186,7 @@ pub mod actions {
             true
         }
 
-        fn exit_game(ref self: T) -> bool {
+        fn exit_game(ref self: ContractState) -> bool {
             true
         }
 
@@ -259,6 +259,13 @@ pub mod actions {
 
             // Save game to storage
             world.write_model(@new_game);
+
+            //generate the objects for list of players
+            let mut gmae_player_list: GameListOfPlayers = world.read_model(game_id);
+            gmae_player_list.list_of_addresses.append(caller_address);
+
+            //save the list of players
+            world.write_model(@gmae_player_list);
 
             world.emit_event(@GameCreated { game_id: emitted_game_id, timestamp });
 
