@@ -6,7 +6,8 @@ pub mod actions {
     use dojo_starter::model::utility_model::{Utility, UtilityTrait, UtilityToId, IdToUtility};
     use dojo_starter::model::rail_road_model::{RailRoad, RailRoadTrait, RailRoadToId, IdToRailRoad};
     use dojo_starter::model::game_model::{
-        GameType, Game, GameBalance, GameTrait, GameCounter, GameStatus, IGameBalance, GameListOfPlayers
+        GameType, Game, GameBalance, GameTrait, GameCounter, GameStatus, IGameBalance,
+        GameListOfPlayers,
     };
     use dojo_starter::model::player_model::{
         Player, UsernameToAddress, AddressToUsername, PlayerTrait, IsRegistered,
