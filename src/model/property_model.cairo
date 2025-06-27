@@ -55,7 +55,7 @@ pub trait PropertyTrait {
         rent_hotel: u256,
         group_id: u8,
     ) -> Property;
-    fn get_rent_amount(property: Property, houses: u8, hotel: bool) -> u256;
+    fn get_rent_amount(self: @Property) -> u256;
     fn mortgage(ref self: Property, owner: ContractAddress);
     fn lift_mortgage(ref self: Property, owner: ContractAddress);
     fn upgrade_property(ref self: Property, player: ContractAddress, upgrade_level: u8) -> bool;
@@ -101,20 +101,19 @@ impl PropertyImpl of PropertyTrait {
         }
     }
 
-    fn get_rent_amount(mut property: Property, houses: u8, hotel: bool) -> u256 {
-        if property.is_mortgaged {
+    fn get_rent_amount(self: @Property) -> u256 {
+        if *self.is_mortgaged {
             return 0;
         }
-        if hotel {
-            return property.rent_hotel;
-        }
-        match houses {
-            0 => property.rent_site_only,
-            1 => property.rent_one_house,
-            2 => property.rent_two_houses,
-            3 => property.rent_three_houses,
-            4 => property.rent_four_houses,
-            _ => property.rent_site_only // default fallback
+        
+        match *self.property_level {
+            0 => *self.rent_site_only,
+            1 => *self.rent_one_house,
+            2 => *self.rent_two_houses,
+            3 => *self.rent_three_houses,
+            4 => *self.rent_four_houses,
+            5 => *self.rent_hotel,
+            _ => *self.rent_site_only // default fallback
         }
     }
 

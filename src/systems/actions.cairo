@@ -389,7 +389,7 @@ pub mod actions {
 
             let player_balance: GameBalance = world.read_model(());
 
-            self.transfer_from(caller, get_contract_address(), game_id, repay_amount);
+            // self.transfer_from(caller, get_contract_address(), game_id, repay_amount);
 
             property.lift_mortgage(caller);
 
@@ -398,8 +398,6 @@ pub mod actions {
             world.write_model(@property);
 
             true
-
-            
         }
 
         fn collect_rent(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
@@ -410,17 +408,9 @@ pub mod actions {
 
             assert(property.owner != zero_address, 'Property is unowned');
             assert(property.owner != caller, 'You cannot pay rent to yourself');
-            assert(property.is_mortgaged == false, 'No rent on mortgaged properties');
+            assert(!property.is_mortgaged, 'No rent on mortgaged properties');
 
-            let rent_amount: u256 = match property.development {
-                0 => property.rent_site_only,
-                1 => property.rent_one_house,
-                2 => property.rent_two_houses,
-                3 => property.rent_three_houses,
-                4 => property.rent_four_houses,
-                5 => property.rent_hotel,
-                _ => panic!("Invalid development level"),
-            };
+            let rent_amount:u256 = property.get_rent_amount();
 
             self.transfer_from(caller, property.owner, game_id, rent_amount);
 
