@@ -261,11 +261,11 @@ pub mod actions {
             world.write_model(@new_game);
 
             //generate the objects for list of players
-            let mut gmae_player_list: GameListOfPlayers = world.read_model(game_id);
-            gmae_player_list.list_of_addresses.append(caller_address);
+            let mut game_player_list: GameListOfPlayers = world.read_model(game_id);
+            game_player_list.list_of_addresses.append(caller_address);
 
             //save the list of players
-            world.write_model(@gmae_player_list);
+            world.write_model(@game_player_list);
 
             world.emit_event(@GameCreated { game_id: emitted_game_id, timestamp });
 
@@ -313,6 +313,12 @@ pub mod actions {
 
             // Recount players and update the joined count
             game.players_joined = self.count_joined_players(game.clone());
+
+            // add players to the list of game_players
+            let mut game_player_list: GameListOfPlayers = world.read_model(game_id);
+            assert!(game_player_list.list_of_addresses.len() > 0, "invalid game id provided");
+            // assert!(game_player_list.list_of_addresses.len() < game.number_of_players, "game is full");
+            game_player_list.list_of_addresses.append(caller_address);
 
             // Start the game if all players have joined
             if game.players_joined == game.number_of_players {
