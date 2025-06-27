@@ -183,7 +183,6 @@ impl GameImpl of GameTrait {
 }
 
 
-
 #[generate_trait]
 pub impl GameBalanceImpl of IGameBalance {
     fn deduct_game_balance(ref self: GameBalance, amount: u256) -> bool {

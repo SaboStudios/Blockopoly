@@ -6,7 +6,7 @@ pub mod actions {
     use dojo_starter::model::utility_model::{Utility, UtilityTrait, UtilityToId, IdToUtility};
     use dojo_starter::model::rail_road_model::{RailRoad, RailRoadTrait, RailRoadToId, IdToRailRoad};
     use dojo_starter::model::game_model::{
-        GameType, Game, GameBalance, GameTrait, GameCounter, GameStatus, IGameBalance
+        GameType, Game, GameBalance, GameTrait, GameCounter, GameStatus, IGameBalance,
     };
     use dojo_starter::model::player_model::{
         Player, UsernameToAddress, AddressToUsername, PlayerTrait, IsRegistered,
@@ -66,7 +66,6 @@ pub mod actions {
 
     #[abi(embed_v0)]
     impl ActionsImpl of IActions<ContractState> {
-
         fn is_registered(self: @ContractState, address: ContractAddress) -> bool {
             let world = self.world_default();
             let is_registered: IsRegistered = world.read_model(address);
@@ -332,7 +331,7 @@ pub mod actions {
             let mut world = self.world_default();
             //get the game out and check it is ongoing
             let found_game: Game = world.read_model(game_id);
-            assert!(found_game.status == GameStatus::Ongoing,"game has not started yet ");
+            assert!(found_game.status == GameStatus::Ongoing, "game has not started yet ");
 
             let caller = get_caller_address();
 
@@ -343,7 +342,6 @@ pub mod actions {
 
             if property.owner == zero_address {
                 self.transfer_from(caller, contract_address, game_id, amount);
-
             } else {
                 assert(property.for_sale == true, 'Property is not for sale');
                 self.transfer_from(caller, property.owner, game_id, amount);
@@ -367,7 +365,7 @@ pub mod actions {
             let amount: u256 = property.cost_of_property / 2;
             let contract_address = get_contract_address();
 
-            // call the game player model 
+            // call the game player model
             self.transfer_from(contract_address, caller, game_id, amount);
 
             world.write_model(@property);
@@ -410,7 +408,7 @@ pub mod actions {
             assert(property.owner != caller, 'You cannot pay rent to yourself');
             assert(!property.is_mortgaged, 'No rent on mortgaged properties');
 
-            let rent_amount:u256 = property.get_rent_amount();
+            let rent_amount: u256 = property.get_rent_amount();
 
             self.transfer_from(caller, property.owner, game_id, rent_amount);
 
@@ -765,14 +763,15 @@ pub mod actions {
 
     #[generate_trait]
     impl PlayerGameBalanceImpl of IPlayerGameBalance {
-        fn check_if_player_is_capable_of_trans(ref self: ContractState, amount: u256, balance: u256) {
+        fn check_if_player_is_capable_of_trans(
+            ref self: ContractState, amount: u256, balance: u256,
+        ) {
             assert!(amount <= balance, "Insufficient balance");
         }
     }
 
     #[generate_trait]
     impl BoardTilesImpl of IBoardTiles {
-
         fn generate_properties(
             ref self: ContractState,
             id: u8,
@@ -885,7 +884,7 @@ pub mod actions {
             world.write_model(@chance);
         }
 
-        // to be moved to it model 
+        // to be moved to it model
         fn generate_community_chest(ref self: ContractState, id: u8, game_id: u256) {
             let mut world = self.world_default();
             let mut community_chest: CommunityChest = world.read_model((id, game_id));

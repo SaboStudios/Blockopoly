@@ -17,16 +17,14 @@ pub struct GamePlayer {
 }
 
 
-
-
-
-
-// the GamePlayerTrait tell imposes the actions a player can perform within a game 
+// the GamePlayerTrait tell imposes the actions a player can perform within a game
 
 pub trait GamePlayerTrait {
-    fn create_game_player(username: felt252, address: ContractAddress, game_id: u256, player_symbol: PlayerSymbol) -> GamePlayer;
+    fn create_game_player(
+        username: felt252, address: ContractAddress, game_id: u256, player_symbol: PlayerSymbol,
+    ) -> GamePlayer;
     fn move(player: GamePlayer, steps: u8);
-    fn pay_game_player(ref self: GamePlayer, amount: u256) -> bool ;
+    fn pay_game_player(ref self: GamePlayer, amount: u256) -> bool;
     fn deduct_game_player(ref self: GamePlayer, amount: u256) -> bool;
     fn add_property_to_game_player(ref self: GamePlayer, property_id: u8) -> bool;
     fn remove_property_from_game_player(ref self: GamePlayer, property_id: u8) -> bool;
@@ -35,7 +33,9 @@ pub trait GamePlayerTrait {
 }
 
 impl GamePlayerImpl of GamePlayerTrait {
-    fn create_game_player(username: felt252, address: ContractAddress, game_id: u256, player_symbol: PlayerSymbol) -> GamePlayer {
+    fn create_game_player(
+        username: felt252, address: ContractAddress, game_id: u256, player_symbol: PlayerSymbol,
+    ) -> GamePlayer {
         GamePlayer {
             address,
             game_id,
@@ -45,7 +45,7 @@ impl GamePlayerImpl of GamePlayerTrait {
             jailed: false,
             is_bankrupt: false,
             is_active: true,
-            properties_owned: array![]
+            properties_owned: array![],
         }
     }
 

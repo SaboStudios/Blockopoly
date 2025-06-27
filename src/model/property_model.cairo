@@ -60,7 +60,9 @@ pub trait PropertyTrait {
     fn lift_mortgage(ref self: Property, owner: ContractAddress);
     fn upgrade_property(ref self: Property, player: ContractAddress, upgrade_level: u8) -> bool;
     fn downgrade_property(ref self: Property, player: ContractAddress, downgrade_level: u8) -> bool;
-    fn change_game_property_ownership(ref self: Property, new_owner: ContractAddress, owner: ContractAddress) -> bool;   
+    fn change_game_property_ownership(
+        ref self: Property, new_owner: ContractAddress, owner: ContractAddress,
+    ) -> bool;
 }
 
 
@@ -105,7 +107,7 @@ impl PropertyImpl of PropertyTrait {
         if *self.is_mortgaged {
             return 0;
         }
-        
+
         match *self.property_level {
             0 => *self.rent_site_only,
             1 => *self.rent_one_house,
@@ -130,12 +132,16 @@ impl PropertyImpl of PropertyTrait {
         true
     }
 
-    fn downgrade_property(ref self: Property, player: ContractAddress, downgrade_level: u8) -> bool {
+    fn downgrade_property(
+        ref self: Property, player: ContractAddress, downgrade_level: u8,
+    ) -> bool {
         // deals with the property level mostly after many checks
         true
     }
 
-    fn change_game_property_ownership(ref self: Property, new_owner: ContractAddress, owner: ContractAddress) -> bool {
+    fn change_game_property_ownership(
+        ref self: Property, new_owner: ContractAddress, owner: ContractAddress,
+    ) -> bool {
         // deals with the field owner after many checks
         true
     }

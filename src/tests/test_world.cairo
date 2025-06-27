@@ -338,9 +338,9 @@ mod tests {
 
         let (contract_address, _) = world.dns(@"actions").unwrap();
         let actions_system = IActionsDispatcher { contract_address };
-
         // actions_system
-        //     .generate_properties(1, 1, 'Eth_Lane', 200, 10, 100, 200, 300, 400, 300, 500, false, 4);
+    //     .generate_properties(1, 1, 'Eth_Lane', 200, 10, 100, 200, 300, 400, 300, 500, false,
+    //     4);
 
         // let property = actions_system.get_property(1, 1);
 
@@ -375,7 +375,6 @@ mod tests {
     //     let property = actions_system.get_property(11, game_id);
     //     assert(property.owner == caller_1, 'invalid property txn');
     // }
-
 
     #[test]
     fn test_mint_and_balance() {
@@ -599,7 +598,8 @@ mod tests {
     //     let balance_after_unmortgage = actions_system.get_players_balance(caller_1, game_id);
     //     let property = actions_system.get_property(11, game_id);
     //     assert(!property.is_mortgaged, 'invalid is_mortgaged txn');
-    //     assert(balance_after_unmortgage < balance_before_unmortgage, 'Mortgage Bal update failed');
+    //     assert(balance_after_unmortgage < balance_before_unmortgage, 'Mortgage Bal update
+    //     failed');
     // }
 
     // #[test]
