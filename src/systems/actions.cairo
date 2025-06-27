@@ -317,7 +317,8 @@ pub mod actions {
             // add players to the list of game_players
             let mut game_player_list: GameListOfPlayers = world.read_model(game_id);
             assert!(game_player_list.list_of_addresses.len() > 0, "invalid game id provided");
-            // assert!(game_player_list.list_of_addresses.len() < game.number_of_players, "game is full");
+            // assert!(game_player_list.list_of_addresses.len() < game.number_of_players, "game is
+            // full");
             game_player_list.list_of_addresses.append(caller_address);
 
             // Start the game if all players have joined
