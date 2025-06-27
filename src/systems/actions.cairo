@@ -821,7 +821,7 @@ pub mod actions {
             let mut world = self.world_default();
             let mut go: Go = world.read_model((id, game_id));
             go = Go { id, game_id, name };
-            world.write_model(go);
+            world.write_model(@go);
         }
 
         fn create_new_game_id(ref self: ContractState) -> u256 {
@@ -839,6 +839,7 @@ pub mod actions {
             let mut world = self.world_default();
             let mut tax: Tax = world.read_model((id, game_id));
             tax = Tax { id, game_id, name, tax_amount };
+            world.write_model(@tax);
         }
 
         fn generate_utilitity(
