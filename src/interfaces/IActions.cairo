@@ -87,9 +87,8 @@ pub trait IActions<T> {
         ref self: T, from: ContractAddress, to: ContractAddress, game_id: u256, amount: u256,
     );
     fn mint(ref self: T, recepient: ContractAddress, game_id: u256, amount: u256);
-
     // Bankruptcy & ending game
-    // fn declare_bankruptcy(ref self: T, game_id: u256) -> bool;
-    // fn check_winner(self: @T, game_id: u256) -> Option<ContractAddress>;
-    // fn end_game(ref self: T, game_id: u256) -> bool;
+// fn declare_bankruptcy(ref self: T, game_id: u256) -> bool;
+// fn check_winner(self: @T, game_id: u256) -> Option<ContractAddress>;
+// fn end_game(ref self: T, game_id: u256) -> bool;
 }
