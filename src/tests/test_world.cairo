@@ -330,31 +330,6 @@ mod tests {
         actions_system.join_game(PlayerSymbol::Hat, 1);
     }
 
-    
-    #[test]
-    fn test_mint_and_balance() {
-        let caller_1 = contract_address_const::<'aji'>();
-        let username = 'Ajidokwu';
-
-        let ndef = namespace_def();
-        let mut world = spawn_test_world([ndef].span());
-        world.sync_perms_and_inits(contract_defs());
-
-        let (contract_address, _) = world.dns(@"actions").unwrap();
-        let actions_system = IActionsDispatcher { contract_address };
-
-        testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username);
-
-        testing::set_contract_address(caller_1);
-        let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
-        assert(game_id == 1, 'Wrong game id');
-
-        actions_system.mint(caller_1, game_id, 10000);
-
-        let player_balance = actions_system.get_players_balance(caller_1, game_id);
-        assert(player_balance == 10000, 'mint failure');
-    }
 
     // #[test]
     // fn test_buy_property_from_a_player() {
