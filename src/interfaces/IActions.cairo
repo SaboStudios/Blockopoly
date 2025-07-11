@@ -29,7 +29,8 @@ pub trait IActions<T> {
 
     // Game state retrieval
     fn retrieve_game(self: @T, game_id: u256) -> Game;
-    fn retrieve_game_player(self: @T, addr: ContractAddress) -> GamePlayer;
+    fn retrieve_game_player(self: @T, addr: ContractAddress, game_id: u256) -> GamePlayer;
+    fn is_game_started(self: @T, game_id: u256) -> u8;
 
     // Board spaces retrieval
     fn get_property(self: @T, id: u8, game_id: u256) -> Property;
@@ -43,7 +44,7 @@ pub trait IActions<T> {
 
     // Dice & player movement
     fn roll_dice(ref self: T) -> (u8, u8);
-    // fn move_player(ref self: T, game_id: u256, steps: u8) -> u8;
+    fn move_player(ref self: T, game_id: u256, steps: u8) -> u8;
 
     // Handling landings on board
     // fn draw_chance_card(ref self: T, game_id: u256) -> Chance;
@@ -56,12 +57,12 @@ pub trait IActions<T> {
     // fn use_jail_card(ref self: T, game_id: u256) -> bool;
 
     // Property transactions
-    fn buy_property(ref self: T, property_id: u8, game_id: u256) -> bool;
+    fn buy_property(ref self: T, property: Property) -> bool;
     fn sell_property(ref self: T, property_id: u8, game_id: u256) -> bool;
-    fn mortgage_property(ref self: T, property_id: u8, game_id: u256) -> bool;
-    fn unmortgage_property(ref self: T, property_id: u8, game_id: u256) -> bool;
-    fn collect_rent(ref self: T, property_id: u8, game_id: u256) -> bool;
-    fn buy_house_or_hotel(ref self: T, property_id: u8, game_id: u256) -> bool;
+    fn mortgage_property(ref self: T, property: Property) -> bool;
+    fn unmortgage_property(ref self: T, property: Property) -> bool;
+    fn pay_rent(ref self: T, property: Property) -> bool;
+    fn buy_house_or_hotel(ref self: T, property: Property) -> bool;
     fn sell_house_or_hotel(ref self: T, property_id: u8, game_id: u256) -> bool;
 
     // Trading system
@@ -84,8 +85,8 @@ pub trait IActions<T> {
     // Player balance & payments
     fn get_players_balance(self: @T, player: ContractAddress, game_id: u256) -> u256;
     fn transfer_from(
-        ref self: T, from: ContractAddress, to: ContractAddress, game_id: u256, amount: u256,
-    );
+        ref self: T, from: GamePlayer, to: GamePlayer, amount: u256,
+    ) -> Array<GamePlayer>;
     fn mint(ref self: T, recepient: ContractAddress, game_id: u256, amount: u256);
     // Bankruptcy & ending game
 // fn declare_bankruptcy(ref self: T, game_id: u256) -> bool;

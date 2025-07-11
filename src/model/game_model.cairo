@@ -1,4 +1,5 @@
 use starknet::{ContractAddress, contract_address_const};
+use dojo_starter::model::game_player_model::{GamePlayer, PlayerSymbol, GamePlayerTrait};
 // Keeps track of the state of the game
 
 #[derive(Serde, Copy, Drop, Introspect, PartialEq)]
@@ -31,7 +32,7 @@ pub struct Game {
     pub mode: GameType, // Mode of the game
     pub ready_to_start: bool, // Indicate whether game can be started
     pub winner: felt252, // First winner position 
-    pub next_player: felt252, // Address of the player to make the next move
+    pub next_player: ContractAddress, // Address of the player to make the next move
     pub number_of_players: u8, // Number of players in the game
     pub rolls_count: u256, //  Sum of all the numbers rolled by the dice
     pub rolls_times: u256, // Total number of times the dice has been rolled
@@ -56,6 +57,7 @@ pub struct Game {
     pub player_boot: felt252, // item use address on the board
     pub player_wheelbarrow: felt252,
     pub players_joined: u8,
+    pub game_players: Array<ContractAddress>,
 }
 
 pub trait GameTrait {
@@ -73,6 +75,7 @@ pub trait GameTrait {
         player_boot: felt252,
         player_wheelbarrow: felt252,
         number_of_players: u8,
+        game_players: Array<ContractAddress>,
     ) -> Game;
     fn restart(ref self: Game);
     fn terminate_game(ref self: Game);
@@ -111,6 +114,7 @@ impl GameImpl of GameTrait {
         player_boot: felt252,
         player_wheelbarrow: felt252,
         number_of_players: u8,
+        game_players: Array<ContractAddress>,
     ) -> Game {
         let zero_address = contract_address_const::<0x0>();
         Game {
@@ -163,6 +167,7 @@ impl GameImpl of GameTrait {
             boot: 'boot',
             wheelbarrow: 'wheelbarrow',
             players_joined: 0,
+            game_players,
         }
     }
 
