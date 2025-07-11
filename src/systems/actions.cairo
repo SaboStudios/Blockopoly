@@ -2,7 +2,9 @@
 #[dojo::contract]
 pub mod actions {
     use dojo_starter::interfaces::IActions::IActions;
-    use dojo_starter::model::property_model::{Property, PropertyTrait, PropertyToId, IdToProperty};
+    use dojo_starter::model::property_model::{
+        Property, PropertyType, PropertyTrait, PropertyToId, IdToProperty,
+    };
     use dojo_starter::model::utility_model::{Utility, UtilityTrait, UtilityToId, IdToUtility};
     use dojo_starter::model::rail_road_model::{RailRoad, RailRoadTrait, RailRoadToId, IdToRailRoad};
     use dojo_starter::model::game_model::{
@@ -182,6 +184,19 @@ pub mod actions {
         }
 
         fn start_game(ref self: ContractState, game_id: u256) -> bool {
+            let mut world = self.world_default();
+            let mut game: Game = world.read_model(game_id);
+
+            game.status = GameStatus::Ongoing;
+            game.next_player = get_caller_address();
+
+            let len = game.game_players.len();
+            let mut i = 0;
+            while i < len {
+                self.mint(*game.game_players[i], 1, 1500);
+                i += 1;
+            };
+            world.write_model(@game);
             true
         }
 
@@ -199,10 +214,12 @@ pub mod actions {
 
             // Get the account address of the caller
             let caller_address = get_caller_address();
+
             let caller_username = self.get_username_from_address(caller_address);
             assert(caller_username != 0, 'PLAYER NOT REGISTERED');
 
             let game_id = self.create_new_game_id();
+            let mut player: GamePlayer = world.read_model((caller_address, game_id));
             let timestamp = get_block_timestamp();
 
             // Initialize player symbols
@@ -227,6 +244,9 @@ pub mod actions {
                 PlayerSymbol::Wheelbarrow => (0, 0, 0, 0, 0, 0, 0, caller_username),
             };
 
+            let mut game_player = ArrayTrait::new();
+            game_player.append(caller_address);
+
             // Create a new game
             let mut new_game: Game = GameTrait::new(
                 game_id,
@@ -241,11 +261,13 @@ pub mod actions {
                 player_boot,
                 player_wheelbarrow,
                 number_of_players,
+                game_player,
             );
             // Generate tiles
             self.generate_board_tiles(game_id);
             // Set visibility based on game mode
             let mut emitted_game_id = game_id;
+
             if (game_type == GameType::PrivateGame) {
                 emitted_game_id = 0;
             }
@@ -301,6 +323,7 @@ pub mod actions {
 
             // Recount players and update the joined count
             game.players_joined = self.count_joined_players(game.clone());
+            game.game_players.append(get_caller_address());
 
             // Start the game if all players have joined
             if game.players_joined == game.number_of_players {
@@ -326,99 +349,175 @@ pub mod actions {
             true
         }
 
-        fn buy_property(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
+
+        fn mortgage_property(ref self: ContractState, mut property: Property) -> bool {
+            let mut world = self.world_default();
+
+            // Check the game is ongoing
+            let mut game: Game = world.read_model(property.game_id);
+            assert(game.status == GameStatus::Ongoing, 'Game has not started yet');
+
+            let caller = get_caller_address();
+            let mut owner: GamePlayer = world.read_model((property.owner, property.game_id));
+
+            // Ensure caller owns property and it is not already mortgaged
+            assert(property.owner == caller, 'Not your property');
+            assert(!property.is_mortgaged, 'Property already mortgaged');
+
+            // Mortgage: give owner half the cost
+            let amount: u256 = property.cost_of_property / 2;
+            owner.balance += amount;
+
+            // Mark property as mortgaged
+            property.mortgage(caller);
+
+            // Persist changes
+            world.write_model(@owner);
+            world.write_model(@property);
+
+            true
+        }
+
+
+        fn unmortgage_property(ref self: ContractState, mut property: Property) -> bool {
+            let mut world = self.world_default();
+            let caller = get_caller_address();
+
+            // Load game and ensure it's ongoing
+            let game: Game = world.read_model(property.game_id);
+            assert(game.status == GameStatus::Ongoing, 'Game has not started yet');
+
+            // Load owner
+            let mut owner: GamePlayer = world.read_model((property.owner, property.game_id));
+
+            // Assertions
+            assert(property.owner == caller, 'Only the owner can unmortgage');
+            assert(property.is_mortgaged, 'Property is not mortgaged');
+
+            // Compute repayment (mortgage + interest)
+            let mortgage_amount: u256 = property.cost_of_property / 2;
+            let interest: u256 = mortgage_amount * 10 / 100; // 10%
+            let repay_amount: u256 = mortgage_amount + interest;
+
+            assert(owner.balance >= repay_amount, 'Insufficient unmortgage');
+
+            // Pay the mortgage
+            owner.balance -= repay_amount;
+
+            // Lift the mortgage flag
+            property.lift_mortgage(caller);
+
+            // Persist changes
+            world.write_model(@owner);
+            world.write_model(@property);
+
+            true
+        }
+
+
+        fn pay_rent(ref self: ContractState, mut property: Property) -> bool {
+            let mut world = self.world_default();
+            let caller = get_caller_address();
+            // Load players
+            let mut player: GamePlayer = world.read_model((caller, property.game_id));
+            let mut owner: GamePlayer = world.read_model((property.owner, property.game_id));
+
+            // Validate game
+            let mut game: Game = world.read_model(property.game_id);
+            assert(game.status == GameStatus::Ongoing, 'Game has not started yet');
+
+            // Ensure property is actually owned and rules are valid
+            let zero_address: ContractAddress = contract_address_const::<0>();
+            assert(property.owner != zero_address, 'Property is unowned');
+            assert(property.owner != caller, 'You cannot pay rent to yourself');
+            assert(player.position == property.id, 'Not on Property');
+            assert(!property.is_mortgaged, 'No rent on mortgaged properties');
+
+            // Handle rent payment
+            let rent_amount = property.get_rent_amount();
+            assert(player.balance >= rent_amount, 'Insufficient rent funds');
+
+            player.balance -= rent_amount;
+            owner.balance += rent_amount;
+
+            // Rotate next player
+            game = self.finish_turn(game);
+
+            // Batch writes
+            world.write_model(@game);
+            world.write_model(@player);
+            world.write_model(@owner);
+            world.write_model(@property);
+
+            true
+        }
+
+
+        fn move_player(ref self: ContractState, game_id: u256, steps: u8) -> u8 {
+            let mut world = self.world_default();
+            let caller = get_caller_address();
+            let mut game_player: GamePlayer = world.read_model((caller, game_id));
+            let mut game: Game = world.read_model(game_id);
+
+            assert(game.next_player == caller, 'Not your turn');
+            assert(game.status == GameStatus::Ongoing, 'Game is not ongoing');
+
+            // Move player
+            game_player = GamePlayerTrait::move(game_player, steps);
+
+            if game_player.position > 40 {
+                game_player.position = ((game_player.position - 1) % 40) + 1;
+                game_player.balance += 200;
+            }
+
+            let mut property = self.get_property(game_player.position, game_id);
+            property = self.handle_property_landing(game_player.clone(), property.clone());
+
+            // Update state
+            world.write_model(@game_player);
+            world.write_model(@game);
+
+            game_player.position
+        }
+
+        fn buy_property(ref self: ContractState, mut property: Property) -> bool {
             // get the world
             let mut world = self.world_default();
             //get the game out and check it is ongoing
-            let found_game: Game = world.read_model(game_id);
+            let mut found_game: Game = world.read_model(property.game_id);
             assert!(found_game.status == GameStatus::Ongoing, "game has not started yet ");
 
             let caller = get_caller_address();
 
-            let mut property: Property = world.read_model((property_id, game_id));
-            let contract_address = get_contract_address();
-            let zero_address: ContractAddress = contract_address_const::<0>();
-            let amount: u256 = property.cost_of_property;
+            let mut player: GamePlayer = world.read_model((caller, property.game_id));
+            let mut owner: GamePlayer = world.read_model((property.owner, property.game_id));
 
-            if property.owner == zero_address {
-                self.transfer_from(caller, contract_address, game_id, amount);
-            } else {
-                assert(property.for_sale == true, 'Property is not for sale');
-                self.transfer_from(caller, property.owner, game_id, amount);
-            }
+            assert(player.position == property.id, 'wrong property');
 
-            property.change_game_property_ownership(caller, property.owner);
+            assert(player.game_id == owner.game_id, 'Not in the same game');
+            assert(player.balance >= property.cost_of_property, 'insufficient funds');
+
+            player.balance -= property.cost_of_property;
+            owner.balance += property.cost_of_property;
+
+            property.owner = caller;
+            player.properties_owned.append(property.id);
             property.for_sale = false;
 
+            // Finish turn (rotate next player)
+            found_game = self.finish_turn(found_game);
+
+            world.write_model(@found_game);
+            world.write_model(@player);
+            world.write_model(@owner);
             world.write_model(@property);
             true
         }
 
-        fn mortgage_property(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
+        fn buy_house_or_hotel(ref self: ContractState, mut property: Property) -> bool {
             let mut world = self.world_default();
             let caller = get_caller_address();
-            let mut property: Property = world.read_model((property_id, game_id));
 
-            // call the property model trait
-            property.mortgage(caller);
-
-            let amount: u256 = property.cost_of_property / 2;
-            let contract_address = get_contract_address();
-
-            // call the game player model
-            self.transfer_from(contract_address, caller, game_id, amount);
-
-            world.write_model(@property);
-
-            true
-        }
-
-        fn unmortgage_property(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
-            let mut world = self.world_default();
-            let caller = get_caller_address();
-            let mut property: Property = world.read_model((property_id, game_id));
-
-            // assert(property.owner == caller, 'Only the owner can unmortgage');
-            // assert(property.is_mortgaged == true, 'Property is not mortgaged');
-
-            let mortgage_amount: u256 = property.cost_of_property / 2;
-            let interest: u256 = mortgage_amount * 10 / 100; // 10% interest
-            let repay_amount: u256 = mortgage_amount + interest;
-
-            let player_balance: GameBalance = world.read_model(());
-
-            // self.transfer_from(caller, get_contract_address(), game_id, repay_amount);
-
-            property.lift_mortgage(caller);
-
-            self.transfer_from(caller, get_contract_address(), game_id, repay_amount);
-
-            world.write_model(@property);
-
-            true
-        }
-
-        fn collect_rent(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
-            let mut world = self.world_default();
-            let caller = get_caller_address();
-            let property: Property = world.read_model((property_id, game_id));
-            let zero_address: ContractAddress = contract_address_const::<0>();
-
-            assert(property.owner != zero_address, 'Property is unowned');
-            assert(property.owner != caller, 'You cannot pay rent to yourself');
-            assert(!property.is_mortgaged, 'No rent on mortgaged properties');
-
-            let rent_amount: u256 = property.get_rent_amount();
-
-            self.transfer_from(caller, property.owner, game_id, rent_amount);
-
-            true
-        }
-
-        fn buy_house_or_hotel(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
-            let mut world = self.world_default();
-            let caller = get_caller_address();
-            let mut property: Property = world.read_model((property_id, game_id));
             let contract_address = get_contract_address();
 
             assert(property.owner == caller, 'Only the owner ');
@@ -426,7 +525,7 @@ pub mod actions {
             assert(property.development < 5, 'Maximum development ');
 
             let cost: u256 = property.cost_of_house;
-            self.transfer_from(caller, contract_address, game_id, cost);
+            // self.transfer_from(caller, contract_address, property.game_id, cost);
 
             property.development += 1; // Increases to 5 (hotel) max
 
@@ -434,6 +533,41 @@ pub mod actions {
 
             true
         }
+
+        // fn offer_trade(
+        //     ref self: ContractState,
+        //     game_id: u256,
+        //     to: ContractAddress,
+        //     offered_property_ids: Array<u8>,
+        //     requested_property_ids: Array<u8>,
+        //     cash_offer: u256,
+        //     cash_request: u256,
+        // ) {
+        //     let mut world = self.world_default();
+        //     let caller = get_caller_address();
+
+        //     // Validate trade parameters
+        //     assert(offered_property_ids.len() > 0 || cash_offer > 0, 'No properties or cash
+        //     offered');
+        //     assert(requested_property_ids.len() > 0 || cash_request > 0, 'No properties or cash
+        //     requested');
+
+        //     // Ensure the recipient is a valid player in the game
+        //     let recipient_username = self.get_username_from_address(to);
+        //     assert(recipient_username != 0, 'Recipient not registered');
+
+        //     // Create and store the trade offer
+        //     let trade_id = world.get_next_trade_id();
+        //     let trade_offer = TradeOffer {
+        //         trade_id,
+        //         from: caller,
+        //         to,
+        //         offered_property_ids,
+        //         requested_property_ids,
+        //         cash_offer,
+        //         cash_request,
+        //         status: TradeStatus::Pending,
+        //     };
 
         fn sell_house_or_hotel(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
             let mut world = self.world_default();
@@ -446,7 +580,7 @@ pub mod actions {
 
             let refund: u256 = property.cost_of_house / 2;
 
-            self.transfer_from(contract_address, caller, game_id, refund);
+            // self.transfer_from(contract_address, caller, game_id, refund);/
 
             property.development -= 1;
 
@@ -465,31 +599,29 @@ pub mod actions {
         }
 
         fn transfer_from(
-            ref self: ContractState,
-            from: ContractAddress,
-            to: ContractAddress,
-            game_id: u256,
-            amount: u256,
-        ) {
+            ref self: ContractState, mut from: GamePlayer, mut to: GamePlayer, amount: u256,
+        ) -> Array<GamePlayer> {
             let mut world = self.world_default();
 
-            let mut sender: GameBalance = world.read_model((from, game_id));
-            let mut recepient: GameBalance = world.read_model((to, game_id));
-            sender.deduct_game_balance(amount);
-            recepient.increase_game_balance(amount);
+            assert(from.game_id == to.game_id, 'Not in the same game');
+            assert(from.balance >= amount, 'insufficient funds');
 
-            world.write_model(@sender);
-            world.write_model(@recepient);
+            from.balance -= amount;
+            to.balance += amount;
+
+            let mut game_players: Array<GamePlayer> = array![];
+            game_players.append(from);
+            game_players.append(to);
+
+            game_players
         }
 
 
         fn mint(ref self: ContractState, recepient: ContractAddress, game_id: u256, amount: u256) {
             let mut world = self.world_default();
-
-            let mut receiver: GameBalance = world.read_model((recepient, game_id));
-            let balance = receiver.balance + amount;
-            receiver.balance = balance;
-            world.write_model(@receiver);
+            let mut player: GamePlayer = world.read_model((recepient, game_id));
+            player.balance += amount;
+            world.write_model(@player);
         }
 
 
@@ -510,12 +642,31 @@ pub mod actions {
             player
         }
 
-        fn retrieve_game_player(self: @ContractState, addr: ContractAddress) -> GamePlayer {
+        fn retrieve_game_player(
+            self: @ContractState, addr: ContractAddress, game_id: u256,
+        ) -> GamePlayer {
             // Get default world
             let mut world = self.world_default();
-            let player: GamePlayer = world.read_model(addr);
+            let player: GamePlayer = world.read_model((addr, game_id));
 
             player
+        }
+
+        fn is_game_started(self: @ContractState, game_id: u256) -> u8 {
+            let mut world = self.world_default();
+            let mut game: Game = world.read_model(game_id);
+            let mut stat: u8 = 10;
+            if (game.status == GameStatus::Ongoing) {
+                stat = 1
+            };
+            if (game.status == GameStatus::Ended) {
+                stat = 0
+            };
+
+            if (game.status == GameStatus::Pending) {
+                stat = 2
+            };
+            stat
         }
     }
 
@@ -527,46 +678,256 @@ pub mod actions {
             self.world(@"blockopoly")
         }
 
+
+        fn finish_turn(ref self: ContractState, mut game: Game) -> Game {
+            let caller = get_caller_address();
+            let mut index = 0;
+            let mut current_index = 0;
+            let players_len = game.game_players.len();
+
+            while index < players_len {
+                let player = game.game_players.at(index);
+                if *player == caller {
+                    current_index = index;
+                    break;
+                }
+                index += 1;
+            };
+
+            let next_index = (current_index + 1) % players_len;
+            game.next_player = *game.game_players.at(next_index);
+
+            game
+        }
+
+
         fn generate_board_tiles(ref self: ContractState, game_id: u256) {
-            // Special tiles
-            self.generate_go(1, game_id, 'Go');
-            self.generate_community_chest(2, game_id);
+            let mut world = self.world_default();
+            let contract_address = get_contract_address();
+            let bank: GamePlayer = world.read_model((contract_address, game_id));
             self
                 .generate_properties(
-                    3, game_id, 'Axone Avenue', 60, 2, 10, 30, 90, 160, 250, 50, false, 1,
-                );
-            self.generate_tax(4, game_id, 'Income Tax', 200);
-            self.generate_railroad(5, game_id, 'IPFS Railroad', false);
-            self
-                .generate_properties(
-                    6, game_id, 'Onlydust Avenue', 60, 4, 20, 60, 180, 320, 450, 50, false, 1,
-                );
-            self.generate_chance(7, game_id);
-            self
-                .generate_properties(
-                    8, game_id, 'ZkSync Lane', 100, 6, 30, 90, 270, 400, 550, 50, false, 2,
-                );
-            self
-                .generate_properties(
-                    9, game_id, 'Starknet Lane', 100, 6, 30, 90, 270, 400, 550, 50, false, 2,
-                );
-            self.generate_jail(10, game_id, 'Visiting Jail');
-            self
-                .generate_properties(
-                    11, game_id, 'Linea Lane', 120, 8, 40, 100, 300, 450, 600, 50, false, 2,
-                );
-            self.generate_utilitity(12, game_id, 'Chainlink Power Plant', false);
-            self
-                .generate_properties(
-                    13, game_id, 'Arbitrium Avenue', 140, 10, 50, 150, 450, 625, 750, 100, false, 3,
-                );
-            self.generate_community_chest(14, game_id);
-            self
-                .generate_properties(
-                    15,
+                    1,
                     game_id,
-                    'Optimistic Avenue',
+                    'Go',
+                    0,
+                    PropertyType::Property,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    false,
+                    0,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    2,
+                    game_id,
+                    'Community Chest',
+                    0,
+                    PropertyType::Property,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    false,
+                    0,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    3,
+                    game_id,
+                    'Axone Avenue',
+                    60,
+                    PropertyType::Property,
+                    2,
+                    10,
+                    30,
+                    90,
+                    160,
+                    250,
+                    50,
+                    false,
+                    1,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    4,
+                    game_id,
+                    'Income Tax',
+                    200,
+                    PropertyType::Property,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    false,
+                    0,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    5,
+                    game_id,
+                    'IPFS Railroad',
+                    200,
+                    PropertyType::Property,
+                    25,
+                    50,
+                    100,
+                    200,
+                    400,
+                    0,
+                    0,
+                    false,
+                    0,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    6,
+                    game_id,
+                    'Onlydust Avenue',
+                    60,
+                    PropertyType::Property,
+                    4,
+                    20,
+                    60,
+                    180,
+                    320,
+                    450,
+                    50,
+                    false,
+                    1,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    7,
+                    game_id,
+                    'Chance',
+                    0,
+                    PropertyType::Property,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    false,
+                    0,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    8,
+                    game_id,
+                    'ZkSync Lane',
+                    100,
+                    PropertyType::Property,
+                    6,
+                    30,
+                    90,
+                    270,
+                    400,
+                    550,
+                    50,
+                    false,
+                    2,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    9,
+                    game_id,
+                    'Starknet Lane',
+                    100,
+                    PropertyType::Property,
+                    6,
+                    30,
+                    90,
+                    270,
+                    400,
+                    550,
+                    50,
+                    false,
+                    2,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    10,
+                    game_id,
+                    'Visiting Jail',
+                    0,
+                    PropertyType::Property,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    false,
+                    0,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    11,
+                    game_id,
+                    'Linea Lane',
+                    120,
+                    PropertyType::Property,
+                    8,
+                    40,
+                    100,
+                    300,
+                    450,
+                    600,
+                    50,
+                    false,
+                    2,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    12,
+                    game_id,
+                    'Chainlink Power Plant',
+                    150,
+                    PropertyType::Property,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    false,
+                    0,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    13,
+                    game_id,
+                    'Arbitrium Avenue',
                     140,
+                    PropertyType::Property,
                     10,
                     50,
                     150,
@@ -576,61 +937,375 @@ pub mod actions {
                     100,
                     false,
                     3,
-                );
-            self.generate_railroad(16, game_id, 'Pinata Railroad', false);
-            self
-                .generate_properties(
-                    17, game_id, 'Base Avenue', 160, 12, 60, 180, 500, 700, 900, 100, false, 3,
+                    bank.address,
                 );
             self
                 .generate_properties(
-                    18, game_id, 'Cosmos Lane', 180, 14, 70, 200, 550, 750, 950, 100, false, 4,
-                );
-            self.generate_chance(19, game_id);
-            self
-                .generate_properties(
-                    20, game_id, 'Polkadot Lane', 180, 14, 70, 200, 550, 750, 950, 100, false, 4,
-                );
-            self.generate_go(21, game_id, 'Free Parking');
-            self
-                .generate_properties(
-                    22, game_id, 'Near Lane', 200, 16, 80, 220, 600, 800, 1000, 100, false, 4,
-                );
-            self.generate_community_chest(23, game_id);
-            self
-                .generate_properties(
-                    24, game_id, 'Uniswap Avenue', 220, 18, 90, 250, 700, 875, 1050, 150, false, 5,
-                );
-            self.generate_railroad(25, game_id, 'Open Zeppelin Railroad', false);
-            self
-                .generate_properties(
-                    26, game_id, 'MakerDAO Avenue', 220, 18, 90, 250, 700, 875, 1050, 150, false, 5,
+                    14,
+                    game_id,
+                    'Community Chest',
+                    0,
+                    PropertyType::Property,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    false,
+                    0,
+                    bank.address,
                 );
             self
                 .generate_properties(
-                    27, game_id, 'Aave Avenue', 240, 20, 100, 300, 750, 925, 1100, 150, false, 5,
+                    15,
+                    game_id,
+                    'Optimistic Avenue',
+                    140,
+                    PropertyType::Property,
+                    10,
+                    50,
+                    150,
+                    450,
+                    625,
+                    750,
+                    100,
+                    false,
+                    3,
+                    bank.address,
                 );
-            self.generate_utilitity(28, game_id, 'Graph Water Works', false);
             self
                 .generate_properties(
-                    29, game_id, 'Lisk Lane', 260, 22, 110, 330, 800, 975, 1150, 150, false, 6,
+                    16,
+                    game_id,
+                    'Pinata Railroad',
+                    200,
+                    PropertyType::Property,
+                    25,
+                    50,
+                    100,
+                    200,
+                    400,
+                    0,
+                    0,
+                    false,
+                    0,
+                    bank.address,
                 );
-            self.generate_jail(30, game_id, 'Go to Jail');
             self
                 .generate_properties(
-                    31, game_id, 'Rootstock Lane', 260, 22, 110, 330, 800, 975, 1150, 150, false, 6,
+                    17,
+                    game_id,
+                    'Base Avenue',
+                    160,
+                    PropertyType::Property,
+                    12,
+                    60,
+                    180,
+                    500,
+                    700,
+                    900,
+                    100,
+                    false,
+                    3,
+                    bank.address,
                 );
             self
                 .generate_properties(
-                    32, game_id, 'Ark Lane', 280, 22, 120, 360, 850, 1025, 1200, 150, false, 6,
+                    18,
+                    game_id,
+                    'Cosmos Lane',
+                    180,
+                    PropertyType::Property,
+                    14,
+                    70,
+                    200,
+                    550,
+                    750,
+                    950,
+                    100,
+                    false,
+                    4,
+                    bank.address,
                 );
-            self.generate_community_chest(33, game_id);
+            self
+                .generate_properties(
+                    19,
+                    game_id,
+                    'Chance',
+                    0,
+                    PropertyType::Property,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    false,
+                    0,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    20,
+                    game_id,
+                    'Polkadot Lane',
+                    180,
+                    PropertyType::Property,
+                    14,
+                    70,
+                    200,
+                    550,
+                    750,
+                    950,
+                    100,
+                    false,
+                    4,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    21,
+                    game_id,
+                    'Free Parking',
+                    0,
+                    PropertyType::Property,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    false,
+                    0,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    22,
+                    game_id,
+                    'Near Lane',
+                    200,
+                    PropertyType::Property,
+                    16,
+                    80,
+                    220,
+                    600,
+                    800,
+                    1000,
+                    100,
+                    false,
+                    4,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    23,
+                    game_id,
+                    'Community Chest',
+                    0,
+                    PropertyType::Property,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    false,
+                    0,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    24,
+                    game_id,
+                    'Uniswap Avenue',
+                    220,
+                    PropertyType::Property,
+                    18,
+                    90,
+                    250,
+                    700,
+                    875,
+                    1050,
+                    150,
+                    false,
+                    5,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    25,
+                    game_id,
+                    'OpenZeppelin Railroad',
+                    200,
+                    PropertyType::Property,
+                    25,
+                    50,
+                    100,
+                    200,
+                    400,
+                    0,
+                    0,
+                    false,
+                    0,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    26,
+                    game_id,
+                    'MakerDAO Avenue',
+                    220,
+                    PropertyType::Property,
+                    18,
+                    90,
+                    250,
+                    700,
+                    875,
+                    1050,
+                    150,
+                    false,
+                    5,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    27,
+                    game_id,
+                    'Aave Avenue',
+                    240,
+                    PropertyType::Property,
+                    20,
+                    100,
+                    300,
+                    750,
+                    925,
+                    1100,
+                    150,
+                    false,
+                    5,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    28,
+                    game_id,
+                    'Graph Water Works',
+                    150,
+                    PropertyType::Property,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    false,
+                    0,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    29,
+                    game_id,
+                    'Lisk Lane',
+                    260,
+                    PropertyType::Property,
+                    22,
+                    110,
+                    330,
+                    800,
+                    975,
+                    1150,
+                    150,
+                    false,
+                    6,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    30,
+                    game_id,
+                    'Go To Jail',
+                    0,
+                    PropertyType::Property,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    false,
+                    0,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    31,
+                    game_id,
+                    'Rootstock Lane',
+                    260,
+                    PropertyType::Property,
+                    22,
+                    110,
+                    330,
+                    800,
+                    975,
+                    1150,
+                    150,
+                    false,
+                    6,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    32,
+                    game_id,
+                    'Ark Lane',
+                    280,
+                    PropertyType::Property,
+                    24,
+                    120,
+                    360,
+                    850,
+                    1025,
+                    1200,
+                    150,
+                    false,
+                    6,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    33,
+                    game_id,
+                    'Community Chest',
+                    0,
+                    PropertyType::Property,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    false,
+                    0,
+                    bank.address,
+                );
             self
                 .generate_properties(
                     34,
                     game_id,
                     'Avalanche Avenue',
                     300,
+                    PropertyType::Property,
                     26,
                     130,
                     390,
@@ -640,20 +1315,87 @@ pub mod actions {
                     200,
                     false,
                     7,
+                    bank.address,
                 );
-            self.generate_railroad(35, game_id, 'Cartridge Railroad', false);
-            self.generate_chance(36, game_id);
             self
                 .generate_properties(
-                    37, game_id, 'Solana Drive', 300, 26, 130, 390, 900, 1100, 1275, 200, false, 7,
+                    35,
+                    game_id,
+                    'Cartridge Railroad',
+                    200,
+                    PropertyType::Property,
+                    25,
+                    50,
+                    100,
+                    200,
+                    400,
+                    0,
+                    0,
+                    false,
+                    0,
+                    bank.address,
                 );
-            self.generate_tax(38, game_id, 'Luxury Tax', 100);
+            self
+                .generate_properties(
+                    36,
+                    game_id,
+                    'Chance',
+                    0,
+                    PropertyType::Property,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    false,
+                    0,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    37,
+                    game_id,
+                    'Solana Drive',
+                    300,
+                    PropertyType::Property,
+                    26,
+                    130,
+                    390,
+                    900,
+                    1100,
+                    1275,
+                    200,
+                    false,
+                    7,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    38,
+                    game_id,
+                    'Luxury Tax',
+                    100,
+                    PropertyType::Property,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    false,
+                    0,
+                    bank.address,
+                );
             self
                 .generate_properties(
                     39,
                     game_id,
                     'Ethereum Avenue',
                     320,
+                    PropertyType::Property,
                     28,
                     150,
                     450,
@@ -663,10 +1405,25 @@ pub mod actions {
                     200,
                     false,
                     7,
+                    bank.address,
                 );
             self
                 .generate_properties(
-                    40, game_id, 'Bitcoin Lane', 400, 50, 200, 600, 1400, 1700, 2000, 200, false, 8,
+                    40,
+                    game_id,
+                    'Bitcoin Lane',
+                    400,
+                    PropertyType::Property,
+                    50,
+                    200,
+                    600,
+                    1400,
+                    1700,
+                    2000,
+                    200,
+                    false,
+                    8,
+                    bank.address,
                 );
         }
 
@@ -759,6 +1516,34 @@ pub mod actions {
             assert(game.player_boot != username, 'ALREADY SELECTED BOOT');
             assert(game.player_wheelbarrow != username, 'ALREADY SELECTED WHEELBARROW');
         }
+
+        fn handle_property_landing(
+            ref self: ContractState, player: GamePlayer, mut property: Property,
+        ) -> Property {
+            let caller = get_caller_address();
+            let bank_address = get_contract_address();
+
+            if property.owner == bank_address {
+                // Property is unowned
+                println!(
+                    "This property '{}' is owned by the bank. It costs {}.",
+                    property.name,
+                    property.cost_of_property,
+                );
+            } else if property.owner != caller {
+                // Property is owned by someone else
+                println!("This property '{}' is owned by {:?}.", property.name, property.owner);
+                println!("Player {:?} needs to pay rent of {}", caller, property.rent_site_only);
+                // self.transfer_funds(caller, property.rent_site_only);
+            // self.credit_owner(property.owner, property.rent_site_only);
+
+            } else {
+                // Property owned by caller
+                println!("Player {:?} landed on their own property '{}'.", caller, property.name);
+            }
+
+            property
+        }
     }
 
     #[generate_trait]
@@ -778,15 +1563,17 @@ pub mod actions {
             game_id: u256,
             name: felt252,
             cost_of_property: u256,
+            property_type: PropertyType,
             rent_site_only: u256,
             rent_one_house: u256,
             rent_two_houses: u256,
             rent_three_houses: u256,
             rent_four_houses: u256,
-            rent_hotel: u256,
             cost_of_house: u256,
+            rent_hotel: u256,
             is_mortgaged: bool,
             group_id: u8,
+            owner: ContractAddress,
         ) {
             let mut world = self.world_default();
             let mut property: Property = world.read_model((id, game_id));
@@ -797,6 +1584,7 @@ pub mod actions {
                     game_id,
                     name,
                     cost_of_property,
+                    property_type,
                     rent_site_only,
                     rent_one_house,
                     rent_two_houses,
@@ -805,6 +1593,7 @@ pub mod actions {
                     rent_hotel,
                     cost_of_house,
                     group_id,
+                    owner,
                 );
 
             let property_to_id: PropertyToId = PropertyToId { name, id };

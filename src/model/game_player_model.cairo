@@ -1,6 +1,6 @@
 use starknet::{ContractAddress};
 
-#[derive(Drop, Serde, Introspect)]
+#[derive(Drop, Serde, Clone, Introspect)]
 #[dojo::model]
 pub struct GamePlayer {
     #[key]
@@ -8,6 +8,7 @@ pub struct GamePlayer {
     #[key]
     pub game_id: u256, // unique per game
     pub player_symbol: PlayerSymbol,
+    pub is_next: bool,
     pub position: u8,
     pub jailed: bool,
     pub balance: u256,
@@ -23,7 +24,7 @@ pub trait GamePlayerTrait {
     fn create_game_player(
         username: felt252, address: ContractAddress, game_id: u256, player_symbol: PlayerSymbol,
     ) -> GamePlayer;
-    fn move(player: GamePlayer, steps: u8);
+    fn move(player: GamePlayer, steps: u8) -> GamePlayer;
     fn pay_game_player(ref self: GamePlayer, amount: u256) -> bool;
     fn deduct_game_player(ref self: GamePlayer, amount: u256) -> bool;
     fn add_property_to_game_player(ref self: GamePlayer, property_id: u8) -> bool;
@@ -41,6 +42,7 @@ impl GamePlayerImpl of GamePlayerTrait {
             game_id,
             player_symbol: player_symbol,
             balance: 0,
+            is_next: true,
             position: 0,
             jailed: false,
             is_bankrupt: false,
@@ -49,8 +51,9 @@ impl GamePlayerImpl of GamePlayerTrait {
         }
     }
 
-    fn move(mut player: GamePlayer, steps: u8) {
+    fn move(mut player: GamePlayer, steps: u8) -> GamePlayer {
         player.position += steps;
+        player
     }
 
     fn pay_game_player(ref self: GamePlayer, amount: u256) -> bool {

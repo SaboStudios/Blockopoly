@@ -6,7 +6,7 @@ pub struct Property {
     #[key]
     pub id: u8,
     #[key]
-    game_id: u256,
+    pub game_id: u256,
     pub name: felt252,
     pub owner: ContractAddress,
     pub cost_of_property: u256,
@@ -23,6 +23,19 @@ pub struct Property {
     pub for_sale: bool,
     pub development: u8,
 }
+#[derive(Serde, Copy, Drop, Introspect, PartialEq, Debug)]
+pub enum PropertyType {
+    Go,
+    Chance,
+    CommunityChest,
+    Jail,
+    Utility,
+    RailRoad,
+    Tax,
+    FreeParking,
+    Property,
+}
+
 
 #[derive(Drop, Copy, Serde)]
 #[dojo::model]
@@ -46,6 +59,7 @@ pub trait PropertyTrait {
         game_id: u256,
         name: felt252,
         cost: u256,
+        property_type: PropertyType,
         rent_site_only: u256,
         rent_one_house: u256,
         rent_two_houses: u256,
@@ -54,6 +68,7 @@ pub trait PropertyTrait {
         cost_of_house: u256,
         rent_hotel: u256,
         group_id: u8,
+        owner: ContractAddress,
     ) -> Property;
     fn get_rent_amount(self: @Property) -> u256;
     fn mortgage(ref self: Property, owner: ContractAddress);
@@ -72,6 +87,7 @@ impl PropertyImpl of PropertyTrait {
         game_id: u256,
         name: felt252,
         cost: u256,
+        property_type: PropertyType,
         rent_site_only: u256,
         rent_one_house: u256,
         rent_two_houses: u256,
@@ -80,13 +96,13 @@ impl PropertyImpl of PropertyTrait {
         cost_of_house: u256,
         rent_hotel: u256,
         group_id: u8,
+        owner: ContractAddress,
     ) -> Property {
-        let zero_address: ContractAddress = contract_address_const::<0>();
         Property {
             id,
             game_id,
             name,
-            owner: zero_address,
+            owner: owner,
             cost_of_property: cost,
             property_level: 0,
             rent_site_only: rent_site_only,
