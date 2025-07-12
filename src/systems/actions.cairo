@@ -722,47 +722,47 @@ pub mod actions {
             };
             stat
         }
+        //        fn handle_chance(ref self: ContractState, game_id: u256, random_index: u32) ->
+    //        @ByteArray {
+    //     let mut world = self.world_default();
+    //     let mut game: Game = world.read_model(game_id);
 
-//        fn handle_chance(ref self: ContractState, game_id: u256, random_index: u32) -> @ByteArray {
-//     let mut world = self.world_default();
-//     let mut game: Game = world.read_model(game_id);
+        //     if game.chance.len() == 0 {
+    //         let mut cards = self.generate_chance_deck();
+    //         let mut indices: Array<u32> = array![];
+    //         let mut i = 0;
+    //         while i < cards.len() {
+    //             indices.append(i);
+    //             i += 1;
+    //         };
+    //         game.chance = indices;
+    //     }
 
-//     if game.chance.len() == 0 {
-//         let mut cards = self.generate_chance_deck();
-//         let mut indices: Array<u32> = array![];
-//         let mut i = 0;
-//         while i < cards.len() {
-//             indices.append(i);
-//             i += 1;
-//         };
-//         game.chance = indices;
-//     }
+        //     let len = game.chance.len();
+    //     let draw_index = random_index % len;
 
-//     let len = game.chance.len();
-//     let draw_index = random_index % len;
+        //     // Clone to get owned value
+    //     let card_index: u32 = game.chance[draw_index].clone();
 
-//     // Clone to get owned value
-//     let card_index: u32 = game.chance[draw_index].clone();
+        //     let cards = self.generate_chance_deck();
 
-//     let cards = self.generate_chance_deck();
+        //     // Return a reference to the card string
+    //     let card = cards[card_index];
 
-//     // Return a reference to the card string
-//     let card = cards[card_index];
+        //     let mut new_deck: Array<u32> = array![];
+    //     let mut i = 0;
+    //     while i < len {
+    //         if i != draw_index {
+    //             new_deck.append(game.chance[i]);
+    //         }
+    //         i += 1;
+    //     };
+    //     game.chance = new_deck;
 
-//     let mut new_deck: Array<u32> = array![];
-//     let mut i = 0;
-//     while i < len {
-//         if i != draw_index {
-//             new_deck.append(game.chance[i]);
-//         }
-//         i += 1;
-//     };
-//     game.chance = new_deck;
+        //     world.write_model(@game);
 
-//     world.write_model(@game);
-
-//     card
-// }
+        //     card
+    // }
 
     }
 
