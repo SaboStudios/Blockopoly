@@ -9,6 +9,7 @@ pub struct Property {
     pub game_id: u256,
     pub name: felt252,
     pub owner: ContractAddress,
+    pub property_type: PropertyType,
     pub cost_of_property: u256,
     pub property_level: u8,
     pub rent_site_only: u256,
@@ -34,6 +35,7 @@ pub enum PropertyType {
     Tax,
     FreeParking,
     Property,
+    VisitingJail,
 }
 
 
@@ -103,6 +105,7 @@ impl PropertyImpl of PropertyTrait {
             game_id,
             name,
             owner: owner,
+            property_type,
             cost_of_property: cost,
             property_level: 0,
             rent_site_only: rent_site_only,

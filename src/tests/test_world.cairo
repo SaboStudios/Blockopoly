@@ -871,7 +871,7 @@ mod tests {
     }
 
     #[test]
-    fn test_pay_200_pass_go() {
+    fn test_get_200_pass_go() {
         let caller_1 = contract_address_const::<'aji'>();
         let caller_2 = contract_address_const::<'collins'>();
         let caller_3 = contract_address_const::<'jerry'>();
