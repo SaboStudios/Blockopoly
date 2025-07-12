@@ -860,7 +860,7 @@ mod tests {
 
         testing::set_contract_address(caller_2);
         actions_system.move_player(1, 5);
-        let ppt1 = actions_system.get_property(4, 1);
+        let ppt1 = actions_system.get_property(5, 1);
 
         testing::set_contract_address(caller_2);
         actions_system.pay_rent(ppt1);
