@@ -722,48 +722,6 @@ pub mod actions {
             };
             stat
         }
-        //        fn handle_chance(ref self: ContractState, game_id: u256, random_index: u32) ->
-    //        @ByteArray {
-    //     let mut world = self.world_default();
-    //     let mut game: Game = world.read_model(game_id);
-
-        //     if game.chance.len() == 0 {
-    //         let mut cards = self.generate_chance_deck();
-    //         let mut indices: Array<u32> = array![];
-    //         let mut i = 0;
-    //         while i < cards.len() {
-    //             indices.append(i);
-    //             i += 1;
-    //         };
-    //         game.chance = indices;
-    //     }
-
-        //     let len = game.chance.len();
-    //     let draw_index = random_index % len;
-
-        //     // Clone to get owned value
-    //     let card_index: u32 = game.chance[draw_index].clone();
-
-        //     let cards = self.generate_chance_deck();
-
-        //     // Return a reference to the card string
-    //     let card = cards[card_index];
-
-        //     let mut new_deck: Array<u32> = array![];
-    //     let mut i = 0;
-    //     while i < len {
-    //         if i != draw_index {
-    //             new_deck.append(game.chance[i]);
-    //         }
-    //         i += 1;
-    //     };
-    //     game.chance = new_deck;
-
-        //     world.write_model(@game);
-
-        //     card
-    // }
-
     }
 
     #[generate_trait]
@@ -807,12 +765,12 @@ pub mod actions {
             deck.append("Bank pays you dividend of $50");
             deck.append("Get out of Jail Free");
             deck.append("Go Back 3 Spaces");
-            deck.append("Go to Jail");
+            deck.append("Go to Jail dirctly do not pass Go do not collect $200");
             deck.append("Make general repairs - $25 house, $100 hotel");
             deck.append("Pay poor tax of $15");
             deck.append("Take a trip to Reading Railroad");
             deck.append("Take a walk on the Boardwalk");
-            deck.append("You elected Chairman - pay each player $50");
+            deck.append("Speeding fine $200");
             deck.append("Building loan matures - collect $150");
 
             // self.shuffle_array(deck);
@@ -833,7 +791,101 @@ pub mod actions {
             indices
         }
 
-        // }
+        fn handle_chance(ref self: ContractState, game_id: u256, random_index: u32) -> ByteArray {
+            let mut world = self.world_default();
+            let mut game: Game = world.read_model(game_id);
+
+            let len = game.chance.len();
+            if len == 0 {
+                game.chance = self.generate_chance_deck(); // returns Array<ByteArray>
+                world.write_model(@game);
+            }
+            let draw_index = (random_index % (len));
+
+            // Directly get the card ByteArray from game.chance (no further indexing needed)
+            let card = game.chance[draw_index].clone();
+
+            // Build a new deck without the drawn card
+            let mut new_deck = array![];
+            let mut i = 0;
+            while i < len {
+                if i != draw_index {
+                    new_deck.append(game.chance[i].clone());
+                }
+                i += 1;
+            };
+            game.chance = new_deck.clone();
+
+            world.write_model(@game);
+
+            card
+        }
+
+
+        fn handle_community_chest(
+            ref self: ContractState, game_id: u256, random_index: u32,
+        ) -> ByteArray {
+            let mut world = self.world_default();
+            let mut game: Game = world.read_model(game_id);
+
+            let len = game.community.len();
+            if len == 0 {
+                game.community = self.generate_community_chest_deck(); // Array<ByteArray>
+                world.write_model(@game);
+            }
+
+            let draw_index = (random_index % (len));
+
+            // Get the card directly from the community deck
+            let card = game.community[draw_index].clone();
+
+            // Build a new deck without the drawn card
+            let mut new_deck = array![];
+            let mut i = 0;
+            while i < len {
+                if i != draw_index {
+                    new_deck.append(game.community[i].clone());
+                }
+                i += 1;
+            };
+            game.community = new_deck;
+
+            world.write_model(@game);
+
+            card
+        }
+
+
+        fn find_nearest(ref self: ContractState, player_pos: u8, utilities: Array<u8>) -> u8 {
+            let board_size: u8 = 40;
+
+            let mut nearest_pos: u8 = *utilities[0];
+            let mut smallest_distance = if *utilities[0] >= player_pos {
+                *utilities[0] - player_pos
+            } else {
+                board_size - (player_pos - *utilities[0])
+            };
+
+            let len = utilities.len();
+            let mut i = 1;
+            while i < len {
+                let utility_pos = *utilities[i];
+                let distance = if utility_pos >= player_pos {
+                    utility_pos - player_pos
+                } else {
+                    board_size - (player_pos - utility_pos)
+                };
+
+                if distance < smallest_distance {
+                    smallest_distance = distance;
+                    nearest_pos = utility_pos;
+                }
+                i += 1;
+            };
+
+            nearest_pos
+        }
+
 
         fn process_chance_card(
             ref self: ContractState, mut game: Game, mut player: GamePlayer, card: ByteArray,
@@ -842,129 +894,130 @@ pub mod actions {
             // NOTE: If you have enums or ids for cards, it's cleaner. With ByteArray, compare
             // strings.
 
-            // if card == "Advance to Go (Collect $200)" {
-            //     player.position = 1;
-            //     player.balance += 200;
-            // } else if card == "Advance to Illinois Avenue - If you pass Go, collect $200" {
-            //     if player.position > 24 { // suppose Illinois is tile 24
-            //         player.balance += 200;
-            //     }
-            //     player.position = 24;
-            // } else if card == "Advance to St. Charles Place - If you pass Go, collect $200" {
-            //     if player.position > 11 {
-            //         player.balance += 200;
-            //     }
-            //     player.position = 11;
-            // } else if card == "Advance token to nearest Utility. Pay 10x dice." {
-            //     let utility_pos = self.find_nearest(player.position, game.utilities);
-            //     player.position = utility_pos;
-            //     let rent = 10 * player.dice_rolled;
-            //     player.balance -= rent;
-            // } else if card == "Advance token to nearest Railroad. Pay 2x rent." {
-            //     let rail_pos = self.find_nearest(player.position, game.railroads);
-            //     player.position = rail_pos;
-            //     let rent = 2 * self.get_standard_rent(rail_pos);
-            //     player.balance -= rent;
-            // } else if card == "Bank pays you dividend of $50" {
-            //     player.balance += 50;
-            // } else if card == "Get out of Jail Free" {
-            //     player.has_get_out_of_jail_card = true;
-            // } else if card == "Go Back 3 Spaces" {
-            //     if player.position < 4 {
-            //         player.position = 40 - (4 - player.position);
-            //     } else {
-            //         player.position -= 3;
-            //     }
-            // } else if card == "Go to Jail" {
-            //     player.position = 11; // suppose jail is tile 11
-            //     player.jailed = true;
-            // } else if card == "Make general repairs - $25 house, $100 hotel" {
-            //     let houses = player.total_houses_owned;
-            //     let hotels = player.total_hotels_owned;
-            //     let cost = (25 * houses) + (100 * hotels);
-            //     player.balance -= cost;
-            // } else if card == "Pay poor tax of $15" {
-            //     player.balance -= 15;
-            // } else if card == "Take a trip to Reading Railroad" {
-            //     if player.position > 6 {
-            //         player.balance += 200;
-            //     }
-            //     player.position = 6; // reading railroad
-            // } else if card == "Take a walk on the Boardwalk" {
-            //     player.position = 39;
-            // } else if card == "You elected Chairman - pay each player $50" {
-            //     let mut i = 0;
-            //     while i < game.players.len() {
-            //         let addr = game.players[i];
-            //         if addr != player.address {
-            //             let mut other_player: GamePlayer = self.get_player(game.game_id, addr);
-            //             other_player.balance += 50;
-            //             player.balance -= 50;
-            //             self.save_player(other_player);
-            //         }
-            //         i += 1;
-            //     }
-            // } else if card == "Building loan matures - collect $150" {
-            //     player.balance += 150;
-            // }
+            if card == "Advance to Go (Collect $200)" {
+                player.position = 1;
+                player.balance += 200;
+            } else if card == "Advance to Illinois Avenue - If you pass Go, collect $200" {
+                if player.position > 24 { // suppose Illinois is tile 24
+                    player.balance += 200;
+                }
+                player.position = 24;
+            } else if card == "Advance to St. Charles Place - If you pass Go, collect $200" {
+                if player.position > 11 {
+                    player.balance += 200;
+                }
+                player.position = 11;
+            } else if card == "Advance token to nearest Utility. Pay 10x dice." {
+                let mut pos: Array<u8> = array![];
+                pos.append(12);
+                pos.append(28);
+                let utility_pos = self.find_nearest(player.position, pos);
+                player.position = utility_pos;
+                let rent: u256 = 10 * player.dice_rolled.into();
+                player.balance -= rent;
+            } else if card == "Advance token to nearest Railroad. Pay 2x rent." {
+                let mut pos: Array<u8> = array![];
+                pos.append(5);
+                pos.append(15);
+                pos.append(25);
+                pos.append(35);
+                let rail_pos = self.find_nearest(player.position, pos);
+                player.position = rail_pos;
+                let rail = self.get_property(rail_pos, game.clone().id);
+                self.pay_rent(rail);
+                self.pay_rent(rail);
+            } else if card == "Bank pays you dividend of $50" {
+                player.balance += 50;
+            } else if card == "Get out of Jail Free" {
+                player.chance_jail_card = true;
+            } else if card == "Go Back 3 Spaces" {
+                if player.position < 4 {
+                    player.position = 40 - (4 - player.position);
+                } else {
+                    player.position -= 3;
+                }
+            } else if card == "Go to Jail" {
+                player.position = 11; // suppose jail is tile 11
+                player.jailed = true;
+            } else if card == "Make general repairs - $25 house, $100 hotel" {
+                let houses = player.total_houses_owned;
+                let hotels = player.total_hotels_owned;
+                let cost = (25 * houses) + (100 * hotels);
+                player.balance -= cost.into();
+            } else if card == "Pay poor tax of $15" {
+                player.balance -= 15;
+            } else if card == "Take a trip to Reading Railroad" {
+                if player.position > 6 {
+                    player.balance += 200;
+                }
+                player.position = 6; // reading railroad
+            } else if card == "Take a walk on the Boardwalk" {
+                player.position = 39;
+            } else if card == "Speeding fine $200" {
+                player.balance -= 200;
+            } else if card == "Building loan matures - collect $150" {
+                player.balance += 150;
+            }
 
             (game, player)
         }
 
 
-        // fn process_community_chest_card(
-        //     ref self: ContractState, mut game: Game, mut player: GamePlayer, card: ByteArray,
-        // ) -> (Game, GamePlayer) {
-        //     if card == "Advance to Go (Collect $200)" {
-        //         player.position = 1;
-        //         player.balance += 200;
-        //     } else if card == "Bank error in your favor - Collect $200" {
-        //         player.balance += 200;
-        //     } else if card == "Doctor fee - Pay $50" {
-        //         player.balance -= 50;
-        //     } else if card == "From sale of stock - collect $50" {
-        //         player.balance += 50;
-        //     } else if card == "Get Out of Jail Free" {
-        //         player.has_get_out_of_jail_card = true;
-        //     } else if card == "Go to Jail" {
-        //         player.position = 11; // jail position
-        //         player.jailed = true;
-        //     } else if card == "Grand Opera Night - collect $50 from every player" {
-        //         let mut i = 0;
-        //         while i < game.players.len() {
-        //             let addr = game.players[i];
-        //             if addr != player.address {
-        //                 let mut other_player: GamePlayer = self.get_player(game.game_id, addr);
-        //                 other_player.balance -= 50;
-        //                 player.balance += 50;
-        //                 self.save_player(other_player);
-        //             }
-        //             i += 1;
-        //         }
-        //     } else if card == "Holiday Fund matures - Receive $100" {
-        //         player.balance += 100;
-        //     } else if card == "Income tax refund - Collect $20" {
-        //         player.balance += 20;
-        //     } else if card == "Life insurance matures - Collect $100" {
-        //         player.balance += 100;
-        //     } else if card == "Pay hospital fees of $100" {
-        //         player.balance -= 100;
-        //     } else if card == "Pay school fees of $150" {
-        //         player.balance -= 150;
-        //     } else if card == "Receive $25 consultancy fee" {
-        //         player.balance += 25;
-        //     } else if card == "Street repairs - $40 per house, $115 per hotel" {
-        //         let houses = player.total_houses_owned;
-        //         let hotels = player.total_hotels_owned;
-        //         let cost = (40 * houses) + (115 * hotels);
-        //         player.balance -= cost;
-        //     } else if card == "Won second prize in beauty contest - Collect $10" {
-        //         player.balance += 10;
-        //     } else if card == "You inherit $100" {
-        //         player.balance += 100;
-        //     }
+        fn process_community_chest_card(
+            ref self: ContractState, mut game: Game, mut player: GamePlayer, card: ByteArray,
+        ) -> (Game, GamePlayer) {
+            let mut world = self.world_default();
+            if card == "Advance to Go (Collect $200)" {
+                player.position = 1;
+                player.balance += 200;
+            } else if card == "Bank error in your favor - Collect $200" {
+                player.balance += 200;
+            } else if card == "Doctor fee - Pay $50" {
+                player.balance -= 50;
+            } else if card == "From sale of stock - collect $50" {
+                player.balance += 50;
+            } else if card == "Get Out of Jail Free" {
+                player.comm_free_card = true;
+            } else if card == "Go to Jail" {
+                player.position = 11; // jail position
+                player.jailed = true;
+            } else if card == "Grand Opera Night - collect $50 from every player" {
+                let mut i = 0;
+                while i < game.game_players.len() {
+                    let addr = *game.game_players[i];
+                    if addr != player.address {
+                        let mut other_player: GamePlayer = self.retrieve_game_player(addr, game.id);
+                        other_player.balance -= 50;
+                        player.balance += 50;
+                        world.write_model(@other_player);
+                    }
+                    i += 1;
+                }
+            } else if card == "Holiday Fund matures - Receive $100" {
+                player.balance += 100;
+            } else if card == "Income tax refund - Collect $20" {
+                player.balance += 20;
+            } else if card == "Life insurance matures - Collect $100" {
+                player.balance += 100;
+            } else if card == "Pay hospital fees of $100" {
+                player.balance -= 100;
+            } else if card == "Pay school fees of $150" {
+                player.balance -= 150;
+            } else if card == "Receive $25 consultancy fee" {
+                player.balance += 25;
+            } else if card == "Street repairs - $40 per house, $115 per hotel" {
+                let houses = player.total_houses_owned;
+                let hotels = player.total_hotels_owned;
+                let cost = (40 * houses) + (115 * hotels);
+                // player.balance -= cost;
+            } else if card == "Won second prize in beauty contest - Collect $10" {
+                player.balance += 10;
+            } else if card == "You inherit $100" {
+                player.balance += 100;
+            }
 
-        //     (game, player)
+            (game, player)
+        }
 
         fn generate_community_chest_deck(ref self: ContractState) -> Array<ByteArray> {
             let mut deck: Array<ByteArray> = array![];
@@ -1725,9 +1778,6 @@ pub mod actions {
             username: felt252,
             game_id: u256,
         ) {
-            let mut world = self.world_default();
-            let timestamp = get_block_timestamp();
-
             match symbol {
                 PlayerSymbol::Hat => {
                     assert(game.player_hat == 0, 'HAT already selected');
@@ -1768,7 +1818,8 @@ pub mod actions {
             let mut count: u8 = 0;
 
             if game.player_hat != 0 {
-                count += 1;
+                count += 1; // self.transfer_funds(caller, property.rent_site_only);
+                // self.credit_owner(property.owner, property.rent_site_only);
             }
             if game.player_car != 0 {
                 count += 1;
@@ -1796,7 +1847,11 @@ pub mod actions {
         }
 
         fn assert_player_not_already_joined(
-            ref self: ContractState, game: Game, username: felt252,
+            ref self: ContractState,
+            game: Game,
+            username: felt252 // self.transfer_funds(caller,// self.transfer_funds(caller, property.rent_site_only);
+            // self.credit_owner(property.owner, property.rent_site_only); property.rent_site_only);
+        // self.credit_owner(property.owner, property.rent_site_only);
         ) {
             assert(game.player_hat != username, 'ALREADY SELECTED HAT');
             assert(game.player_car != username, 'ALREADY SELECTED CAR');
@@ -1825,9 +1880,6 @@ pub mod actions {
                 // Property is owned by someone else
                 println!("This property '{}' is owned by {:?}.", property.name, property.owner);
                 println!("Player {:?} needs to pay rent of {}", caller, property.rent_site_only);
-                // self.transfer_funds(caller, property.rent_site_only);
-            // self.credit_owner(property.owner, property.rent_site_only);
-
             } else {
                 // Property owned by caller
                 println!("Player {:?} landed on their own property '{}'.", caller, property.name);
@@ -1895,14 +1947,6 @@ pub mod actions {
             world.write_model(@id_to_property);
         }
 
-
-        fn generate_go(ref self: ContractState, id: u8, game_id: u256, name: felt252) {
-            let mut world = self.world_default();
-            let mut go: Go = world.read_model((id, game_id));
-            go = Go { id, game_id, name };
-            world.write_model(@go);
-        }
-
         fn create_new_game_id(ref self: ContractState) -> u256 {
             let mut world = self.world_default();
             let mut game_counter: GameCounter = world.read_model('v0');
@@ -1910,75 +1954,6 @@ pub mod actions {
             game_counter.current_val = new_val;
             world.write_model(@game_counter);
             new_val
-        }
-
-        fn generate_tax(
-            ref self: ContractState, id: u8, game_id: u256, name: felt252, tax_amount: u256,
-        ) {
-            let mut world = self.world_default();
-            let mut tax: Tax = world.read_model((id, game_id));
-            tax = Tax { id, game_id, name, tax_amount };
-            world.write_model(@tax);
-        }
-
-        fn generate_utilitity(
-            ref self: ContractState, id: u8, game_id: u256, name: felt252, is_mortgaged: bool,
-        ) {
-            let mut world = self.world_default();
-            let mut utility: Utility = world.read_model((id, game_id));
-
-            utility = UtilityTrait::new(id, game_id, name);
-
-            let utility_to_id: UtilityToId = UtilityToId { name, id };
-            let id_to_utility: IdToUtility = IdToUtility { id, name };
-
-            world.write_model(@utility);
-            world.write_model(@utility_to_id);
-            world.write_model(@id_to_utility);
-        }
-
-        // to be moved to it model
-        fn generate_railroad(
-            ref self: ContractState, id: u8, game_id: u256, name: felt252, is_mortgaged: bool,
-        ) {
-            let mut world = self.world_default();
-            let mut railroad: RailRoad = world.read_model((id, game_id));
-
-            railroad = RailRoadTrait::new(id, game_id, name);
-
-            let railroad_to_id: RailRoadToId = RailRoadToId { name, id };
-            let id_to_railroad: IdToRailRoad = IdToRailRoad { id, name };
-
-            world.write_model(@railroad);
-            world.write_model(@railroad_to_id);
-            world.write_model(@id_to_railroad);
-        }
-
-        // to be moved to it model
-        fn generate_chance(ref self: ContractState, id: u8, game_id: u256) {
-            let mut world = self.world_default();
-            let mut chance: Chance = world.read_model((id, game_id));
-
-            chance = ChanceTrait::new(id, game_id);
-
-            world.write_model(@chance);
-        }
-
-        // to be moved to it model
-        fn generate_community_chest(ref self: ContractState, id: u8, game_id: u256) {
-            let mut world = self.world_default();
-            let mut community_chest: CommunityChest = world.read_model((id, game_id));
-
-            community_chest = CommunityChestTrait::new(id, game_id);
-
-            world.write_model(@community_chest);
-        }
-
-        // to be moved to it model
-        fn generate_jail(ref self: ContractState, id: u8, game_id: u256, name: felt252) {
-            let mut world = self.world_default();
-            let mut jail: Jail = world.read_model((id, game_id));
-            jail = Jail { id, game_id, name };
         }
     }
 }
