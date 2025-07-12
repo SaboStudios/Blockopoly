@@ -860,7 +860,9 @@ mod tests {
 
         testing::set_contract_address(caller_2);
         actions_system.move_player(1, 5);
-        let ppt1 = actions_system.get_property(5, 1);
+        let ppt1 = actions_system.get_property(4, 1);
+
+        testing::set_contract_address(caller_2);
         actions_system.pay_rent(ppt1);
 
         let aji = actions_system.retrieve_game_player(caller_1, 1);
@@ -1002,6 +1004,133 @@ mod tests {
         assert(ppt11.is_mortgaged, 'morgage failed')
     }
 
+    #[test]
+    fn test_buy_houses_in_and_hotel_game() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'collins'>();
+        let caller_3 = contract_address_const::<'jerry'>();
+        let caller_4 = contract_address_const::<'aliyu'>();
+        let username = 'Ajidokwu';
+        let username_1 = 'Collins';
+        let username_2 = 'Jerry';
+        let username_3 = 'Aliyu';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_2);
+        actions_system.register_new_player(username_1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username);
+
+        testing::set_contract_address(caller_3);
+        actions_system.register_new_player(username_2);
+
+        testing::set_contract_address(caller_4);
+        actions_system.register_new_player(username_3);
+
+        testing::set_contract_address(caller_1);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
+
+        testing::set_contract_address(caller_2);
+        actions_system.join_game(PlayerSymbol::Dog, 1);
+
+        testing::set_contract_address(caller_3);
+        actions_system.join_game(PlayerSymbol::Car, 1);
+
+        testing::set_contract_address(caller_4);
+        actions_system.join_game(PlayerSymbol::Iron, 1);
+
+        testing::set_contract_address(caller_1);
+        let started = actions_system.start_game(1);
+        assert(started, 'Game start fail');
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+        let mut property = actions_system.get_property(2, 1);
+        actions_system.buy_property(property);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 12);
+
+        let mut game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_3);
+        actions_system.move_player(1, 8);
+        game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_4);
+        actions_system.move_player(1, 8);
+        game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+        property = actions_system.get_property(4, 1);
+        actions_system.buy_property(property);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 12);
+
+        game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_3);
+        actions_system.move_player(1, 8);
+        game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_4);
+        actions_system.move_player(1, 8);
+        game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_1);
+        property = actions_system.get_property(4, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(2, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(4, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(2, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(4, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(2, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(4, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(2, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(4, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(2, 1);
+        let success = actions_system.buy_house_or_hotel(property);
+        assert(success, 'house failed');
+        property = actions_system.get_property(4, 1);
+        assert(property.development == 5, 'dev correct');
+
+        let aji = actions_system.retrieve_game_player(caller_1, 1);
+
+        assert(aji.total_hotels_owned == 2, 'house count error');
+        assert(aji.total_houses_owned == 8, 'house count error');
+    }
 
     #[test]
     fn test_play_game() {
@@ -1050,31 +1179,63 @@ mod tests {
         assert(started, 'Game start fail');
 
         testing::set_contract_address(caller_1);
-        actions_system.move_player(1, 5);
-        let ppt = actions_system.get_property(5, 1);
-        actions_system.buy_property(ppt);
+        actions_system.move_player(1, 2);
+        let mut property = actions_system.get_property(2, 1);
+        actions_system.buy_property(property);
 
-        let ppt1 = actions_system.get_property(5, 1);
-        actions_system.mortgage_property(ppt1);
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 12);
 
-        let ppt11 = actions_system.get_property(5, 1);
+        let mut game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
 
-        let aji = actions_system.retrieve_game_player(caller_1, 1);
-        assert(aji.balance == 1400, 'morgage inbursement failed');
-        assert(ppt11.is_mortgaged, 'morgage failed');
+        testing::set_contract_address(caller_3);
+        actions_system.move_player(1, 8);
+        game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
 
-        let ppt2 = actions_system.get_property(5, 1);
-        actions_system.unmortgage_property(ppt2);
+        testing::set_contract_address(caller_4);
+        actions_system.move_player(1, 8);
+        game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
 
-        let ppt21 = actions_system.get_property(5, 1);
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+        property = actions_system.get_property(4, 1);
+        actions_system.buy_property(property);
 
-        let aji1 = actions_system.retrieve_game_player(caller_1, 1);
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 12);
 
-        assert(aji1.balance == 1290, 'morgage inbursement failed');
-        assert(!ppt21.is_mortgaged, 'morgage failed');
+        game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
 
-        assert(ppt11.is_mortgaged, 'morgage failed')
-        // testing::set_contract_address(caller_3);
+        testing::set_contract_address(caller_3);
+        actions_system.move_player(1, 8);
+        game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_4);
+        actions_system.move_player(1, 8);
+        game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_1);
+        property = actions_system.get_property(4, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(2, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(4, 1);
+        let success = actions_system.buy_house_or_hotel(property);
+
+        assert(success, 'house failed');
+        // let aji = actions_system.retrieve_game_player(caller_1, 1);
+    // property = actions_system.get_property(4, 1);
+    // println!("no of total_houses_owned :{}", aji.total_houses_owned);
+    // println!("no of property :{}", property.development);
+    // testing::set_contract_address(caller_3);
     // actions_system.move_player(1, 5);
     // testing::set_contract_address(caller_4);
     // actions_system.move_player(1, 5);
