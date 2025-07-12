@@ -26,6 +26,7 @@ pub trait IActions<T> {
     ) -> u256;
     fn join_game(ref self: T, player_symbol: PlayerSymbol, game_id: u256);
     fn start_game(ref self: T, game_id: u256) -> bool;
+    fn finish_turn(ref self: T, game: Game) -> Game;
 
     // Game state retrieval
     fn retrieve_game(self: @T, game_id: u256) -> Game;

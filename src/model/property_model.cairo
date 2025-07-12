@@ -72,7 +72,11 @@ pub trait PropertyTrait {
         group_id: u8,
         owner: ContractAddress,
     ) -> Property;
-    fn get_rent_amount(self: @Property) -> u256;
+    fn get_rent_amount(
+        self: @Property, owner_railroads: u8, owner_utilities: u8, dice_rolled: u256,
+    ) -> u256;
+    fn calculate_utility_rent(self: @Property, no_of_utilities: u8, dice_rolled: u256) -> u256;
+    fn calculate_railway_rent(self: @Property, no_of_railways: u8) -> u256;
     fn mortgage(ref self: Property, owner: ContractAddress);
     fn lift_mortgage(ref self: Property, owner: ContractAddress);
     fn upgrade_property(ref self: Property, player: ContractAddress, upgrade_level: u8) -> bool;
@@ -121,22 +125,67 @@ impl PropertyImpl of PropertyTrait {
             development: 0,
         }
     }
-
-    fn get_rent_amount(self: @Property) -> u256 {
+    fn get_rent_amount(
+        self: @Property, owner_railroads: u8, owner_utilities: u8, dice_rolled: u256,
+    ) -> u256 {
         if *self.is_mortgaged {
             return 0;
         }
 
-        match *self.property_level {
-            0 => *self.rent_site_only,
-            1 => *self.rent_one_house,
-            2 => *self.rent_two_houses,
-            3 => *self.rent_three_houses,
-            4 => *self.rent_four_houses,
-            5 => *self.rent_hotel,
-            _ => *self.rent_site_only // default fallback
+        match *self.property_type {
+            PropertyType::Property => {
+                match *self.development {
+                    0 => *self.rent_site_only,
+                    1 => *self.rent_one_house,
+                    2 => *self.rent_two_houses,
+                    3 => *self.rent_three_houses,
+                    4 => *self.rent_four_houses,
+                    5 => *self.rent_hotel,
+                    _ => *self.rent_site_only,
+                }
+            },
+            PropertyType::RailRoad => {
+                match owner_railroads {
+                    0 => 0,
+                    1 => 25,
+                    2 => 50,
+                    3 => 100,
+                    4 => 200,
+                    _ => 0,
+                }
+            },
+            PropertyType::Utility => {
+                match owner_utilities {
+                    0 => 0,
+                    1 => 4 * dice_rolled,
+                    2 => 10 * dice_rolled,
+                    _ => 0,
+                }
+            },
+            _ => 0,
         }
     }
+
+
+    fn calculate_utility_rent(self: @Property, no_of_utilities: u8, dice_rolled: u256) -> u256 {
+        match no_of_utilities {
+            0 => 0,
+            1 => 4 * dice_rolled,
+            2 => 10 * dice_rolled,
+            _ => 0,
+        }
+    }
+    fn calculate_railway_rent(self: @Property, no_of_railways: u8) -> u256 {
+        match no_of_railways {
+            0 => 0,
+            1 => 25,
+            2 => 50,
+            3 => 100,
+            4 => 200,
+            _ => 0,
+        }
+    }
+
 
     fn mortgage(ref self: Property, owner: ContractAddress) {
         self.is_mortgaged = true;
