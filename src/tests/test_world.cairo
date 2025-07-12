@@ -1133,6 +1133,302 @@ mod tests {
     }
 
     #[test]
+    fn test_community_chest() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'collins'>();
+        let caller_3 = contract_address_const::<'jerry'>();
+        let caller_4 = contract_address_const::<'aliyu'>();
+        let username = 'Ajidokwu';
+        let username_1 = 'Collins';
+        let username_2 = 'Jerry';
+        let username_3 = 'Aliyu';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_2);
+        actions_system.register_new_player(username_1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username);
+
+        testing::set_contract_address(caller_3);
+        actions_system.register_new_player(username_2);
+
+        testing::set_contract_address(caller_4);
+        actions_system.register_new_player(username_3);
+
+        testing::set_contract_address(caller_1);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
+
+        testing::set_contract_address(caller_2);
+        actions_system.join_game(PlayerSymbol::Dog, 1);
+
+        testing::set_contract_address(caller_3);
+        actions_system.join_game(PlayerSymbol::Car, 1);
+
+        testing::set_contract_address(caller_4);
+        actions_system.join_game(PlayerSymbol::Iron, 1);
+
+        testing::set_contract_address(caller_1);
+        let started = actions_system.start_game(1);
+        assert(started, 'Game start fail');
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 4);
+
+        let ppt = actions_system.get_property(5, 1);
+        let mut community = actions_system.handle_community_chest(1, 3);
+        println!("community chest 1 : {}", community);
+        community = actions_system.handle_community_chest(1, 3);
+        println!("community chest 2: {}", community);
+        community = actions_system.handle_community_chest(1, 3);
+        println!("community chest 3: {}", community);
+        community = actions_system.handle_community_chest(1, 3);
+        println!("community chest 4: {}", community);
+        community = actions_system.handle_community_chest(1, 3);
+        println!("community chest 5: {}", community);
+        community = actions_system.handle_community_chest(1, 3);
+        println!("community chest 6: {}", community);
+        community = actions_system.handle_community_chest(1, 3);
+        println!("community chest 7: {}", community);
+        community = actions_system.handle_community_chest(1, 3);
+        println!("community chest 8: {}", community);
+        community = actions_system.handle_community_chest(1, 3);
+        println!("community chest 9 : {}", community);
+        community = actions_system.handle_community_chest(1, 3);
+        println!("community chest 10 : {}", community);
+        community = actions_system.handle_community_chest(1, 3);
+        println!("community chest 11 : {}", community);
+        community = actions_system.handle_community_chest(1, 3);
+        println!("community chest 12 : {}", community);
+        community = actions_system.handle_community_chest(1, 3);
+        println!("community chest 13 : {}", community);
+        community = actions_system.handle_community_chest(1, 3);
+        println!("community chest 14 : {}", community);
+        community = actions_system.handle_community_chest(1, 3);
+        println!("community chest 15 : {}", community);
+        community = actions_system.handle_community_chest(1, 3);
+        println!("community chest 16 : {}", community);
+        community = actions_system.handle_community_chest(1, 3);
+        println!("community chest 17 : {}", community);
+    }
+
+    #[test]
+    fn test_community_chance() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'collins'>();
+        let caller_3 = contract_address_const::<'jerry'>();
+        let caller_4 = contract_address_const::<'aliyu'>();
+        let username = 'Ajidokwu';
+        let username_1 = 'Collins';
+        let username_2 = 'Jerry';
+        let username_3 = 'Aliyu';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_2);
+        actions_system.register_new_player(username_1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username);
+
+        testing::set_contract_address(caller_3);
+        actions_system.register_new_player(username_2);
+
+        testing::set_contract_address(caller_4);
+        actions_system.register_new_player(username_3);
+
+        testing::set_contract_address(caller_1);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
+
+        testing::set_contract_address(caller_2);
+        actions_system.join_game(PlayerSymbol::Dog, 1);
+
+        testing::set_contract_address(caller_3);
+        actions_system.join_game(PlayerSymbol::Car, 1);
+
+        testing::set_contract_address(caller_4);
+        actions_system.join_game(PlayerSymbol::Iron, 1);
+
+        testing::set_contract_address(caller_1);
+        let started = actions_system.start_game(1);
+        assert(started, 'Game start fail');
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 4);
+
+        let ppt = actions_system.get_property(5, 1);
+
+        let mut chance = actions_system.handle_chance(1, 3);
+        println!("chance 1 : {}", chance);
+        chance = actions_system.handle_chance(1, 3);
+        println!("chance 2 : {}", chance);
+        chance = actions_system.handle_chance(1, 3);
+        println!("chance 3 : {}", chance);
+        chance = actions_system.handle_chance(1, 3);
+        println!("chance 4 : {}", chance);
+        chance = actions_system.handle_chance(1, 3);
+        println!("chance 5 : {}", chance);
+        chance = actions_system.handle_chance(1, 3);
+        println!("chance 6 : {}", chance);
+        chance = actions_system.handle_chance(1, 3);
+        println!("chance 7 : {}", chance);
+        chance = actions_system.handle_chance(1, 3);
+        println!("chance 8 : {}", chance);
+        chance = actions_system.handle_chance(1, 3);
+        println!("chance 9 : {}", chance);
+        chance = actions_system.handle_chance(1, 3);
+        println!("chance 10 : {}", chance);
+        chance = actions_system.handle_chance(1, 3);
+        println!("chance 11 : {}", chance);
+        chance = actions_system.handle_chance(1, 3);
+        println!("chance 12 : {}", chance);
+        chance = actions_system.handle_chance(1, 3);
+        println!("chance 13 : {}", chance);
+        chance = actions_system.handle_chance(1, 3);
+        println!("chance 14 : {}", chance);
+        chance = actions_system.handle_chance(1, 3);
+        println!("chance 15 : {}", chance);
+        chance = actions_system.handle_chance(1, 3);
+        println!("chance 16 : {}", chance);
+        chance = actions_system.handle_chance(1, 3);
+        println!("chance 17 : {}", chance);
+    }
+    #[test]
+    fn test_process_chance() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'collins'>();
+        let caller_3 = contract_address_const::<'jerry'>();
+        let caller_4 = contract_address_const::<'aliyu'>();
+        let username = 'Ajidokwu';
+        let username_1 = 'Collins';
+        let username_2 = 'Jerry';
+        let username_3 = 'Aliyu';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_2);
+        actions_system.register_new_player(username_1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username);
+
+        testing::set_contract_address(caller_3);
+        actions_system.register_new_player(username_2);
+
+        testing::set_contract_address(caller_4);
+        actions_system.register_new_player(username_3);
+
+        testing::set_contract_address(caller_1);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
+
+        testing::set_contract_address(caller_2);
+        actions_system.join_game(PlayerSymbol::Dog, 1);
+
+        testing::set_contract_address(caller_3);
+        actions_system.join_game(PlayerSymbol::Car, 1);
+
+        testing::set_contract_address(caller_4);
+        actions_system.join_game(PlayerSymbol::Iron, 1);
+
+        testing::set_contract_address(caller_1);
+        let started = actions_system.start_game(1);
+        assert(started, 'Game start fail');
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 7);
+
+        let mut g = actions_system.retrieve_game(1);
+        println!("array len b4 : {} ", g.chance.len());
+
+        let mut p = actions_system.retrieve_game_player(caller_1, 1);
+
+        let mut chance = actions_system.handle_chance(1, 3);
+        println!("chance 1 : {}", chance);
+        let (game, ply) = actions_system.process_chance_card(g, p, chance);
+
+        assert(ply.position == 12, 'position error');
+        assert(ply.balance == 1430, 'bal error');
+    }
+    #[test]
+    fn test_process_community_chest() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'collins'>();
+        let caller_3 = contract_address_const::<'jerry'>();
+        let caller_4 = contract_address_const::<'aliyu'>();
+        let username = 'Ajidokwu';
+        let username_1 = 'Collins';
+        let username_2 = 'Jerry';
+        let username_3 = 'Aliyu';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_2);
+        actions_system.register_new_player(username_1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username);
+
+        testing::set_contract_address(caller_3);
+        actions_system.register_new_player(username_2);
+
+        testing::set_contract_address(caller_4);
+        actions_system.register_new_player(username_3);
+
+        testing::set_contract_address(caller_1);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
+
+        testing::set_contract_address(caller_2);
+        actions_system.join_game(PlayerSymbol::Dog, 1);
+
+        testing::set_contract_address(caller_3);
+        actions_system.join_game(PlayerSymbol::Car, 1);
+
+        testing::set_contract_address(caller_4);
+        actions_system.join_game(PlayerSymbol::Iron, 1);
+
+        testing::set_contract_address(caller_1);
+        let started = actions_system.start_game(1);
+        assert(started, 'Game start fail');
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 3);
+
+        let mut g = actions_system.retrieve_game(1);
+        println!("array len b4 : {} ", g.chance.len());
+
+        let mut p = actions_system.retrieve_game_player(caller_1, 1);
+
+        let mut community_chest = actions_system.handle_community_chest(1, 3);
+        println!("community_chest: {}", community_chest);
+
+        let (_, ply) = actions_system.process_community_chest_card(g, p, community_chest);
+
+        assert(ply.position == 3, 'position error');
+        assert(ply.balance == 1550, 'bal error');
+    }
+
+    #[test]
     fn test_play_game() {
         let caller_1 = contract_address_const::<'aji'>();
         let caller_2 = contract_address_const::<'collins'>();

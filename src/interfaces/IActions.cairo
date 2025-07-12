@@ -67,6 +67,15 @@ pub trait IActions<T> {
     fn buy_house_or_hotel(ref self: T, property: Property) -> bool;
     fn sell_house_or_hotel(ref self: T, property_id: u8, game_id: u256) -> bool;
 
+    fn handle_community_chest(ref self: T, game_id: u256, random_index: u32) -> ByteArray;
+    fn handle_chance(ref self: T, game_id: u256, random_index: u32) -> ByteArray;
+    fn process_chance_card(
+        ref self: T, game: Game, player: GamePlayer, card: ByteArray,
+    ) -> (Game, GamePlayer);
+
+    fn process_community_chest_card(
+        ref self: T, game: Game, player: GamePlayer, card: ByteArray,
+    ) -> (Game, GamePlayer);
     // Trading system
     // fn offer_trade(
     //     ref self: T,
