@@ -58,6 +58,8 @@ pub struct Game {
     pub player_wheelbarrow: felt252,
     pub players_joined: u8,
     pub game_players: Array<ContractAddress>,
+    pub chance: Array<ByteArray>,
+    pub community: Array<ByteArray>,
 }
 
 pub trait GameTrait {
@@ -76,6 +78,8 @@ pub trait GameTrait {
         player_wheelbarrow: felt252,
         number_of_players: u8,
         game_players: Array<ContractAddress>,
+        chance: Array<ByteArray>,
+        community: Array<ByteArray>,
     ) -> Game;
     fn restart(ref self: Game);
     fn terminate_game(ref self: Game);
@@ -115,6 +119,8 @@ impl GameImpl of GameTrait {
         player_wheelbarrow: felt252,
         number_of_players: u8,
         game_players: Array<ContractAddress>,
+        chance: Array<ByteArray>,
+        community: Array<ByteArray>,
     ) -> Game {
         let zero_address = contract_address_const::<0x0>();
         Game {
@@ -168,6 +174,8 @@ impl GameImpl of GameTrait {
             wheelbarrow: 'wheelbarrow',
             players_joined: 0,
             game_players,
+            chance,
+            community,
         }
     }
 

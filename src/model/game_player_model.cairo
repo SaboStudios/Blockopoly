@@ -9,10 +9,21 @@ pub struct GamePlayer {
     pub game_id: u256, // unique per game
     pub player_symbol: PlayerSymbol,
     pub is_next: bool,
+    pub dice_rolled: u8,
     pub position: u8,
     pub jailed: bool,
     pub balance: u256,
     pub properties_owned: Array<u8>,
+    pub no_of_utilities: u8,
+    pub no_of_railways: u8,
+    pub no_section1: u8,
+    pub no_section2: u8,
+    pub no_section3: u8,
+    pub no_section4: u8,
+    pub no_section5: u8,
+    pub no_section6: u8,
+    pub no_section7: u8,
+    pub no_section8: u8,
     pub is_bankrupt: bool,
     pub is_active: bool,
 }
@@ -40,6 +51,7 @@ impl GamePlayerImpl of GamePlayerTrait {
         GamePlayer {
             address,
             game_id,
+            dice_rolled: 0,
             player_symbol: player_symbol,
             balance: 0,
             is_next: true,
@@ -48,6 +60,16 @@ impl GamePlayerImpl of GamePlayerTrait {
             is_bankrupt: false,
             is_active: true,
             properties_owned: array![],
+            no_of_utilities: 0,
+            no_of_railways: 0,
+            no_section1: 0,
+            no_section2: 0,
+            no_section3: 0,
+            no_section4: 0,
+            no_section5: 0,
+            no_section6: 0,
+            no_section7: 0,
+            no_section8: 0,
         }
     }
 

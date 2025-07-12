@@ -45,6 +45,7 @@ pub trait IActions<T> {
     // Dice & player movement
     fn roll_dice(ref self: T) -> (u8, u8);
     fn move_player(ref self: T, game_id: u256, steps: u8) -> u8;
+    // fn handle_chance(ref self: T, game_id: u256, random_index: u32) -> @ByteArray;
 
     // Handling landings on board
     // fn draw_chance_card(ref self: T, game_id: u256) -> Chance;

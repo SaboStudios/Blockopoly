@@ -247,6 +247,9 @@ pub mod actions {
             let mut game_player = ArrayTrait::new();
             game_player.append(caller_address);
 
+            let chance = self.generate_chance_deck();
+            let community = self.generate_community_chest_deck();
+
             // Create a new game
             let mut new_game: Game = GameTrait::new(
                 game_id,
@@ -262,6 +265,8 @@ pub mod actions {
                 player_wheelbarrow,
                 number_of_players,
                 game_player,
+                chance,
+                community,
             );
             // Generate tiles
             self.generate_board_tiles(game_id);
@@ -418,6 +423,7 @@ pub mod actions {
         fn pay_rent(ref self: ContractState, mut property: Property) -> bool {
             let mut world = self.world_default();
             let caller = get_caller_address();
+
             // Load players
             let mut player: GamePlayer = world.read_model((caller, property.game_id));
             let mut owner: GamePlayer = world.read_model((property.owner, property.game_id));
@@ -426,24 +432,46 @@ pub mod actions {
             let mut game: Game = world.read_model(property.game_id);
             assert(game.status == GameStatus::Ongoing, 'Game has not started yet');
 
-            // Ensure property is actually owned and rules are valid
+            // Ensure property is owned and valid
             let zero_address: ContractAddress = contract_address_const::<0>();
             assert(property.owner != zero_address, 'Property is unowned');
             assert(property.owner != caller, 'You cannot pay rent to yourself');
-            assert(player.position == property.id, 'Not on Property');
+            assert(player.position == property.id, 'Not on property');
             assert(!property.is_mortgaged, 'No rent on mortgaged properties');
 
-            // Handle rent payment
-            let rent_amount = property.get_rent_amount();
+            let mut rent_amount = 0;
+
+            match property.property_type {
+                PropertyType::Property => { rent_amount = property.get_rent_amount(); },
+                PropertyType::Utility => {
+                    // Utilities rent depends on number owned and dice roll
+                    if player.no_of_utilities == 2 {
+                        rent_amount = 10 * player.dice_rolled.into();
+                    } else if player.no_of_utilities == 1 {
+                        rent_amount = 4 * player.dice_rolled.into();
+                    }
+                },
+                PropertyType::RailRoad => {
+                    // Assuming rent increases by number of railroads owned
+                    // e.g. rent = 25 * number of railroads owned
+                    rent_amount = 25 * player.no_of_railways.into();
+                },
+                _ => {
+                    rent_amount = 0; // No rent for other types
+                },
+            }
+
+            // Check player can pay rent
             assert(player.balance >= rent_amount, 'Insufficient rent funds');
 
+            // Transfer rent
             player.balance -= rent_amount;
             owner.balance += rent_amount;
 
-            // Rotate next player
+            // Finish turn
             game = self.finish_turn(game);
 
-            // Batch writes
+            // Persist changes
             world.write_model(@game);
             world.write_model(@player);
             world.write_model(@owner);
@@ -483,7 +511,7 @@ pub mod actions {
         fn buy_property(ref self: ContractState, mut property: Property) -> bool {
             // get the world
             let mut world = self.world_default();
-            //get the game out and check it is ongoing
+            // get the game and check it is ongoing
             let mut found_game: Game = world.read_model(property.game_id);
             assert!(found_game.status == GameStatus::Ongoing, "game has not started yet ");
 
@@ -493,26 +521,52 @@ pub mod actions {
             let mut owner: GamePlayer = world.read_model((property.owner, property.game_id));
 
             assert(player.position == property.id, 'wrong property');
-
             assert(player.game_id == owner.game_id, 'Not in the same game');
             assert(player.balance >= property.cost_of_property, 'insufficient funds');
 
+            // Transfer funds
             player.balance -= property.cost_of_property;
             owner.balance += property.cost_of_property;
 
+            // Transfer ownership
             property.owner = caller;
-            player.properties_owned.append(property.id);
             property.for_sale = false;
+            player.properties_owned.append(property.id);
 
-            // Finish turn (rotate next player)
+            // Increment section or special counters
+            match property.group_id {
+                0 => {},
+                1 => player.no_section1 += 1,
+                2 => player.no_section2 += 1,
+                3 => player.no_section3 += 1,
+                4 => player.no_section4 += 1,
+                5 => player.no_section5 += 1,
+                6 => player.no_section6 += 1,
+                7 => player.no_section7 += 1,
+                8 => player.no_section8 += 1,
+                _ => {
+                    // Handle special types by property names (or you could use a dedicated
+                    // enum/type)
+                    if property.property_type == PropertyType::RailRoad {
+                        player.no_of_railways += 1;
+                    } else if property.property_type == PropertyType::Utility {
+                        player.no_of_utilities += 1;
+                    }
+                },
+            }
+
+            // Finish turn
             found_game = self.finish_turn(found_game);
 
+            // Persist changes
             world.write_model(@found_game);
             world.write_model(@player);
             world.write_model(@owner);
             world.write_model(@property);
+
             true
         }
+
 
         fn buy_house_or_hotel(ref self: ContractState, mut property: Property) -> bool {
             let mut world = self.world_default();
@@ -668,6 +722,48 @@ pub mod actions {
             };
             stat
         }
+        //        fn handle_chance(ref self: ContractState, game_id: u256, random_index: u32) ->
+    //        @ByteArray {
+    //     let mut world = self.world_default();
+    //     let mut game: Game = world.read_model(game_id);
+
+        //     if game.chance.len() == 0 {
+    //         let mut cards = self.generate_chance_deck();
+    //         let mut indices: Array<u32> = array![];
+    //         let mut i = 0;
+    //         while i < cards.len() {
+    //             indices.append(i);
+    //             i += 1;
+    //         };
+    //         game.chance = indices;
+    //     }
+
+        //     let len = game.chance.len();
+    //     let draw_index = random_index % len;
+
+        //     // Clone to get owned value
+    //     let card_index: u32 = game.chance[draw_index].clone();
+
+        //     let cards = self.generate_chance_deck();
+
+        //     // Return a reference to the card string
+    //     let card = cards[card_index];
+
+        //     let mut new_deck: Array<u32> = array![];
+    //     let mut i = 0;
+    //     while i < len {
+    //         if i != draw_index {
+    //             new_deck.append(game.chance[i]);
+    //         }
+    //         i += 1;
+    //     };
+    //     game.chance = new_deck;
+
+        //     world.write_model(@game);
+
+        //     card
+    // }
+
     }
 
     #[generate_trait]
@@ -700,6 +796,201 @@ pub mod actions {
             game
         }
 
+        fn generate_chance_deck(ref self: ContractState) -> Array<ByteArray> {
+            let mut deck: Array<ByteArray> = array![];
+
+            deck.append("Advance to Go (Collect $200)");
+            deck.append("Advance to Illinois Avenue - If you pass Go, collect $200");
+            deck.append("Advance to St. Charles Place - If you pass Go, collect $200");
+            deck.append("Advance token to nearest Utility. Pay 10x dice.");
+            deck.append("Advance token to nearest Railroad. Pay 2x rent.");
+            deck.append("Bank pays you dividend of $50");
+            deck.append("Get out of Jail Free");
+            deck.append("Go Back 3 Spaces");
+            deck.append("Go to Jail");
+            deck.append("Make general repairs - $25 house, $100 hotel");
+            deck.append("Pay poor tax of $15");
+            deck.append("Take a trip to Reading Railroad");
+            deck.append("Take a walk on the Boardwalk");
+            deck.append("You elected Chairman - pay each player $50");
+            deck.append("Building loan matures - collect $150");
+
+            // self.shuffle_array(deck);
+
+            deck
+        }
+
+
+        fn generate_chance_indices(ref self: ContractState) -> Array<u32> {
+            let mut indices: Array<u32> = array![];
+            let cards = self.generate_chance_deck();
+            let n = cards.len();
+            let mut i = 0;
+            while i < n {
+                indices.append(i);
+                i += 1;
+            };
+            indices
+        }
+
+        // }
+
+        fn process_chance_card(
+            ref self: ContractState, mut game: Game, mut player: GamePlayer, card: ByteArray,
+        ) -> (Game, GamePlayer) {
+            // We'll decode by matching text.
+            // NOTE: If you have enums or ids for cards, it's cleaner. With ByteArray, compare
+            // strings.
+
+            // if card == "Advance to Go (Collect $200)" {
+            //     player.position = 1;
+            //     player.balance += 200;
+            // } else if card == "Advance to Illinois Avenue - If you pass Go, collect $200" {
+            //     if player.position > 24 { // suppose Illinois is tile 24
+            //         player.balance += 200;
+            //     }
+            //     player.position = 24;
+            // } else if card == "Advance to St. Charles Place - If you pass Go, collect $200" {
+            //     if player.position > 11 {
+            //         player.balance += 200;
+            //     }
+            //     player.position = 11;
+            // } else if card == "Advance token to nearest Utility. Pay 10x dice." {
+            //     let utility_pos = self.find_nearest(player.position, game.utilities);
+            //     player.position = utility_pos;
+            //     let rent = 10 * player.dice_rolled;
+            //     player.balance -= rent;
+            // } else if card == "Advance token to nearest Railroad. Pay 2x rent." {
+            //     let rail_pos = self.find_nearest(player.position, game.railroads);
+            //     player.position = rail_pos;
+            //     let rent = 2 * self.get_standard_rent(rail_pos);
+            //     player.balance -= rent;
+            // } else if card == "Bank pays you dividend of $50" {
+            //     player.balance += 50;
+            // } else if card == "Get out of Jail Free" {
+            //     player.has_get_out_of_jail_card = true;
+            // } else if card == "Go Back 3 Spaces" {
+            //     if player.position < 4 {
+            //         player.position = 40 - (4 - player.position);
+            //     } else {
+            //         player.position -= 3;
+            //     }
+            // } else if card == "Go to Jail" {
+            //     player.position = 11; // suppose jail is tile 11
+            //     player.jailed = true;
+            // } else if card == "Make general repairs - $25 house, $100 hotel" {
+            //     let houses = player.total_houses_owned;
+            //     let hotels = player.total_hotels_owned;
+            //     let cost = (25 * houses) + (100 * hotels);
+            //     player.balance -= cost;
+            // } else if card == "Pay poor tax of $15" {
+            //     player.balance -= 15;
+            // } else if card == "Take a trip to Reading Railroad" {
+            //     if player.position > 6 {
+            //         player.balance += 200;
+            //     }
+            //     player.position = 6; // reading railroad
+            // } else if card == "Take a walk on the Boardwalk" {
+            //     player.position = 39;
+            // } else if card == "You elected Chairman - pay each player $50" {
+            //     let mut i = 0;
+            //     while i < game.players.len() {
+            //         let addr = game.players[i];
+            //         if addr != player.address {
+            //             let mut other_player: GamePlayer = self.get_player(game.game_id, addr);
+            //             other_player.balance += 50;
+            //             player.balance -= 50;
+            //             self.save_player(other_player);
+            //         }
+            //         i += 1;
+            //     }
+            // } else if card == "Building loan matures - collect $150" {
+            //     player.balance += 150;
+            // }
+
+            (game, player)
+        }
+
+
+        // fn process_community_chest_card(
+        //     ref self: ContractState, mut game: Game, mut player: GamePlayer, card: ByteArray,
+        // ) -> (Game, GamePlayer) {
+        //     if card == "Advance to Go (Collect $200)" {
+        //         player.position = 1;
+        //         player.balance += 200;
+        //     } else if card == "Bank error in your favor - Collect $200" {
+        //         player.balance += 200;
+        //     } else if card == "Doctor fee - Pay $50" {
+        //         player.balance -= 50;
+        //     } else if card == "From sale of stock - collect $50" {
+        //         player.balance += 50;
+        //     } else if card == "Get Out of Jail Free" {
+        //         player.has_get_out_of_jail_card = true;
+        //     } else if card == "Go to Jail" {
+        //         player.position = 11; // jail position
+        //         player.jailed = true;
+        //     } else if card == "Grand Opera Night - collect $50 from every player" {
+        //         let mut i = 0;
+        //         while i < game.players.len() {
+        //             let addr = game.players[i];
+        //             if addr != player.address {
+        //                 let mut other_player: GamePlayer = self.get_player(game.game_id, addr);
+        //                 other_player.balance -= 50;
+        //                 player.balance += 50;
+        //                 self.save_player(other_player);
+        //             }
+        //             i += 1;
+        //         }
+        //     } else if card == "Holiday Fund matures - Receive $100" {
+        //         player.balance += 100;
+        //     } else if card == "Income tax refund - Collect $20" {
+        //         player.balance += 20;
+        //     } else if card == "Life insurance matures - Collect $100" {
+        //         player.balance += 100;
+        //     } else if card == "Pay hospital fees of $100" {
+        //         player.balance -= 100;
+        //     } else if card == "Pay school fees of $150" {
+        //         player.balance -= 150;
+        //     } else if card == "Receive $25 consultancy fee" {
+        //         player.balance += 25;
+        //     } else if card == "Street repairs - $40 per house, $115 per hotel" {
+        //         let houses = player.total_houses_owned;
+        //         let hotels = player.total_hotels_owned;
+        //         let cost = (40 * houses) + (115 * hotels);
+        //         player.balance -= cost;
+        //     } else if card == "Won second prize in beauty contest - Collect $10" {
+        //         player.balance += 10;
+        //     } else if card == "You inherit $100" {
+        //         player.balance += 100;
+        //     }
+
+        //     (game, player)
+
+        fn generate_community_chest_deck(ref self: ContractState) -> Array<ByteArray> {
+            let mut deck: Array<ByteArray> = array![];
+
+            deck.append("Advance to Go (Collect $200)");
+            deck.append("Bank error in your favor - Collect $200");
+            deck.append("Doctor fee - Pay $50");
+            deck.append("From sale of stock - collect $50");
+            deck.append("Get Out of Jail Free");
+            deck.append("Go to Jail");
+            deck.append("Grand Opera Night - collect $50 from every player");
+            deck.append("Holiday Fund matures - Receive $100");
+            deck.append("Income tax refund - Collect $20");
+            deck.append("Life insurance matures - Collect $100");
+            deck.append("Pay hospital fees of $100");
+            deck.append("Pay school fees of $150");
+            deck.append("Receive $25 consultancy fee");
+            deck.append("Street repairs - $40 per house, $115 per hotel");
+            deck.append("Won second prize in beauty contest - Collect $10");
+            deck.append("You inherit $100");
+
+            // self.shuffle_array(deck);
+
+            deck
+        }
+
 
         fn generate_board_tiles(ref self: ContractState, game_id: u256) {
             let mut world = self.world_default();
@@ -711,7 +1002,7 @@ pub mod actions {
                     game_id,
                     'Go',
                     0,
-                    PropertyType::Property,
+                    PropertyType::Go,
                     0,
                     0,
                     0,
