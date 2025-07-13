@@ -331,301 +331,6 @@ mod tests {
     }
 
 
-    // #[test]
-    // fn test_buy_property_from_a_player() {
-    //     let caller_1 = contract_address_const::<'aji'>();
-    //     let caller_2 = contract_address_const::<'ajidokwu'>();
-    //     let username = 'Ajidokwu';
-
-    //     let ndef = namespace_def();
-    //     let mut world = spawn_test_world([ndef].span());
-    //     world.sync_perms_and_inits(contract_defs());
-
-    //     let (contract_address, _) = world.dns(@"actions").unwrap();
-    //     let actions_system = IActionsDispatcher { contract_address };
-
-    //     testing::set_contract_address(caller_1);
-    //     actions_system.register_new_player(username);
-
-    //     testing::set_contract_address(caller_1);
-    //     let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
-    //     assert(game_id == 1, 'Wrong game id');
-
-    //     actions_system.mint(caller_1, game_id, 10000);
-    //     actions_system.mint(caller_2, game_id, 10000);
-
-    //     testing::set_contract_address(caller_1);
-    //     actions_system.buy_property(11, game_id);
-    //     actions_system.sell_property(11, game_id);
-
-    //     testing::set_contract_address(caller_2);
-    //     actions_system.buy_property(11, game_id);
-
-    //     let property = actions_system.get_property(11, game_id);
-    //     assert(property.owner == caller_2, 'invalid property txn');
-    // }
-
-    // #[test]
-    // #[should_panic]
-    // fn test_put_another_player_property_for_sale() {
-    //     let caller_1 = contract_address_const::<'aji'>();
-    //     let caller_2 = contract_address_const::<'ajidokwu'>();
-    //     let username = 'Ajidokwu';
-
-    //     let ndef = namespace_def();
-    //     let mut world = spawn_test_world([ndef].span());
-    //     world.sync_perms_and_inits(contract_defs());
-
-    //     let (contract_address, _) = world.dns(@"actions").unwrap();
-    //     let actions_system = IActionsDispatcher { contract_address };
-
-    //     testing::set_contract_address(caller_1);
-    //     actions_system.register_new_player(username);
-
-    //     testing::set_contract_address(caller_1);
-    //     let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
-    //     assert(game_id == 1, 'Wrong game id');
-
-    //     actions_system.mint(caller_1, game_id, 10000);
-    //     actions_system.mint(caller_2, game_id, 10000);
-
-    //     testing::set_contract_address(caller_1);
-
-    //     actions_system.buy_property(11, game_id);
-
-    //     testing::set_contract_address(caller_2);
-    //     actions_system.sell_property(1, game_id);
-    // }
-
-    // #[test]
-    // #[should_panic]
-    // fn test_buy_property_thats_not_for_sale_from_a_player() {
-    //     let caller_1 = contract_address_const::<'aji'>();
-    //     let caller_2 = contract_address_const::<'ajidokwu'>();
-    //     let username = 'Ajidokwu';
-
-    //     let ndef = namespace_def();
-    //     let mut world = spawn_test_world([ndef].span());
-    //     world.sync_perms_and_inits(contract_defs());
-
-    //     let (contract_address, _) = world.dns(@"actions").unwrap();
-    //     let actions_system = IActionsDispatcher { contract_address };
-
-    //     testing::set_contract_address(caller_1);
-    //     actions_system.register_new_player(username);
-
-    //     testing::set_contract_address(caller_1);
-    //     let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
-    //     assert(game_id == 1, 'Wrong game id');
-
-    //     actions_system.mint(caller_1, game_id, 10000);
-    //     actions_system.mint(caller_2, game_id, 10000);
-
-    //     testing::set_contract_address(caller_1);
-    //     actions_system.buy_property(11, game_id);
-
-    //     testing::set_contract_address(caller_2);
-    //     actions_system.buy_property(11, game_id);
-
-    //     let property = actions_system.get_property(11, game_id);
-    //     assert(property.owner == caller_2, 'invalid property txn');
-    // }
-
-    // #[test]
-    // fn test_upgrade_property() {
-    //     let caller_1 = contract_address_const::<'aji'>();
-    //     let username = 'Ajidokwu';
-
-    //     let ndef = namespace_def();
-    //     let mut world = spawn_test_world([ndef].span());
-    //     world.sync_perms_and_inits(contract_defs());
-
-    //     let (contract_address, _) = world.dns(@"actions").unwrap();
-    //     let actions_system = IActionsDispatcher { contract_address };
-
-    //     testing::set_contract_address(caller_1);
-    //     actions_system.register_new_player(username);
-
-    //     testing::set_contract_address(caller_1);
-    //     let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
-    //     assert(game_id == 1, 'Wrong game id');
-
-    //     actions_system.mint(caller_1, game_id, 10000);
-
-    //     testing::set_contract_address(caller_1);
-    //     actions_system.buy_property(11, game_id);
-
-    //     actions_system.buy_house_or_hotel(11, game_id);
-
-    //     let property = actions_system.get_property(11, game_id);
-    //     assert(property.development == 1, 'invalid  uy property txn');
-    // }
-
-    // #[test]
-    // #[should_panic]
-    // fn test_upgrade_someone_else_property() {
-    //     let caller_1 = contract_address_const::<'aji'>();
-    //     let caller_2 = contract_address_const::<'ajidokwu'>();
-    //     let username = 'Ajidokwu';
-
-    //     let ndef = namespace_def();
-    //     let mut world = spawn_test_world([ndef].span());
-    //     world.sync_perms_and_inits(contract_defs());
-
-    //     let (contract_address, _) = world.dns(@"actions").unwrap();
-    //     let actions_system = IActionsDispatcher { contract_address };
-
-    //     testing::set_contract_address(caller_1);
-    //     actions_system.register_new_player(username);
-
-    //     testing::set_contract_address(caller_1);
-    //     let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
-    //     assert(game_id == 1, 'Wrong game id');
-
-    //     actions_system.mint(caller_1, game_id, 10000);
-    //     actions_system.mint(caller_2, game_id, 10000);
-
-    //     testing::set_contract_address(caller_1);
-    //     actions_system.buy_property(11, game_id);
-
-    //     testing::set_contract_address(caller_2);
-    //     actions_system.buy_house_or_hotel(1, game_id);
-
-    //     let property = actions_system.get_property(11, game_id);
-    //     assert(property.development == 1, 'invalid  uy property txn');
-    // }
-
-    // #[test]
-    // #[should_panic]
-    // fn test_upgrade_property_more_than_allowed() {
-    //     let caller_1 = contract_address_const::<'aji'>();
-    //     let username = 'Ajidokwu';
-
-    //     let ndef = namespace_def();
-    //     let mut world = spawn_test_world([ndef].span());
-    //     world.sync_perms_and_inits(contract_defs());
-
-    //     let (contract_address, _) = world.dns(@"actions").unwrap();
-    //     let actions_system = IActionsDispatcher { contract_address };
-
-    //     testing::set_contract_address(caller_1);
-    //     actions_system.register_new_player(username);
-
-    //     testing::set_contract_address(caller_1);
-    //     let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
-    //     assert(game_id == 1, 'Wrong game id');
-
-    //     actions_system.mint(caller_1, game_id, 10000);
-
-    //     testing::set_contract_address(caller_1);
-    //     actions_system.buy_property(11, game_id);
-
-    //     actions_system.buy_house_or_hotel(1, game_id);
-    //     actions_system.buy_house_or_hotel(1, game_id);
-    //     actions_system.buy_house_or_hotel(1, game_id);
-    //     actions_system.buy_house_or_hotel(1, game_id);
-    //     actions_system.buy_house_or_hotel(1, game_id);
-    //     actions_system.buy_house_or_hotel(1, game_id);
-    // }
-
-    // #[test]
-    // fn test_downgrade_property() {
-    //     let caller_1 = contract_address_const::<'aji'>();
-    //     let username = 'Ajidokwu';
-
-    //     let ndef = namespace_def();
-    //     let mut world = spawn_test_world([ndef].span());
-    //     world.sync_perms_and_inits(contract_defs());
-
-    //     let (contract_address, _) = world.dns(@"actions").unwrap();
-    //     let actions_system = IActionsDispatcher { contract_address };
-
-    //     testing::set_contract_address(caller_1);
-    //     actions_system.register_new_player(username);
-
-    //     testing::set_contract_address(caller_1);
-    //     let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
-    //     assert(game_id == 1, 'Wrong game id');
-
-    //     actions_system.mint(caller_1, game_id, 10000);
-
-    //     testing::set_contract_address(caller_1);
-    //     actions_system.buy_property(11, game_id);
-
-    //     actions_system.buy_house_or_hotel(11, game_id);
-    //     actions_system.buy_house_or_hotel(11, game_id);
-    //     actions_system.buy_house_or_hotel(11, game_id);
-    //     actions_system.sell_house_or_hotel(11, game_id);
-
-    //     let property = actions_system.get_property(11, game_id);
-    //     assert(property.development == 2, 'invalid  uy property txn');
-    // }
-
-    // #[test]
-    // #[should_panic]
-    // fn test_downgrade_someone_else_property() {
-    //     let caller_1 = contract_address_const::<'aji'>();
-    //     let caller_2 = contract_address_const::<'ajidokwu'>();
-    //     let username = 'Ajidokwu';
-
-    //     let ndef = namespace_def();
-    //     let mut world = spawn_test_world([ndef].span());
-    //     world.sync_perms_and_inits(contract_defs());
-
-    //     let (contract_address, _) = world.dns(@"actions").unwrap();
-    //     let actions_system = IActionsDispatcher { contract_address };
-
-    //     testing::set_contract_address(caller_1);
-    //     actions_system.register_new_player(username);
-
-    //     testing::set_contract_address(caller_1);
-    //     let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
-    //     assert(game_id == 1, 'Wrong game id');
-
-    //     actions_system.mint(caller_1, game_id, 10000);
-    //     actions_system.mint(caller_2, game_id, 10000);
-
-    //     testing::set_contract_address(caller_1);
-    //     actions_system.buy_property(11, game_id);
-
-    //     testing::set_contract_address(caller_2);
-    //     actions_system.sell_house_or_hotel(1, game_id);
-
-    //     let property = actions_system.get_property(11, game_id);
-    //     assert(property.development == 1, 'invalid  uy property txn');
-    // }
-
-    // #[test]
-    // #[should_panic]
-    // fn test_downgrade_property_more_than_allowed() {
-    //     let caller_1 = contract_address_const::<'aji'>();
-    //     let username = 'Ajidokwu';
-
-    //     let ndef = namespace_def();
-    //     let mut world = spawn_test_world([ndef].span());
-    //     world.sync_perms_and_inits(contract_defs());
-
-    //     let (contract_address, _) = world.dns(@"actions").unwrap();
-    //     let actions_system = IActionsDispatcher { contract_address };
-
-    //     testing::set_contract_address(caller_1);
-    //     actions_system.register_new_player(username);
-
-    //     testing::set_contract_address(caller_1);
-    //     let game_id = actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
-    //     assert(game_id == 1, 'Wrong game id');
-
-    //     actions_system.mint(caller_1, game_id, 10000);
-
-    //     testing::set_contract_address(caller_1);
-    //     actions_system.buy_property(11, game_id);
-
-    //     actions_system.buy_house_or_hotel(1, game_id);
-    //     actions_system.buy_house_or_hotel(1, game_id);
-    //     actions_system.sell_house_or_hotel(1, game_id);
-    //     actions_system.sell_house_or_hotel(1, game_id);
-    //     actions_system.sell_house_or_hotel(1, game_id);
-    // }
     #[test]
     fn test_each_player_gets_starting_balance() {
         let caller_1 = contract_address_const::<'aji'>();
@@ -724,9 +429,6 @@ mod tests {
         testing::set_contract_address(caller_2);
         actions_system.join_game(PlayerSymbol::Dog, 1);
 
-        // let game =  actions_system.retrieve_game(1);
-        // println!("game id : {}", game.id);
-
         testing::set_contract_address(caller_3);
         actions_system.join_game(PlayerSymbol::Car, 1);
 
@@ -800,7 +502,6 @@ mod tests {
         let buyppt = actions_system.buy_property(ppt);
 
         assert(buyppt, 'Buy property failed');
-        // print_players_positions();
         let aji = actions_system.retrieve_game_player(caller_1, 1);
 
         assert(aji.balance == 1300, 'debit failed');
@@ -872,6 +573,169 @@ mod tests {
         assert(collins.balance == 1475, 'rent deduction failed');
     }
 
+    #[test]
+    #[available_gas(9223372036854775807)]
+    fn test_rent_on_all_railways_owned_by_one_player() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'collins'>();
+
+        let username = 'Ajidokwu';
+        let username_1 = 'Collins';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_2);
+        actions_system.register_new_player(username_1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username);
+
+        testing::set_contract_address(caller_1);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 2);
+
+        testing::set_contract_address(caller_2);
+        actions_system.join_game(PlayerSymbol::Dog, 1);
+
+        testing::set_contract_address(caller_1);
+        let started = actions_system.start_game(1);
+        assert(started, 'Game start fail');
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 5);
+        let mut property = actions_system.get_property(5, 1);
+        actions_system.buy_property(property);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 5);
+        property = actions_system.get_property(5, 1);
+
+        testing::set_contract_address(caller_2);
+        actions_system.pay_rent(property);
+
+        // Assertion after one railway
+        let mut aji = actions_system.retrieve_game_player(caller_1, 1);
+        assert(aji.balance == 1325, 'rent addition failed');
+
+        let mut collins = actions_system.retrieve_game_player(caller_2, 1);
+        assert(collins.balance == 1475, 'rent deduction failed');
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 10);
+        property = actions_system.get_property(15, 1);
+        actions_system.buy_property(property);
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 10);
+        property = actions_system.get_property(15, 1);
+        actions_system.pay_rent(property);
+
+        // Assertion after two railways
+        aji = actions_system.retrieve_game_player(caller_1, 1);
+        assert(aji.balance == 1175, 'rent addition failed');
+
+        collins = actions_system.retrieve_game_player(caller_2, 1);
+        assert(collins.balance == 1425, 'rent deduction failed');
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 10);
+        property = actions_system.get_property(25, 1);
+        actions_system.buy_property(property);
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 10);
+        property = actions_system.get_property(25, 1);
+        actions_system.pay_rent(property);
+
+        // Assertion after three railways
+        aji = actions_system.retrieve_game_player(caller_1, 1);
+        assert(aji.balance == 1075, 'rent addition failed');
+
+        collins = actions_system.retrieve_game_player(caller_2, 1);
+        assert(collins.balance == 1325, 'rent deduction failed');
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 10);
+        property = actions_system.get_property(35, 1);
+        actions_system.buy_property(property);
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 10);
+        property = actions_system.get_property(35, 1);
+        actions_system.pay_rent(property);
+
+        // Assertion after four railways
+        aji = actions_system.retrieve_game_player(caller_1, 1);
+        assert(aji.balance == 1075, 'rent addition failed');
+
+        collins = actions_system.retrieve_game_player(caller_2, 1);
+        assert(collins.balance == 1125, 'rent deduction failed');
+    }
+
+    #[test]
+    fn test_pay_on_two_utilities() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'collins'>();
+        let username = 'Ajidokwu';
+        let username_1 = 'Collins';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_2);
+        actions_system.register_new_player(username_1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username);
+
+        testing::set_contract_address(caller_1);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 2);
+
+        testing::set_contract_address(caller_2);
+        actions_system.join_game(PlayerSymbol::Dog, 1);
+
+        testing::set_contract_address(caller_1);
+        let started = actions_system.start_game(1);
+        assert(started, 'Game start fail');
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 12);
+        let mut property = actions_system.get_property(12, 1);
+        actions_system.buy_property(property);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 12);
+        property = actions_system.get_property(12, 1);
+        actions_system.pay_rent(property);
+
+        // Assertion after one utility
+        let mut aji = actions_system.retrieve_game_player(caller_1, 1);
+        assert(aji.balance == 1398, 'rent addition failed');
+
+        let mut collins = actions_system.retrieve_game_player(caller_2, 1);
+        assert(collins.balance == 1452, 'rent deduction failed');
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 16);
+        property = actions_system.get_property(28, 1);
+        actions_system.buy_property(property);
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 16);
+        property = actions_system.get_property(28, 1);
+        actions_system.pay_rent(property);
+
+        // Assertion after two utility
+        aji = actions_system.retrieve_game_player(caller_1, 1);
+        assert(aji.balance == 1408, 'rent addition failed');
+
+        collins = actions_system.retrieve_game_player(caller_2, 1);
+        assert(collins.balance == 1292, 'rent deduction failed');
+    }
     #[test]
     fn test_get_200_pass_go() {
         let caller_1 = contract_address_const::<'aji'>();
@@ -1005,7 +869,7 @@ mod tests {
     }
 
     #[test]
-    fn test_buy_houses_in_and_hotel_game() {
+    fn test_buy_houses_and_hotel_game() {
         let caller_1 = contract_address_const::<'aji'>();
         let caller_2 = contract_address_const::<'collins'>();
         let caller_3 = contract_address_const::<'jerry'>();
@@ -1130,6 +994,633 @@ mod tests {
 
         assert(aji.total_hotels_owned == 2, 'house count error');
         assert(aji.total_houses_owned == 8, 'house count error');
+    }
+
+    #[test]
+    fn test_pay_rent_on_site_only() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'collins'>();
+        let username = 'Ajidokwu';
+        let username_1 = 'Collins';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_2);
+        actions_system.register_new_player(username_1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username);
+
+        testing::set_contract_address(caller_1);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 2);
+
+        testing::set_contract_address(caller_2);
+        actions_system.join_game(PlayerSymbol::Dog, 1);
+
+        testing::set_contract_address(caller_1);
+        let started = actions_system.start_game(1);
+        assert!(started, "Game start failed");
+
+        // Player 1 buys property at position 4
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+        let mut property = actions_system.get_property(2, 1);
+        actions_system.buy_property(property);
+
+        // Player 2 lands and pays rent
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 2);
+        let landed_property = actions_system.get_property(2, 1);
+        actions_system.pay_rent(landed_property);
+
+        // Player 1 buys property at position 4
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+        let mut property = actions_system.get_property(4, 1);
+        actions_system.buy_property(property);
+
+        // Player 2 lands and pays rent
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 2);
+        let landed_property = actions_system.get_property(4, 1);
+        actions_system.pay_rent(landed_property);
+
+        let aji = actions_system.retrieve_game_player(caller_1, 1);
+        let collins = actions_system.retrieve_game_player(caller_2, 1);
+        assert(aji.balance == 1386, 'Aji bal error');
+        assert(collins.balance == 1494, 'Collins bal error');
+        assert(property.development == 0, 'development error');
+    }
+
+    #[test]
+    fn test_pay_rent_on_one_house() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'collins'>();
+        let username = 'Ajidokwu';
+        let username_1 = 'Collins';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_2);
+        actions_system.register_new_player(username_1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username);
+
+        testing::set_contract_address(caller_1);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 2);
+
+        testing::set_contract_address(caller_2);
+        actions_system.join_game(PlayerSymbol::Dog, 1);
+
+        testing::set_contract_address(caller_1);
+        let started = actions_system.start_game(1);
+        assert!(started, "Game start failed");
+
+        // SITE ONLY
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+        let mut property = actions_system.get_property(2, 1);
+        actions_system.buy_property(property);
+
+        // Player 2 lands and pays rent
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 2);
+        let landed_property = actions_system.get_property(2, 1);
+        actions_system.pay_rent(landed_property);
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+        let mut property = actions_system.get_property(4, 1);
+        actions_system.buy_property(property);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 2);
+        let landed_property = actions_system.get_property(4, 1);
+        actions_system.pay_rent(landed_property);
+
+        // ONE HOUSE
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 40);
+        let mut property = actions_system.get_property(4, 1);
+        let mut property1 = actions_system.get_property(2, 1);
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        let mut game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 40);
+        let landed_property = actions_system.get_property(4, 1);
+        actions_system.pay_rent(landed_property);
+
+        property = actions_system.get_property(4, 1);
+        property1 = actions_system.get_property(2, 1);
+        let aji = actions_system.retrieve_game_player(caller_1, 1);
+        let collins = actions_system.retrieve_game_player(caller_2, 1);
+        assert(aji.balance == 1506, 'Aji bal error');
+        assert(collins.balance == 1674, 'Collins bal error');
+        assert(property.development == 1, 'Property dev error');
+        assert(property1.development == 1, 'Property dev error');
+    }
+
+    #[test]
+    #[available_gas(9223372036854775807)]
+    fn test_pay_rent_on_two_houses() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'collins'>();
+        let username = 'Ajidokwu';
+        let username_1 = 'Collins';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_2);
+        actions_system.register_new_player(username_1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username);
+
+        testing::set_contract_address(caller_1);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 2);
+
+        testing::set_contract_address(caller_2);
+        actions_system.join_game(PlayerSymbol::Dog, 1);
+
+        testing::set_contract_address(caller_1);
+        let started = actions_system.start_game(1);
+        assert!(started, "Game start failed");
+
+        // SITE ONLY
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+        let mut property = actions_system.get_property(2, 1);
+        actions_system.buy_property(property);
+
+        // Player 2 lands and pays rent
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 2);
+        let landed_property = actions_system.get_property(2, 1);
+        actions_system.pay_rent(landed_property);
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+        let mut property = actions_system.get_property(4, 1);
+        actions_system.buy_property(property);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 2);
+        let landed_property = actions_system.get_property(4, 1);
+        actions_system.pay_rent(landed_property);
+
+        // ONE HOUSE
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 40);
+        let mut property = actions_system.get_property(4, 1);
+        let mut property1 = actions_system.get_property(2, 1);
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        property = actions_system.get_property(4, 1);
+        property1 = actions_system.get_property(2, 1);
+
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        let mut game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 40);
+        let landed_property = actions_system.get_property(4, 1);
+        actions_system.pay_rent(landed_property);
+
+        property = actions_system.get_property(4, 1);
+        property1 = actions_system.get_property(2, 1);
+        let aji = actions_system.retrieve_game_player(caller_1, 1);
+        let collins = actions_system.retrieve_game_player(caller_2, 1);
+
+        assert(aji.balance == 1446, 'Aji bal error');
+        assert(collins.balance == 1634, 'Collins bal error');
+        assert(property.development == 2, 'Property dev error');
+        assert(property1.development == 2, 'Property dev error');
+    }
+
+    #[test]
+    #[available_gas(9223372036854775807)]
+    fn test_pay_rent_on_three_houses() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'collins'>();
+        let username = 'Ajidokwu';
+        let username_1 = 'Collins';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_2);
+        actions_system.register_new_player(username_1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username);
+
+        testing::set_contract_address(caller_1);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 2);
+
+        testing::set_contract_address(caller_2);
+        actions_system.join_game(PlayerSymbol::Dog, 1);
+
+        testing::set_contract_address(caller_1);
+        let started = actions_system.start_game(1);
+        assert!(started, "Game start failed");
+
+        // SITE ONLY
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+        let mut property = actions_system.get_property(2, 1);
+        actions_system.buy_property(property);
+
+        // Player 2 lands and pays rent
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 2);
+        let landed_property = actions_system.get_property(2, 1);
+        actions_system.pay_rent(landed_property);
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+        let mut property = actions_system.get_property(4, 1);
+        actions_system.buy_property(property);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 2);
+        let landed_property = actions_system.get_property(4, 1);
+        actions_system.pay_rent(landed_property);
+
+        // THREE HOUSES
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 40);
+        let mut property = actions_system.get_property(4, 1);
+        let mut property1 = actions_system.get_property(2, 1);
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        property = actions_system.get_property(4, 1);
+        property1 = actions_system.get_property(2, 1);
+
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        property = actions_system.get_property(4, 1);
+        property1 = actions_system.get_property(2, 1);
+
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        let mut game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 40);
+        let landed_property = actions_system.get_property(4, 1);
+        actions_system.pay_rent(landed_property);
+
+        property = actions_system.get_property(4, 1);
+        property1 = actions_system.get_property(2, 1);
+        let aji = actions_system.retrieve_game_player(caller_1, 1);
+        let collins = actions_system.retrieve_game_player(caller_2, 1);
+
+        assert(aji.balance == 1466, 'Aji bal error');
+        assert(collins.balance == 1514, 'Collins bal error');
+        assert(property.development == 3, 'Property dev error');
+        assert(property1.development == 3, 'Property dev error');
+    }
+
+
+    #[test]
+    #[available_gas(9223372036854775807)]
+    fn test_pay_rent_on_four_houses() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'collins'>();
+        let username = 'Ajidokwu';
+        let username_1 = 'Collins';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_2);
+        actions_system.register_new_player(username_1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username);
+
+        testing::set_contract_address(caller_1);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 2);
+
+        testing::set_contract_address(caller_2);
+        actions_system.join_game(PlayerSymbol::Dog, 1);
+
+        testing::set_contract_address(caller_1);
+        let started = actions_system.start_game(1);
+        assert!(started, "Game start failed");
+
+        // SITE ONLY
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+        let mut property = actions_system.get_property(2, 1);
+        actions_system.buy_property(property);
+
+        // Player 2 lands and pays rent
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 2);
+        let landed_property = actions_system.get_property(2, 1);
+        actions_system.pay_rent(landed_property);
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+        let mut property = actions_system.get_property(4, 1);
+        actions_system.buy_property(property);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 2);
+        let landed_property = actions_system.get_property(4, 1);
+        actions_system.pay_rent(landed_property);
+
+        // Four HOUSES
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 40);
+        let mut property = actions_system.get_property(4, 1);
+        let mut property1 = actions_system.get_property(2, 1);
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        property = actions_system.get_property(4, 1);
+        property1 = actions_system.get_property(2, 1);
+
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        property = actions_system.get_property(4, 1);
+        property1 = actions_system.get_property(2, 1);
+
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        property = actions_system.get_property(4, 1);
+        property1 = actions_system.get_property(2, 1);
+
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        let mut game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 40);
+        let landed_property = actions_system.get_property(4, 1);
+        actions_system.pay_rent(landed_property);
+
+        property = actions_system.get_property(4, 1);
+        property1 = actions_system.get_property(2, 1);
+        let aji = actions_system.retrieve_game_player(caller_1, 1);
+        let collins = actions_system.retrieve_game_player(caller_2, 1);
+
+        assert(aji.balance == 1506, 'Aji bal error');
+        assert(collins.balance == 1374, 'Collins bal error');
+        assert(property.development == 4, 'Property dev error');
+        assert(property1.development == 4, 'Property dev error');
+    }
+
+    #[test]
+    #[available_gas(9223372036854775807)]
+    fn test_pay_rent_on_hotel() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'collins'>();
+        let username = 'Ajidokwu';
+        let username_1 = 'Collins';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_2);
+        actions_system.register_new_player(username_1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username);
+
+        testing::set_contract_address(caller_1);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 2);
+
+        testing::set_contract_address(caller_2);
+        actions_system.join_game(PlayerSymbol::Dog, 1);
+
+        testing::set_contract_address(caller_1);
+        let started = actions_system.start_game(1);
+        assert!(started, "Game start failed");
+
+        // SITE ONLY
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+        let mut property = actions_system.get_property(2, 1);
+        actions_system.buy_property(property);
+
+        // Player 2 lands and pays rent
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 2);
+        let landed_property = actions_system.get_property(2, 1);
+        actions_system.pay_rent(landed_property);
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+        let mut property = actions_system.get_property(4, 1);
+        actions_system.buy_property(property);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 2);
+        let landed_property = actions_system.get_property(4, 1);
+        actions_system.pay_rent(landed_property);
+
+        // Four HOUSES
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 40);
+        let mut property = actions_system.get_property(4, 1);
+        let mut property1 = actions_system.get_property(2, 1);
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        property = actions_system.get_property(4, 1);
+        property1 = actions_system.get_property(2, 1);
+
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        property = actions_system.get_property(4, 1);
+        property1 = actions_system.get_property(2, 1);
+
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        property = actions_system.get_property(4, 1);
+        property1 = actions_system.get_property(2, 1);
+
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        property = actions_system.get_property(4, 1);
+        property1 = actions_system.get_property(2, 1);
+
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        let mut game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 40);
+        let landed_property = actions_system.get_property(4, 1);
+        actions_system.pay_rent(landed_property);
+
+        property = actions_system.get_property(4, 1);
+        property1 = actions_system.get_property(2, 1);
+        let aji = actions_system.retrieve_game_player(caller_1, 1);
+        let collins = actions_system.retrieve_game_player(caller_2, 1);
+
+        assert(aji.balance == 1536, 'Aji bal error');
+        assert(collins.balance == 1244, 'Collins bal error');
+        assert(property.development == 5, 'Property dev error');
+        assert(property1.development == 5, 'Property dev error');
+    }
+
+    #[test]
+    #[available_gas(9223372036854775807)]
+    #[should_panic]
+    fn test_pay_rent_on_six_houses() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'collins'>();
+        let username = 'Ajidokwu';
+        let username_1 = 'Collins';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_2);
+        actions_system.register_new_player(username_1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username);
+
+        testing::set_contract_address(caller_1);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 2);
+
+        testing::set_contract_address(caller_2);
+        actions_system.join_game(PlayerSymbol::Dog, 1);
+
+        testing::set_contract_address(caller_1);
+        let started = actions_system.start_game(1);
+        assert!(started, "Game start failed");
+
+        // SITE ONLY
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+        let mut property = actions_system.get_property(2, 1);
+        actions_system.buy_property(property);
+
+        // Player 2 lands and pays rent
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 2);
+        let landed_property = actions_system.get_property(2, 1);
+        actions_system.pay_rent(landed_property);
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+        let mut property = actions_system.get_property(4, 1);
+        actions_system.buy_property(property);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 2);
+        let landed_property = actions_system.get_property(4, 1);
+        actions_system.pay_rent(landed_property);
+
+        // Four HOUSES
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 40);
+        let mut property = actions_system.get_property(4, 1);
+        let mut property1 = actions_system.get_property(2, 1);
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        property = actions_system.get_property(4, 1);
+        property1 = actions_system.get_property(2, 1);
+
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        property = actions_system.get_property(4, 1);
+        property1 = actions_system.get_property(2, 1);
+
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        property = actions_system.get_property(4, 1);
+        property1 = actions_system.get_property(2, 1);
+
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        property = actions_system.get_property(4, 1);
+        property1 = actions_system.get_property(2, 1);
+
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        property = actions_system.get_property(4, 1);
+        property1 = actions_system.get_property(2, 1);
+
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        let mut game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 40);
+        let landed_property = actions_system.get_property(4, 1);
+        actions_system.pay_rent(landed_property);
     }
 
     #[test]
@@ -1427,192 +1918,5 @@ mod tests {
         assert(ply.position == 3, 'position error');
         assert(ply.balance == 1550, 'bal error');
     }
-
-    #[test]
-    fn test_play_game() {
-        let caller_1 = contract_address_const::<'aji'>();
-        let caller_2 = contract_address_const::<'collins'>();
-        let caller_3 = contract_address_const::<'jerry'>();
-        let caller_4 = contract_address_const::<'aliyu'>();
-        let username = 'Ajidokwu';
-        let username_1 = 'Collins';
-        let username_2 = 'Jerry';
-        let username_3 = 'Aliyu';
-
-        let ndef = namespace_def();
-        let mut world = spawn_test_world([ndef].span());
-        world.sync_perms_and_inits(contract_defs());
-
-        let (contract_address, _) = world.dns(@"actions").unwrap();
-        let actions_system = IActionsDispatcher { contract_address };
-
-        testing::set_contract_address(caller_2);
-        actions_system.register_new_player(username_1);
-
-        testing::set_contract_address(caller_1);
-        actions_system.register_new_player(username);
-
-        testing::set_contract_address(caller_3);
-        actions_system.register_new_player(username_2);
-
-        testing::set_contract_address(caller_4);
-        actions_system.register_new_player(username_3);
-
-        testing::set_contract_address(caller_1);
-        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
-
-        testing::set_contract_address(caller_2);
-        actions_system.join_game(PlayerSymbol::Dog, 1);
-
-        testing::set_contract_address(caller_3);
-        actions_system.join_game(PlayerSymbol::Car, 1);
-
-        testing::set_contract_address(caller_4);
-        actions_system.join_game(PlayerSymbol::Iron, 1);
-
-        testing::set_contract_address(caller_1);
-        let started = actions_system.start_game(1);
-        assert(started, 'Game start fail');
-
-        testing::set_contract_address(caller_1);
-        actions_system.move_player(1, 2);
-        let mut property = actions_system.get_property(2, 1);
-        actions_system.buy_property(property);
-
-        testing::set_contract_address(caller_2);
-        actions_system.move_player(1, 12);
-
-        let mut game = actions_system.retrieve_game(1);
-        actions_system.finish_turn(game);
-
-        testing::set_contract_address(caller_3);
-        actions_system.move_player(1, 8);
-        game = actions_system.retrieve_game(1);
-        actions_system.finish_turn(game);
-
-        testing::set_contract_address(caller_4);
-        actions_system.move_player(1, 8);
-        game = actions_system.retrieve_game(1);
-        actions_system.finish_turn(game);
-
-        testing::set_contract_address(caller_1);
-        actions_system.move_player(1, 2);
-        property = actions_system.get_property(4, 1);
-        actions_system.buy_property(property);
-
-        testing::set_contract_address(caller_2);
-        actions_system.move_player(1, 12);
-
-        game = actions_system.retrieve_game(1);
-        actions_system.finish_turn(game);
-
-        testing::set_contract_address(caller_3);
-        actions_system.move_player(1, 8);
-        game = actions_system.retrieve_game(1);
-        actions_system.finish_turn(game);
-
-        testing::set_contract_address(caller_4);
-        actions_system.move_player(1, 8);
-        game = actions_system.retrieve_game(1);
-        actions_system.finish_turn(game);
-
-        testing::set_contract_address(caller_1);
-        property = actions_system.get_property(4, 1);
-        actions_system.buy_house_or_hotel(property);
-
-        property = actions_system.get_property(2, 1);
-        actions_system.buy_house_or_hotel(property);
-
-        property = actions_system.get_property(4, 1);
-        let success = actions_system.buy_house_or_hotel(property);
-
-        assert(success, 'house failed');
-        // let aji = actions_system.retrieve_game_player(caller_1, 1);
-    // property = actions_system.get_property(4, 1);
-    // println!("no of total_houses_owned :{}", aji.total_houses_owned);
-    // println!("no of property :{}", property.development);
-    // testing::set_contract_address(caller_3);
-    // actions_system.move_player(1, 5);
-    // testing::set_contract_address(caller_4);
-    // actions_system.move_player(1, 5);
-
-        // testing::set_contract_address(caller_1);
-    // actions_system.move_player(1, 5);
-
-        // let game_p = actions_system.retrieve_game(1);
-    // assert(game_p.next_player == caller_2, 'next player failed');
-
-        // let c = *game_p.game_players[1];
-    // let j =  *game_p.game_players[2];
-    // let al = *game_p.game_players[3];
-    // let a = game_p.next_player;
-
-        // let a_felt: felt252 = a.into();
-    // let c_felt: felt252 = c.into();
-    // let j_felt: felt252 = j.into();
-    // let al_felt: felt252 = al.into();
-
-        // println!("a : {}", a_felt);
-    // println!("c : {}", c_felt );
-    // println!("j : {}", j_felt );
-    // println!("al : {}", al_felt );
-
-        // println!("Game  players :{}", game_p.game_players.len());
-
-        // // print_players_positions();
-    // println!("owned property id : {}", *aji.properties_owned[0]);
-    // let collins = actions_system.retrieve_game_player(caller_2, 1);
-    // let jerry = actions_system.retrieve_game_player(caller_3, 1);
-    // let aliyu = actions_system.retrieve_game_player(caller_4, 1);
-
-        // let property = actions_system.get_property(39, 1);
-
-        // println!(" name property : {}", property.name);
-    // println!("id property : {}", property.id);
-    // println!("game_id property : {}", property.game_id);
-    // println!("name property : {}", property.name);
-    // println!("owner property : {:?}", property.owner);
-    // println!("cost_of_property property : {}", property.cost_of_property);
-    // println!("property_level property : {}", property.property_level);
-    // println!("rent_site_only property : {}", property.rent_site_only);
-    // println!("rent_one_house property : {}", property.rent_one_house);
-    // println!("rent_two_houses property : {}", property.rent_two_houses);
-    // println!("rent_three_houses property : {}", property.rent_three_houses);
-    // println!("rent_four_houses property : {}", property.rent_four_houses);
-    // println!("cost_of_house property : {}", property.cost_of_house);
-    // println!("rent_hotel property : {}", property.rent_hotel);
-    // println!("is_mortgaged property : {}", property.is_mortgaged);
-    // println!("group_id property : {}", property.group_id);
-    // println!("for_sale property : {}", property.for_sale);
-    // println!("development property : {}", property.development);
-    }
-    // fn print_players_positions() {
-//     let ndef = namespace_def();
-//     let mut world = spawn_test_world([ndef].span());
-//     world.sync_perms_and_inits(contract_defs());
-
-    //     let (contract_address, _) = world.dns(@"actions").unwrap();
-//     let actions_system = IActionsDispatcher { contract_address };
-
-    //     let caller_1 = contract_address_const::<'aji'>();
-//     let caller_2 = contract_address_const::<'collins'>();
-//     let caller_3 = contract_address_const::<'jerry'>();
-//     let caller_4 = contract_address_const::<'aliyu'>();
-
-    //     let aji = actions_system.retrieve_game_player(caller_1);
-//     let collins = actions_system.retrieve_game_player(caller_2);
-//     let jerry = actions_system.retrieve_game_player(caller_3);
-//     let aliyu = actions_system.retrieve_game_player(caller_4);
-
-    //     println!("aji position: {}", aji.position);
-//     println!("collins position: {}", collins.position);
-//     println!("jerry position: {}", jerry.position);
-//     println!("aliyu position: {}", aliyu.position);
-
-    //     println!("aji balance: {}", aji.balance);
-//     println!("collins balance: {}", collins.balance);
-//     println!("jerry balance: {}", jerry.balance);
-//     println!("aliyu balance: {}", aliyu.balance);
-// }
 }
 

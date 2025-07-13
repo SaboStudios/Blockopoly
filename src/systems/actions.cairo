@@ -1635,24 +1635,6 @@ pub mod actions {
                 .generate_properties(
                     27,
                     game_id,
-                    'Graph Water Works',
-                    150,
-                    PropertyType::Utility,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    false,
-                    0,
-                    bank.address,
-                );
-            self
-                .generate_properties(
-                    28,
-                    game_id,
                     'Lisk Lane',
                     260,
                     PropertyType::Property,
@@ -1665,6 +1647,24 @@ pub mod actions {
                     150,
                     false,
                     6,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    28,
+                    game_id,
+                    'Graph Water Works',
+                    150,
+                    PropertyType::Utility,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    false,
+                    0,
                     bank.address,
                 );
             self
