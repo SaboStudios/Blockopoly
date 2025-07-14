@@ -378,7 +378,7 @@ mod tests {
         assert(started, 'Game start fail');
 
         let game_p = actions_system.retrieve_game(1);
-        println!("Game  players :{}", game_p.game_players.len());
+
         testing::set_contract_address(caller_1);
         actions_system.move_player(1, 5);
 
@@ -440,7 +440,7 @@ mod tests {
         assert(started, 'Game start fail');
 
         let game_p = actions_system.retrieve_game(1);
-        println!("Game  players :{}", game_p.game_players.len());
+
         testing::set_contract_address(caller_1);
         actions_system.move_player(1, 5);
         let _property = actions_system.get_property(39, 1);
@@ -493,7 +493,6 @@ mod tests {
         assert(started, 'Game start fail');
 
         let game_p = actions_system.retrieve_game(1);
-        println!("Game  players :{}", game_p.game_players.len());
 
         testing::set_contract_address(caller_1);
         actions_system.move_player(1, 5);
@@ -915,8 +914,8 @@ mod tests {
         assert(started, 'Game start fail');
 
         testing::set_contract_address(caller_1);
-        actions_system.move_player(1, 2);
-        let mut property = actions_system.get_property(2, 1);
+        actions_system.move_player(1, 1);
+        let mut property = actions_system.get_property(1, 1);
         actions_system.buy_property(property);
 
         testing::set_contract_address(caller_2);
@@ -937,7 +936,7 @@ mod tests {
 
         testing::set_contract_address(caller_1);
         actions_system.move_player(1, 2);
-        property = actions_system.get_property(4, 1);
+        property = actions_system.get_property(3, 1);
         actions_system.buy_property(property);
 
         testing::set_contract_address(caller_2);
@@ -957,37 +956,37 @@ mod tests {
         actions_system.finish_turn(game);
 
         testing::set_contract_address(caller_1);
-        property = actions_system.get_property(4, 1);
+        property = actions_system.get_property(3, 1);
         actions_system.buy_house_or_hotel(property);
 
-        property = actions_system.get_property(2, 1);
+        property = actions_system.get_property(1, 1);
         actions_system.buy_house_or_hotel(property);
 
-        property = actions_system.get_property(4, 1);
+        property = actions_system.get_property(3, 1);
         actions_system.buy_house_or_hotel(property);
 
-        property = actions_system.get_property(2, 1);
+        property = actions_system.get_property(1, 1);
         actions_system.buy_house_or_hotel(property);
 
-        property = actions_system.get_property(4, 1);
+        property = actions_system.get_property(3, 1);
         actions_system.buy_house_or_hotel(property);
 
-        property = actions_system.get_property(2, 1);
+        property = actions_system.get_property(1, 1);
         actions_system.buy_house_or_hotel(property);
 
-        property = actions_system.get_property(4, 1);
+        property = actions_system.get_property(3, 1);
         actions_system.buy_house_or_hotel(property);
 
-        property = actions_system.get_property(2, 1);
+        property = actions_system.get_property(1, 1);
         actions_system.buy_house_or_hotel(property);
 
-        property = actions_system.get_property(4, 1);
+        property = actions_system.get_property(3, 1);
         actions_system.buy_house_or_hotel(property);
 
-        property = actions_system.get_property(2, 1);
+        property = actions_system.get_property(1, 1);
         let success = actions_system.buy_house_or_hotel(property);
         assert(success, 'house failed');
-        property = actions_system.get_property(4, 1);
+        property = actions_system.get_property(3, 1);
         assert(property.development == 5, 'dev correct');
 
         let aji = actions_system.retrieve_game_player(caller_1, 1);
@@ -1028,26 +1027,26 @@ mod tests {
 
         // Player 1 buys property at position 4
         testing::set_contract_address(caller_1);
-        actions_system.move_player(1, 2);
-        let mut property = actions_system.get_property(2, 1);
+        actions_system.move_player(1, 1);
+        let mut property = actions_system.get_property(1, 1);
         actions_system.buy_property(property);
 
         // Player 2 lands and pays rent
         testing::set_contract_address(caller_2);
-        actions_system.move_player(1, 2);
-        let landed_property = actions_system.get_property(2, 1);
+        actions_system.move_player(1, 1);
+        let landed_property = actions_system.get_property(1, 1);
         actions_system.pay_rent(landed_property);
 
         // Player 1 buys property at position 4
         testing::set_contract_address(caller_1);
         actions_system.move_player(1, 2);
-        let mut property = actions_system.get_property(4, 1);
+        let mut property = actions_system.get_property(3, 1);
         actions_system.buy_property(property);
 
         // Player 2 lands and pays rent
         testing::set_contract_address(caller_2);
         actions_system.move_player(1, 2);
-        let landed_property = actions_system.get_property(4, 1);
+        let landed_property = actions_system.get_property(3, 1);
         actions_system.pay_rent(landed_property);
 
         let aji = actions_system.retrieve_game_player(caller_1, 1);
@@ -1089,31 +1088,31 @@ mod tests {
 
         // SITE ONLY
         testing::set_contract_address(caller_1);
-        actions_system.move_player(1, 2);
-        let mut property = actions_system.get_property(2, 1);
+        actions_system.move_player(1, 1);
+        let mut property = actions_system.get_property(1, 1);
         actions_system.buy_property(property);
 
         // Player 2 lands and pays rent
         testing::set_contract_address(caller_2);
-        actions_system.move_player(1, 2);
-        let landed_property = actions_system.get_property(2, 1);
+        actions_system.move_player(1, 1);
+        let landed_property = actions_system.get_property(1, 1);
         actions_system.pay_rent(landed_property);
 
         testing::set_contract_address(caller_1);
         actions_system.move_player(1, 2);
-        let mut property = actions_system.get_property(4, 1);
+        let mut property = actions_system.get_property(3, 1);
         actions_system.buy_property(property);
 
         testing::set_contract_address(caller_2);
         actions_system.move_player(1, 2);
-        let landed_property = actions_system.get_property(4, 1);
+        let landed_property = actions_system.get_property(3, 1);
         actions_system.pay_rent(landed_property);
 
         // ONE HOUSE
         testing::set_contract_address(caller_1);
         actions_system.move_player(1, 40);
-        let mut property = actions_system.get_property(4, 1);
-        let mut property1 = actions_system.get_property(2, 1);
+        let mut property = actions_system.get_property(3, 1);
+        let mut property1 = actions_system.get_property(1, 1);
         actions_system.buy_house_or_hotel(property);
         actions_system.buy_house_or_hotel(property1);
 
@@ -1122,13 +1121,14 @@ mod tests {
 
         testing::set_contract_address(caller_2);
         actions_system.move_player(1, 40);
-        let landed_property = actions_system.get_property(4, 1);
+        let landed_property = actions_system.get_property(3, 1);
         actions_system.pay_rent(landed_property);
 
-        property = actions_system.get_property(4, 1);
-        property1 = actions_system.get_property(2, 1);
+        property = actions_system.get_property(3, 1);
+        property1 = actions_system.get_property(1, 1);
         let aji = actions_system.retrieve_game_player(caller_1, 1);
         let collins = actions_system.retrieve_game_player(caller_2, 1);
+
         assert(aji.balance == 1506, 'Aji bal error');
         assert(collins.balance == 1674, 'Collins bal error');
         assert(property.development == 1, 'Property dev error');
@@ -1169,37 +1169,37 @@ mod tests {
         // SITE ONLY
 
         testing::set_contract_address(caller_1);
-        actions_system.move_player(1, 2);
-        let mut property = actions_system.get_property(2, 1);
+        actions_system.move_player(1, 1);
+        let mut property = actions_system.get_property(1, 1);
         actions_system.buy_property(property);
 
         // Player 2 lands and pays rent
         testing::set_contract_address(caller_2);
-        actions_system.move_player(1, 2);
-        let landed_property = actions_system.get_property(2, 1);
+        actions_system.move_player(1, 1);
+        let landed_property = actions_system.get_property(1, 1);
         actions_system.pay_rent(landed_property);
 
         testing::set_contract_address(caller_1);
         actions_system.move_player(1, 2);
-        let mut property = actions_system.get_property(4, 1);
+        let mut property = actions_system.get_property(3, 1);
         actions_system.buy_property(property);
 
         testing::set_contract_address(caller_2);
         actions_system.move_player(1, 2);
-        let landed_property = actions_system.get_property(4, 1);
+        let landed_property = actions_system.get_property(3, 1);
         actions_system.pay_rent(landed_property);
 
         // ONE HOUSE
 
         testing::set_contract_address(caller_1);
         actions_system.move_player(1, 40);
-        let mut property = actions_system.get_property(4, 1);
-        let mut property1 = actions_system.get_property(2, 1);
+        let mut property = actions_system.get_property(3, 1);
+        let mut property1 = actions_system.get_property(1, 1);
         actions_system.buy_house_or_hotel(property);
         actions_system.buy_house_or_hotel(property1);
 
-        property = actions_system.get_property(4, 1);
-        property1 = actions_system.get_property(2, 1);
+        property = actions_system.get_property(3, 1);
+        property1 = actions_system.get_property(1, 1);
 
         actions_system.buy_house_or_hotel(property);
         actions_system.buy_house_or_hotel(property1);
@@ -1209,11 +1209,11 @@ mod tests {
 
         testing::set_contract_address(caller_2);
         actions_system.move_player(1, 40);
-        let landed_property = actions_system.get_property(4, 1);
+        let landed_property = actions_system.get_property(3, 1);
         actions_system.pay_rent(landed_property);
 
-        property = actions_system.get_property(4, 1);
-        property1 = actions_system.get_property(2, 1);
+        property = actions_system.get_property(3, 1);
+        property1 = actions_system.get_property(1, 1);
         let aji = actions_system.retrieve_game_player(caller_1, 1);
         let collins = actions_system.retrieve_game_player(caller_2, 1);
 
@@ -1257,42 +1257,42 @@ mod tests {
         // SITE ONLY
 
         testing::set_contract_address(caller_1);
-        actions_system.move_player(1, 2);
-        let mut property = actions_system.get_property(2, 1);
+        actions_system.move_player(1, 1);
+        let mut property = actions_system.get_property(1, 1);
         actions_system.buy_property(property);
 
         // Player 2 lands and pays rent
         testing::set_contract_address(caller_2);
-        actions_system.move_player(1, 2);
-        let landed_property = actions_system.get_property(2, 1);
+        actions_system.move_player(1, 1);
+        let landed_property = actions_system.get_property(1, 1);
         actions_system.pay_rent(landed_property);
 
         testing::set_contract_address(caller_1);
         actions_system.move_player(1, 2);
-        let mut property = actions_system.get_property(4, 1);
+        let mut property = actions_system.get_property(3, 1);
         actions_system.buy_property(property);
 
         testing::set_contract_address(caller_2);
         actions_system.move_player(1, 2);
-        let landed_property = actions_system.get_property(4, 1);
+        let landed_property = actions_system.get_property(3, 1);
         actions_system.pay_rent(landed_property);
 
         // THREE HOUSES
         testing::set_contract_address(caller_1);
         actions_system.move_player(1, 40);
-        let mut property = actions_system.get_property(4, 1);
-        let mut property1 = actions_system.get_property(2, 1);
+        let mut property = actions_system.get_property(3, 1);
+        let mut property1 = actions_system.get_property(1, 1);
         actions_system.buy_house_or_hotel(property);
         actions_system.buy_house_or_hotel(property1);
 
-        property = actions_system.get_property(4, 1);
-        property1 = actions_system.get_property(2, 1);
+        property = actions_system.get_property(3, 1);
+        property1 = actions_system.get_property(1, 1);
 
         actions_system.buy_house_or_hotel(property);
         actions_system.buy_house_or_hotel(property1);
 
-        property = actions_system.get_property(4, 1);
-        property1 = actions_system.get_property(2, 1);
+        property = actions_system.get_property(3, 1);
+        property1 = actions_system.get_property(1, 1);
 
         actions_system.buy_house_or_hotel(property);
         actions_system.buy_house_or_hotel(property1);
@@ -1302,11 +1302,11 @@ mod tests {
 
         testing::set_contract_address(caller_2);
         actions_system.move_player(1, 40);
-        let landed_property = actions_system.get_property(4, 1);
+        let landed_property = actions_system.get_property(3, 1);
         actions_system.pay_rent(landed_property);
 
-        property = actions_system.get_property(4, 1);
-        property1 = actions_system.get_property(2, 1);
+        property = actions_system.get_property(3, 1);
+        property1 = actions_system.get_property(1, 1);
         let aji = actions_system.retrieve_game_player(caller_1, 1);
         let collins = actions_system.retrieve_game_player(caller_2, 1);
 
@@ -1351,48 +1351,48 @@ mod tests {
         // SITE ONLY
 
         testing::set_contract_address(caller_1);
-        actions_system.move_player(1, 2);
-        let mut property = actions_system.get_property(2, 1);
+        actions_system.move_player(1, 1);
+        let mut property = actions_system.get_property(1, 1);
         actions_system.buy_property(property);
 
         // Player 2 lands and pays rent
         testing::set_contract_address(caller_2);
-        actions_system.move_player(1, 2);
-        let landed_property = actions_system.get_property(2, 1);
+        actions_system.move_player(1, 1);
+        let landed_property = actions_system.get_property(1, 1);
         actions_system.pay_rent(landed_property);
 
         testing::set_contract_address(caller_1);
         actions_system.move_player(1, 2);
-        let mut property = actions_system.get_property(4, 1);
+        let mut property = actions_system.get_property(3, 1);
         actions_system.buy_property(property);
 
         testing::set_contract_address(caller_2);
         actions_system.move_player(1, 2);
-        let landed_property = actions_system.get_property(4, 1);
+        let landed_property = actions_system.get_property(3, 1);
         actions_system.pay_rent(landed_property);
 
         // Four HOUSES
         testing::set_contract_address(caller_1);
         actions_system.move_player(1, 40);
-        let mut property = actions_system.get_property(4, 1);
-        let mut property1 = actions_system.get_property(2, 1);
+        let mut property = actions_system.get_property(1, 1);
+        let mut property1 = actions_system.get_property(3, 1);
         actions_system.buy_house_or_hotel(property);
         actions_system.buy_house_or_hotel(property1);
 
-        property = actions_system.get_property(4, 1);
-        property1 = actions_system.get_property(2, 1);
-
-        actions_system.buy_house_or_hotel(property);
-        actions_system.buy_house_or_hotel(property1);
-
-        property = actions_system.get_property(4, 1);
-        property1 = actions_system.get_property(2, 1);
+        property = actions_system.get_property(3, 1);
+        property1 = actions_system.get_property(1, 1);
 
         actions_system.buy_house_or_hotel(property);
         actions_system.buy_house_or_hotel(property1);
 
-        property = actions_system.get_property(4, 1);
-        property1 = actions_system.get_property(2, 1);
+        property = actions_system.get_property(3, 1);
+        property1 = actions_system.get_property(1, 1);
+
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        property = actions_system.get_property(3, 1);
+        property1 = actions_system.get_property(1, 1);
 
         actions_system.buy_house_or_hotel(property);
         actions_system.buy_house_or_hotel(property1);
@@ -1402,11 +1402,11 @@ mod tests {
 
         testing::set_contract_address(caller_2);
         actions_system.move_player(1, 40);
-        let landed_property = actions_system.get_property(4, 1);
+        let landed_property = actions_system.get_property(3, 1);
         actions_system.pay_rent(landed_property);
 
-        property = actions_system.get_property(4, 1);
-        property1 = actions_system.get_property(2, 1);
+        property = actions_system.get_property(3, 1);
+        property1 = actions_system.get_property(1, 1);
         let aji = actions_system.retrieve_game_player(caller_1, 1);
         let collins = actions_system.retrieve_game_player(caller_2, 1);
 
@@ -1450,54 +1450,54 @@ mod tests {
         // SITE ONLY
 
         testing::set_contract_address(caller_1);
-        actions_system.move_player(1, 2);
-        let mut property = actions_system.get_property(2, 1);
+        actions_system.move_player(1, 1);
+        let mut property = actions_system.get_property(1, 1);
         actions_system.buy_property(property);
 
         // Player 2 lands and pays rent
         testing::set_contract_address(caller_2);
-        actions_system.move_player(1, 2);
-        let landed_property = actions_system.get_property(2, 1);
+        actions_system.move_player(1, 1);
+        let landed_property = actions_system.get_property(1, 1);
         actions_system.pay_rent(landed_property);
 
         testing::set_contract_address(caller_1);
         actions_system.move_player(1, 2);
-        let mut property = actions_system.get_property(4, 1);
+        let mut property = actions_system.get_property(3, 1);
         actions_system.buy_property(property);
 
         testing::set_contract_address(caller_2);
         actions_system.move_player(1, 2);
-        let landed_property = actions_system.get_property(4, 1);
+        let landed_property = actions_system.get_property(3, 1);
         actions_system.pay_rent(landed_property);
 
         // Four HOUSES
         testing::set_contract_address(caller_1);
         actions_system.move_player(1, 40);
-        let mut property = actions_system.get_property(4, 1);
-        let mut property1 = actions_system.get_property(2, 1);
+        let mut property = actions_system.get_property(3, 1);
+        let mut property1 = actions_system.get_property(1, 1);
         actions_system.buy_house_or_hotel(property);
         actions_system.buy_house_or_hotel(property1);
 
-        property = actions_system.get_property(4, 1);
-        property1 = actions_system.get_property(2, 1);
-
-        actions_system.buy_house_or_hotel(property);
-        actions_system.buy_house_or_hotel(property1);
-
-        property = actions_system.get_property(4, 1);
-        property1 = actions_system.get_property(2, 1);
+        property = actions_system.get_property(3, 1);
+        property1 = actions_system.get_property(1, 1);
 
         actions_system.buy_house_or_hotel(property);
         actions_system.buy_house_or_hotel(property1);
 
-        property = actions_system.get_property(4, 1);
-        property1 = actions_system.get_property(2, 1);
+        property = actions_system.get_property(3, 1);
+        property1 = actions_system.get_property(1, 1);
 
         actions_system.buy_house_or_hotel(property);
         actions_system.buy_house_or_hotel(property1);
 
-        property = actions_system.get_property(4, 1);
-        property1 = actions_system.get_property(2, 1);
+        property = actions_system.get_property(3, 1);
+        property1 = actions_system.get_property(1, 1);
+
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        property = actions_system.get_property(3, 1);
+        property1 = actions_system.get_property(1, 1);
 
         actions_system.buy_house_or_hotel(property);
         actions_system.buy_house_or_hotel(property1);
@@ -1507,11 +1507,11 @@ mod tests {
 
         testing::set_contract_address(caller_2);
         actions_system.move_player(1, 40);
-        let landed_property = actions_system.get_property(4, 1);
+        let landed_property = actions_system.get_property(3, 1);
         actions_system.pay_rent(landed_property);
 
-        property = actions_system.get_property(4, 1);
-        property1 = actions_system.get_property(2, 1);
+        property = actions_system.get_property(3, 1);
+        property1 = actions_system.get_property(1, 1);
         let aji = actions_system.retrieve_game_player(caller_1, 1);
         let collins = actions_system.retrieve_game_player(caller_2, 1);
 
@@ -1556,19 +1556,19 @@ mod tests {
         // SITE ONLY
 
         testing::set_contract_address(caller_1);
-        actions_system.move_player(1, 2);
-        let mut property = actions_system.get_property(2, 1);
+        actions_system.move_player(1, 1);
+        let mut property = actions_system.get_property(1, 1);
         actions_system.buy_property(property);
 
         // Player 2 lands and pays rent
         testing::set_contract_address(caller_2);
-        actions_system.move_player(1, 2);
-        let landed_property = actions_system.get_property(2, 1);
+        actions_system.move_player(1, 1);
+        let landed_property = actions_system.get_property(1, 1);
         actions_system.pay_rent(landed_property);
 
         testing::set_contract_address(caller_1);
         actions_system.move_player(1, 2);
-        let mut property = actions_system.get_property(4, 1);
+        let mut property = actions_system.get_property(3, 1);
         actions_system.buy_property(property);
 
         testing::set_contract_address(caller_2);
@@ -1579,37 +1579,37 @@ mod tests {
         // Four HOUSES
         testing::set_contract_address(caller_1);
         actions_system.move_player(1, 40);
-        let mut property = actions_system.get_property(4, 1);
-        let mut property1 = actions_system.get_property(2, 1);
+        let mut property = actions_system.get_property(3, 1);
+        let mut property1 = actions_system.get_property(1, 1);
         actions_system.buy_house_or_hotel(property);
         actions_system.buy_house_or_hotel(property1);
 
-        property = actions_system.get_property(4, 1);
-        property1 = actions_system.get_property(2, 1);
-
-        actions_system.buy_house_or_hotel(property);
-        actions_system.buy_house_or_hotel(property1);
-
-        property = actions_system.get_property(4, 1);
-        property1 = actions_system.get_property(2, 1);
+        property = actions_system.get_property(3, 1);
+        property1 = actions_system.get_property(1, 1);
 
         actions_system.buy_house_or_hotel(property);
         actions_system.buy_house_or_hotel(property1);
 
-        property = actions_system.get_property(4, 1);
-        property1 = actions_system.get_property(2, 1);
+        property = actions_system.get_property(3, 1);
+        property1 = actions_system.get_property(1, 1);
 
         actions_system.buy_house_or_hotel(property);
         actions_system.buy_house_or_hotel(property1);
 
-        property = actions_system.get_property(4, 1);
-        property1 = actions_system.get_property(2, 1);
+        property = actions_system.get_property(3, 1);
+        property1 = actions_system.get_property(1, 1);
 
         actions_system.buy_house_or_hotel(property);
         actions_system.buy_house_or_hotel(property1);
 
-        property = actions_system.get_property(4, 1);
-        property1 = actions_system.get_property(2, 1);
+        property = actions_system.get_property(3, 1);
+        property1 = actions_system.get_property(1, 1);
+
+        actions_system.buy_house_or_hotel(property);
+        actions_system.buy_house_or_hotel(property1);
+
+        property = actions_system.get_property(3, 1);
+        property1 = actions_system.get_property(1, 1);
 
         actions_system.buy_house_or_hotel(property);
         actions_system.buy_house_or_hotel(property1);
@@ -1619,7 +1619,7 @@ mod tests {
 
         testing::set_contract_address(caller_2);
         actions_system.move_player(1, 40);
-        let landed_property = actions_system.get_property(4, 1);
+        let landed_property = actions_system.get_property(3, 1);
         actions_system.pay_rent(landed_property);
     }
 
@@ -1670,7 +1670,7 @@ mod tests {
         assert(started, 'Game start fail');
 
         testing::set_contract_address(caller_1);
-        actions_system.move_player(1, 4);
+        actions_system.move_player(1, 2);
 
         let ppt = actions_system.get_property(5, 1);
         let mut community = actions_system.handle_community_chest(1, 3);
@@ -1756,7 +1756,7 @@ mod tests {
         assert(started, 'Game start fail');
 
         testing::set_contract_address(caller_1);
-        actions_system.move_player(1, 4);
+        actions_system.move_player(1, 2);
 
         let ppt = actions_system.get_property(5, 1);
 
@@ -1796,7 +1796,7 @@ mod tests {
         println!("chance 17 : {}", chance);
     }
     #[test]
-    fn test_process_chance() {
+    fn test_process_only_chance() {
         let caller_1 = contract_address_const::<'aji'>();
         let caller_2 = contract_address_const::<'collins'>();
         let caller_3 = contract_address_const::<'jerry'>();
@@ -1845,17 +1845,260 @@ mod tests {
         actions_system.move_player(1, 7);
 
         let mut g = actions_system.retrieve_game(1);
-        println!("array len b4 : {} ", g.chance.len());
-
         let mut p = actions_system.retrieve_game_player(caller_1, 1);
 
         let mut chance = actions_system.handle_chance(1, 3);
-        println!("chance 1 : {}", chance);
-        let (game, ply) = actions_system.process_chance_card(g, p, chance);
+
+        let (game, ply) = actions_system.process_chance_card(g, p, chance.clone());
 
         assert(ply.position == 12, 'position error');
         assert(ply.balance == 1430, 'bal error');
     }
+
+    #[test]
+    fn test_process_chance_individually() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'collins'>();
+
+        let username = 'Ajidokwu';
+        let username_1 = 'Collins';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_2);
+        actions_system.register_new_player(username_1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username);
+
+        testing::set_contract_address(caller_1);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 2);
+
+        testing::set_contract_address(caller_2);
+        actions_system.join_game(PlayerSymbol::Dog, 1);
+
+        testing::set_contract_address(caller_1);
+        let started = actions_system.start_game(1);
+        assert(started, 'Game start fail');
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 7);
+
+        let mut g = actions_system.retrieve_game(1);
+        let mut p = actions_system.retrieve_game_player(caller_1, 1);
+
+        let mut chance: ByteArray = "Advance to Go (Collect $200)";
+
+        let (_, ply) = actions_system.process_chance_card(g.clone(), p, chance);
+        assert(ply.position == 0, 'position error');
+        assert(ply.balance == 1700, 'bal error');
+
+        g = actions_system.finish_turn(g);
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 7);
+
+        g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_2, 1);
+
+        chance = "Advance to MakerDAO Avenue - If you pass Go, collect $200";
+
+        let (_, ply) = actions_system.process_chance_card(g.clone(), p, chance);
+        g = actions_system.finish_turn(g);
+
+        assert(ply.position == 24, 'position error');
+        assert(ply.balance == 1500, 'bal error');
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 7);
+
+        g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_1, 1);
+
+        chance = "Advance to Arbitrium Avenue - If you pass Go, collect $200";
+
+        let (_, ply) = actions_system.process_chance_card(g.clone(), p, chance);
+        actions_system.finish_turn(g);
+
+        assert(ply.position == 11, 'position error');
+        assert(ply.balance == 1700, 'bal error');
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 12);
+
+        g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_2, 1);
+
+        chance = "Advance token to nearest Utility. Pay 10x dice.";
+
+        let (g, ply) = actions_system.process_chance_card(g.clone(), p, chance);
+        actions_system.finish_turn(g);
+
+        assert(ply.position == 12, 'position error');
+        assert(ply.balance == 1380, 'bal error');
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 11);
+
+        let g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_1, 1);
+
+        chance = "Advance token to nearest Railroad. Pay 2x rent.";
+
+        let (g, ply) = actions_system.process_chance_card(g.clone(), p, chance);
+        actions_system.finish_turn(g);
+
+        assert(ply.position == 25, 'position error');
+        assert(ply.balance == 1700, 'bal error');
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 10);
+
+        let g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_2, 1);
+
+        chance = "Bank pays you dividend of $50";
+
+        let (g, ply) = actions_system.process_chance_card(g.clone(), p, chance);
+        actions_system.finish_turn(g);
+
+        assert(ply.position == 22, 'position error');
+        assert(ply.balance == 1430, 'bal error');
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 11);
+
+        let g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_1, 1);
+
+        chance = "Get out of Jail Free";
+
+        let (g, ply) = actions_system.process_chance_card(g.clone(), p, chance);
+        actions_system.finish_turn(g);
+
+        assert(ply.position == 36, 'position error');
+        assert(ply.balance == 1700, 'bal error');
+        assert(ply.chance_jail_card, 'get out jail error');
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 14);
+
+        let g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_2, 1);
+
+        chance = "Pay poor tax of $15";
+
+        let (g, ply) = actions_system.process_chance_card(g.clone(), p, chance);
+        actions_system.finish_turn(g);
+
+        assert(ply.position == 36, 'position error');
+        assert(ply.balance == 1415, 'bal error');
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 11);
+
+        let g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_1, 1);
+
+        chance = "Make general repairs - $25 house, $100 hotel";
+
+        let (g, ply) = actions_system.process_chance_card(g.clone(), p, chance);
+        actions_system.finish_turn(g);
+
+        assert(ply.position == 7, 'position error');
+        assert(ply.balance == 1900, 'bal error');
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 11);
+
+        let g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_2, 1);
+
+        chance = "Go Back 3 Spaces";
+
+        let (g, ply) = actions_system.process_chance_card(g.clone(), p, chance);
+        actions_system.finish_turn(g);
+
+        assert(ply.position == 4, 'position error');
+        assert(ply.balance == 1615, 'bal error');
+
+        // HERE
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 15);
+
+        let g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_1, 1);
+
+        chance = "Make general repairs - $25 house, $100 hotel";
+
+        let (g, ply) = actions_system.process_chance_card(g.clone(), p, chance);
+        actions_system.finish_turn(g);
+
+        assert(ply.position == 22, 'position error');
+        assert(ply.balance == 1900, 'bal error');
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 3);
+
+        let g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_2, 1);
+
+        chance = "Take a trip to IPFS Railroad";
+
+        let (g, ply) = actions_system.process_chance_card(g.clone(), p, chance);
+        actions_system.finish_turn(g);
+
+        assert(ply.position == 5, 'position error');
+        assert(ply.balance == 1815, 'bal error');
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 14);
+
+        let g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_1, 1);
+
+        chance = "Take a walk on the Bitcoin Lane";
+
+        let (g, ply) = actions_system.process_chance_card(g.clone(), p, chance);
+        actions_system.finish_turn(g);
+
+        assert(ply.position == 39, 'position error');
+        assert(ply.balance == 1900, 'bal error');
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 2);
+
+        let g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_2, 1);
+
+        chance = "Speeding fine $200";
+
+        let (g, ply) = actions_system.process_chance_card(g.clone(), p, chance);
+        actions_system.finish_turn(g);
+
+        assert(ply.position == 7, 'position error');
+        assert(ply.balance == 1615, 'bal error');
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 8);
+
+        let g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_1, 1);
+
+        chance = "Building loan matures - collect $150";
+
+        let (g, ply) = actions_system.process_chance_card(g.clone(), p, chance);
+        actions_system.finish_turn(g);
+
+        assert(ply.position == 7, 'position error');
+        assert(ply.balance == 2250, 'bal error');
+    }
+
     #[test]
     fn test_process_community_chest() {
         let caller_1 = contract_address_const::<'aji'>();
@@ -1903,20 +2146,18 @@ mod tests {
         assert(started, 'Game start fail');
 
         testing::set_contract_address(caller_1);
-        actions_system.move_player(1, 3);
+        actions_system.move_player(1, 2);
 
         let mut g = actions_system.retrieve_game(1);
-        println!("array len b4 : {} ", g.chance.len());
 
         let mut p = actions_system.retrieve_game_player(caller_1, 1);
 
-        let mut community_chest = actions_system.handle_community_chest(1, 3);
-        println!("community_chest: {}", community_chest);
+        let mut community_chest = actions_system.handle_community_chest(1, 2);
 
-        let (_, ply) = actions_system.process_community_chest_card(g, p, community_chest);
+        let (_, ply) = actions_system.process_community_chest_card(g, p, community_chest.clone());
 
-        assert(ply.position == 3, 'position error');
-        assert(ply.balance == 1550, 'bal error');
+        assert(ply.position == 2, 'position error');
+        assert(ply.balance == 1450, 'bal error');
     }
 }
 

@@ -478,8 +478,8 @@ pub mod actions {
 
             game_player.dice_rolled = steps;
 
-            if game_player.position > 40 {
-                game_player.position = ((game_player.position - 1) % 40) + 1;
+            if game_player.position >= 40 {
+                game_player.position %= 40;
                 game_player.balance += 200;
             }
 
@@ -839,14 +839,14 @@ pub mod actions {
             let property = self.get_property(player.position, game.id);
             assert(property.property_type == PropertyType::Chance, 'not on chance');
             if card == "Advance to Go (Collect $200)" {
-                player.position = 1;
+                player.position = 0;
                 player.balance += 200;
-            } else if card == "Advance to Illinois Avenue - If you pass Go, collect $200" {
+            } else if card == "Advance to MakerDAO Avenue - If you pass Go, collect $200" {
                 if player.position > 24 { // suppose Illinois is tile 24
                     player.balance += 200;
                 }
                 player.position = 24;
-            } else if card == "Advance to St. Charles Place - If you pass Go, collect $200" {
+            } else if card == "Advance to Arbitrium Avenue - If you pass Go, collect $200" {
                 if player.position > 11 {
                     player.balance += 200;
                 }
@@ -868,15 +868,25 @@ pub mod actions {
                 let rail_pos = self.find_nearest(player.position, pos);
                 player.position = rail_pos;
                 let rail = self.get_property(rail_pos, game.clone().id);
-                self.pay_rent(rail);
-                self.pay_rent(rail);
+                let mut rail_owner: GamePlayer = self.retrieve_game_player(rail.owner, game.id);
+                let railroads = self.count_owner_railroads(property.owner, property.game_id);
+                let utilities = self.count_owner_utilities(property.owner, property.game_id);
+                let mut rent_amount = rail
+                    .get_rent_amount(railroads, utilities, player.dice_rolled.into());
+                if (rail.owner == get_contract_address()) {
+                    rent_amount = 0;
+                }
+                player.balance -= rent_amount;
+                rail_owner.balance += rent_amount;
+
+                world.write_model(@rail_owner);
             } else if card == "Bank pays you dividend of $50" {
                 player.balance += 50;
             } else if card == "Get out of Jail Free" {
                 player.chance_jail_card = true;
             } else if card == "Go Back 3 Spaces" {
                 if player.position < 4 {
-                    player.position = 40 - (4 - player.position);
+                    player.position = 39 - (4 - player.position);
                 } else {
                     player.position -= 3;
                 }
@@ -890,12 +900,12 @@ pub mod actions {
                 player.balance -= cost.into();
             } else if card == "Pay poor tax of $15" {
                 player.balance -= 15;
-            } else if card == "Take a trip to Reading Railroad" {
-                if player.position > 6 {
+            } else if card == "Take a trip to IPFS Railroad" {
+                if player.position > 5 {
                     player.balance += 200;
                 }
-                player.position = 6; // reading railroad
-            } else if card == "Take a walk on the Boardwalk" {
+                player.position = 5; // reading railroad
+            } else if card == "Take a walk on the Bitcoin Lane" {
                 player.position = 39;
             } else if card == "Speeding fine $200" {
                 player.balance -= 200;
@@ -984,8 +994,8 @@ pub mod actions {
             let mut deck: Array<ByteArray> = array![];
 
             deck.append("Advance to Go (Collect $200)");
-            deck.append("Advance to Illinois Avenue - If you pass Go, collect $200");
-            deck.append("Advance to St. Charles Place - If you pass Go, collect $200");
+            deck.append("Advance to MakerDAO Avenue - If you pass Go, collect $200");
+            deck.append("Advance to Arbitrium Avenue - If you pass Go, collect $200");
             deck.append("Advance token to nearest Utility. Pay 10x dice.");
             deck.append("Advance token to nearest Railroad. Pay 2x rent.");
             deck.append("Bank pays you dividend of $50");
@@ -995,7 +1005,7 @@ pub mod actions {
             deck.append("Make general repairs - $25 house, $100 hotel");
             deck.append("Pay poor tax of $15");
             deck.append("Take a trip to Reading Railroad");
-            deck.append("Take a walk on the Boardwalk");
+            deck.append("Take a walk on the Bitcoin Lane");
             deck.append("Speeding fine $200");
             deck.append("Building loan matures - collect $150");
 
@@ -1130,32 +1140,6 @@ pub mod actions {
         }
 
 
-        fn generate_community_chest_deck(ref self: ContractState) -> Array<ByteArray> {
-            let mut deck: Array<ByteArray> = array![];
-
-            deck.append("Advance to Go (Collect $200)");
-            deck.append("Bank error in your favor - Collect $200");
-            deck.append("Doctor fee - Pay $50");
-            deck.append("From sale of stock - collect $50");
-            deck.append("Get Out of Jail Free");
-            deck.append("Go to Jail");
-            deck.append("Grand Opera Night - collect $50 from every player");
-            deck.append("Holiday Fund matures - Receive $100");
-            deck.append("Income tax refund - Collect $20");
-            deck.append("Life insurance matures - Collect $100");
-            deck.append("Pay hospital fees of $100");
-            deck.append("Pay school fees of $150");
-            deck.append("Receive $25 consultancy fee");
-            deck.append("Street repairs - $40 per house, $115 per hotel");
-            deck.append("Won second prize in beauty contest - Collect $10");
-            deck.append("You inherit $100");
-
-            // self.shuffle_array(deck);
-
-            deck
-        }
-
-
         fn generate_board_tiles(ref self: ContractState, game_id: u256) {
             let mut world = self.world_default();
             let contract_address = get_contract_address();
@@ -1163,7 +1147,7 @@ pub mod actions {
 
             self
                 .generate_properties(
-                    1,
+                    0,
                     game_id,
                     'Go',
                     0,
@@ -1181,7 +1165,7 @@ pub mod actions {
                 );
             self
                 .generate_properties(
-                    2,
+                    1,
                     game_id,
                     'Axone Avenue',
                     60,
@@ -1199,7 +1183,7 @@ pub mod actions {
                 );
             self
                 .generate_properties(
-                    3,
+                    2,
                     game_id,
                     'Community Chest',
                     0,
@@ -1217,7 +1201,7 @@ pub mod actions {
                 );
             self
                 .generate_properties(
-                    4,
+                    3,
                     game_id,
                     'Onlydust Avenue',
                     60,
@@ -1231,6 +1215,24 @@ pub mod actions {
                     50,
                     false,
                     1,
+                    bank.address,
+                );
+            self
+                .generate_properties(
+                    4,
+                    game_id,
+                    'Luxury Tax',
+                    100,
+                    PropertyType::Tax,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    false,
+                    0,
                     bank.address,
                 );
             self
@@ -1251,6 +1253,7 @@ pub mod actions {
                     0,
                     bank.address,
                 );
+
             self
                 .generate_properties(
                     6,
@@ -1323,6 +1326,7 @@ pub mod actions {
                     2,
                     bank.address,
                 );
+
             self
                 .generate_properties(
                     10,
@@ -1341,7 +1345,6 @@ pub mod actions {
                     0,
                     bank.address,
                 );
-
             self
                 .generate_properties(
                     11,
@@ -1400,18 +1403,18 @@ pub mod actions {
                 .generate_properties(
                     14,
                     game_id,
-                    'Community Chest',
-                    0,
-                    PropertyType::CommunityChest,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
+                    'Base Avenue',
+                    160,
+                    PropertyType::Property,
+                    12,
+                    60,
+                    180,
+                    500,
+                    700,
+                    900,
+                    100,
                     false,
-                    0,
+                    3,
                     bank.address,
                 );
             self
@@ -1432,31 +1435,32 @@ pub mod actions {
                     0,
                     bank.address,
                 );
+
             self
                 .generate_properties(
                     16,
                     game_id,
-                    'Base Avenue',
-                    160,
+                    'Near Lane',
+                    200,
                     PropertyType::Property,
-                    12,
-                    60,
-                    180,
-                    500,
-                    700,
-                    900,
+                    14,
+                    70,
+                    200,
+                    550,
+                    750,
+                    950,
                     100,
                     false,
-                    3,
+                    4,
                     bank.address,
                 );
             self
                 .generate_properties(
                     17,
                     game_id,
-                    'Chance',
+                    'Community Chest',
                     0,
-                    PropertyType::Chance,
+                    PropertyType::CommunityChest,
                     0,
                     0,
                     0,
@@ -1504,6 +1508,7 @@ pub mod actions {
                     4,
                     bank.address,
                 );
+
             self
                 .generate_properties(
                     20,
@@ -1522,32 +1527,31 @@ pub mod actions {
                     0,
                     bank.address,
                 );
-
             self
                 .generate_properties(
                     21,
                     game_id,
-                    'Near Lane',
-                    200,
-                    PropertyType::Property,
-                    16,
-                    80,
+                    'Dune Lane',
                     220,
-                    600,
-                    800,
-                    1000,
-                    100,
+                    PropertyType::Property,
+                    18,
+                    90,
+                    250,
+                    700,
+                    875,
+                    1050,
+                    150,
                     false,
-                    4,
+                    5,
                     bank.address,
                 );
             self
                 .generate_properties(
                     22,
                     game_id,
-                    'Community Chest',
+                    'Chance',
                     0,
-                    PropertyType::CommunityChest,
+                    PropertyType::Chance,
                     0,
                     0,
                     0,
@@ -1582,14 +1586,14 @@ pub mod actions {
                     24,
                     game_id,
                     'MakerDAO Avenue',
-                    220,
+                    240,
                     PropertyType::Property,
-                    18,
-                    90,
-                    250,
-                    700,
-                    875,
-                    1050,
+                    20,
+                    100,
+                    300,
+                    750,
+                    925,
+                    1100,
                     150,
                     false,
                     5,
@@ -1613,22 +1617,23 @@ pub mod actions {
                     0,
                     bank.address,
                 );
+
             self
                 .generate_properties(
                     26,
                     game_id,
                     'Aave Avenue',
-                    240,
+                    260,
                     PropertyType::Property,
-                    20,
-                    100,
-                    300,
-                    750,
-                    925,
-                    1100,
+                    22,
+                    110,
+                    330,
+                    800,
+                    975,
+                    1150,
                     150,
                     false,
-                    5,
+                    6,
                     bank.address,
                 );
             self
@@ -1671,20 +1676,21 @@ pub mod actions {
                 .generate_properties(
                     29,
                     game_id,
-                    'Chance',
-                    0,
-                    PropertyType::Chance,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
+                    'Rootstock Lane',
+                    260,
+                    PropertyType::Property,
+                    22,
+                    110,
+                    330,
+                    800,
+                    975,
+                    1150,
+                    150,
                     false,
-                    0,
+                    6,
                     bank.address,
                 );
+
             self
                 .generate_properties(
                     30,
@@ -1703,23 +1709,22 @@ pub mod actions {
                     0,
                     bank.address,
                 );
-
             self
                 .generate_properties(
                     31,
                     game_id,
                     'Rootstock Lane',
-                    260,
+                    300,
                     PropertyType::Property,
-                    22,
-                    110,
-                    330,
-                    800,
-                    975,
-                    1150,
-                    150,
+                    26,
+                    130,
+                    390,
+                    900,
+                    1100,
+                    1275,
+                    200,
                     false,
-                    6,
+                    7,
                     bank.address,
                 );
             self
@@ -1729,15 +1734,15 @@ pub mod actions {
                     'Ark Lane',
                     280,
                     PropertyType::Property,
-                    24,
-                    120,
-                    360,
-                    850,
-                    1025,
-                    1200,
-                    150,
+                    26,
+                    130,
+                    390,
+                    900,
+                    1100,
+                    1275,
+                    200,
                     false,
-                    6,
+                    7,
                     bank.address,
                 );
             self
@@ -1794,6 +1799,7 @@ pub mod actions {
                     0,
                     bank.address,
                 );
+
             self
                 .generate_properties(
                     36,
@@ -1817,17 +1823,17 @@ pub mod actions {
                     37,
                     game_id,
                     'Solana Drive',
-                    300,
+                    350,
                     PropertyType::Property,
-                    26,
-                    130,
-                    390,
-                    900,
+                    35,
+                    175,
+                    500,
                     1100,
-                    1275,
+                    1300,
+                    1500,
                     200,
                     false,
-                    7,
+                    8,
                     bank.address,
                 );
             self
@@ -1853,24 +1859,6 @@ pub mod actions {
                     39,
                     game_id,
                     'Ethereum Avenue',
-                    320,
-                    PropertyType::Property,
-                    28,
-                    150,
-                    450,
-                    1000,
-                    1200,
-                    1400,
-                    200,
-                    false,
-                    7,
-                    bank.address,
-                );
-            self
-                .generate_properties(
-                    40,
-                    game_id,
-                    'Bitcoin Lane',
                     400,
                     PropertyType::Property,
                     50,
@@ -1886,6 +1874,31 @@ pub mod actions {
                 );
         }
 
+
+        fn generate_community_chest_deck(ref self: ContractState) -> Array<ByteArray> {
+            let mut deck: Array<ByteArray> = array![];
+
+            deck.append("Advance to Go (Collect $200)");
+            deck.append("Bank error in your favor - Collect $200");
+            deck.append("Doctor fee - Pay $50");
+            deck.append("From sale of stock - collect $50");
+            deck.append("Get Out of Jail Free");
+            deck.append("Go to Jail");
+            deck.append("Grand Opera Night - collect $50 from every player");
+            deck.append("Holiday Fund matures - Receive $100");
+            deck.append("Income tax refund - Collect $20");
+            deck.append("Life insurance matures - Collect $100");
+            deck.append("Pay hospital fees of $100");
+            deck.append("Pay school fees of $150");
+            deck.append("Receive $25 consultancy fee");
+            deck.append("Street repairs - $40 per house, $115 per hotel");
+            deck.append("Won second prize in beauty contest - Collect $10");
+            deck.append("You inherit $100");
+
+            // self.shuffle_array(deck);
+
+            deck
+        }
 
         fn try_join_symbol(
             ref self: ContractState,
