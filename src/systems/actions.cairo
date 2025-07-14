@@ -1253,6 +1253,7 @@ pub mod actions {
                     0,
                     bank.address,
                 );
+
             self
                 .generate_properties(
                     6,
@@ -1325,6 +1326,7 @@ pub mod actions {
                     2,
                     bank.address,
                 );
+
             self
                 .generate_properties(
                     10,
@@ -1433,6 +1435,7 @@ pub mod actions {
                     0,
                     bank.address,
                 );
+
             self
                 .generate_properties(
                     16,
@@ -1440,12 +1443,12 @@ pub mod actions {
                     'Near Lane',
                     200,
                     PropertyType::Property,
-                    16,
-                    80,
-                    220,
-                    600,
-                    800,
-                    1000,
+                    14,
+                    70,
+                    200,
+                    550,
+                    750,
+                    950,
                     100,
                     false,
                     4,
@@ -1505,6 +1508,7 @@ pub mod actions {
                     4,
                     bank.address,
                 );
+
             self
                 .generate_properties(
                     20,
@@ -1613,6 +1617,7 @@ pub mod actions {
                     0,
                     bank.address,
                 );
+
             self
                 .generate_properties(
                     26,
@@ -1685,6 +1690,7 @@ pub mod actions {
                     6,
                     bank.address,
                 );
+
             self
                 .generate_properties(
                     30,
@@ -1708,15 +1714,15 @@ pub mod actions {
                     31,
                     game_id,
                     'Rootstock Lane',
-                    260,
+                    300,
                     PropertyType::Property,
-                    22,
-                    110,
-                    330,
-                    800,
-                    975,
-                    1150,
-                    150,
+                    26,
+                    130,
+                    390,
+                    900,
+                    1100,
+                    1275,
+                    200,
                     false,
                     7,
                     bank.address,
@@ -1728,13 +1734,13 @@ pub mod actions {
                     'Ark Lane',
                     280,
                     PropertyType::Property,
-                    24,
-                    120,
-                    360,
-                    850,
-                    1025,
-                    1200,
-                    150,
+                    26,
+                    130,
+                    390,
+                    900,
+                    1100,
+                    1275,
+                    200,
                     false,
                     7,
                     bank.address,
@@ -1793,6 +1799,7 @@ pub mod actions {
                     0,
                     bank.address,
                 );
+
             self
                 .generate_properties(
                     36,
@@ -1816,14 +1823,14 @@ pub mod actions {
                     37,
                     game_id,
                     'Solana Drive',
-                    300,
+                    350,
                     PropertyType::Property,
-                    26,
-                    130,
-                    390,
-                    900,
+                    35,
+                    175,
+                    500,
                     1100,
-                    1275,
+                    1300,
+                    1500,
                     200,
                     false,
                     8,
@@ -1852,14 +1859,14 @@ pub mod actions {
                     39,
                     game_id,
                     'Ethereum Avenue',
-                    320,
+                    400,
                     PropertyType::Property,
-                    28,
-                    150,
-                    450,
-                    1000,
-                    1200,
+                    50,
+                    200,
+                    600,
                     1400,
+                    1700,
+                    2000,
                     200,
                     false,
                     8,

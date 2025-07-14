@@ -1796,7 +1796,7 @@ mod tests {
         println!("chance 17 : {}", chance);
     }
     #[test]
-    fn test_process_chance() {
+    fn test_process_only_chance() {
         let caller_1 = contract_address_const::<'aji'>();
         let caller_2 = contract_address_const::<'collins'>();
         let caller_3 = contract_address_const::<'jerry'>();
@@ -1849,9 +1849,9 @@ mod tests {
 
         let mut chance = actions_system.handle_chance(1, 3);
 
-        let (game, ply) = actions_system.process_chance_card(g, p, chance);
+        let (game, ply) = actions_system.process_chance_card(g, p, chance.clone());
 
-        assert(ply.position == 2, 'position error');
+        assert(ply.position == 12, 'position error');
         assert(ply.balance == 1430, 'bal error');
     }
 
