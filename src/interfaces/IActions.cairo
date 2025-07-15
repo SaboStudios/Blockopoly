@@ -42,10 +42,13 @@ pub trait IActions<T> {
     fn get_community_chest(self: @T, id: u8, game_id: u256) -> CommunityChest;
     fn get_railroad(self: @T, id: u8, game_id: u256) -> RailRoad;
     fn get_tax(self: @T, id: u8, game_id: u256) -> Tax;
+    fn use_getout_of_jail_chance(ref self: T, game_id: u256) -> bool;
+    fn use_getout_of_jail_community_chest(ref self: T, game_id: u256) -> bool;
 
     // Dice & player movement
     fn roll_dice(ref self: T) -> (u8, u8);
     fn move_player(ref self: T, game_id: u256, steps: u8) -> u8;
+    fn pay_jail_fine(ref self: T, game_id: u256) -> bool;
     // fn handle_chance(ref self: T, game_id: u256, random_index: u32) -> @ByteArray;
 
     // Handling landings on board
