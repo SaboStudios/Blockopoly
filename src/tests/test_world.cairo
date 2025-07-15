@@ -2318,6 +2318,7 @@ mod tests {
         assert(ply.balance == 2300, 'bal error');
 
         testing::set_contract_address(caller_2);
+        actions_system.use_getout_of_jail_community_chest(1);
         actions_system.move_player(1, 7);
 
         let g = actions_system.retrieve_game(1);
@@ -2331,7 +2332,7 @@ mod tests {
         assert(ply.position == 17, 'position error');
         assert(ply.balance == 1820, 'bal error');
 
-        // // HERE
+        // // // HERE
 
         testing::set_contract_address(caller_1);
         actions_system.move_player(1, 15);
