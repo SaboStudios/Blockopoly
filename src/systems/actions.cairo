@@ -927,7 +927,7 @@ pub mod actions {
                 property.property_type == PropertyType::CommunityChest, 'not on community chest',
             );
             if card == "Advance to Go (Collect $200)" {
-                player.position = 1;
+                player.position = 0;
                 player.balance += 200;
             } else if card == "Bank error in your favor - Collect $200" {
                 player.balance += 200;
@@ -938,7 +938,7 @@ pub mod actions {
             } else if card == "Get Out of Jail Free" {
                 player.comm_free_card = true;
             } else if card == "Go to Jail" {
-                player.position = 11; // jail position
+                player.position = 10; // jail position
                 player.jailed = true;
             } else if card == "Grand Opera Night - collect $50 from every player" {
                 let mut i = 0;
