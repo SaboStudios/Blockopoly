@@ -2417,5 +2417,250 @@ mod tests {
         assert(ply.position == 17, 'position error');
         assert(ply.balance == 2020, 'bal error');
     }
+
+    #[test]
+    fn test_going_jail_and_using_community_and_chance_cards() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'collins'>();
+
+        let username = 'Ajidokwu';
+        let username_1 = 'Collins';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_2);
+        actions_system.register_new_player(username_1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username);
+
+        testing::set_contract_address(caller_1);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 2);
+
+        testing::set_contract_address(caller_2);
+        actions_system.join_game(PlayerSymbol::Dog, 1);
+
+        testing::set_contract_address(caller_1);
+        let started = actions_system.start_game(1);
+        assert(started, 'Game start fail');
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+
+        let mut g = actions_system.retrieve_game(1);
+        let mut p = actions_system.retrieve_game_player(caller_1, 1);
+
+        let mut community_chest: ByteArray = "Get Out of Jail Free";
+
+        let (_, ply) = actions_system.process_community_chest_card(g.clone(), p, community_chest);
+        g = actions_system.finish_turn(g);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 7);
+
+        g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_2, 1);
+
+        let chance = "Get out of Jail Free";
+
+        let (_, ply1) = actions_system.process_chance_card(g.clone(), p, chance);
+        g = actions_system.finish_turn(g);
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 5);
+
+        g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_1, 1);
+
+        let chance = "Go to Jail";
+
+        let (_, ply) = actions_system.process_chance_card(g.clone(), p, chance);
+        g = actions_system.finish_turn(g);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 10);
+
+        g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_2, 1);
+
+        let chance = "Go to Jail";
+
+        let (game, ply1) = actions_system.process_community_chest_card(g.clone(), p, chance);
+        g = actions_system.finish_turn(g);
+
+        testing::set_contract_address(caller_1);
+        actions_system.use_getout_of_jail_community_chest(game.id);
+        actions_system.move_player(1, 5);
+        g = actions_system.finish_turn(g);
+
+        g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_1, 1);
+
+        testing::set_contract_address(caller_2);
+        actions_system.use_getout_of_jail_chance(game.id);
+        actions_system.move_player(1, 10);
+        g = actions_system.finish_turn(g);
+
+        g = actions_system.retrieve_game(1);
+        let pl = actions_system.retrieve_game_player(caller_2, 1);
+
+        assert!(p.jail_turns == 0, "p jail_turns not zero");
+        assert!(!p.jailed, "p still jailed");
+        assert!(!p.chance_jail_card, "p still has chance card");
+        assert!(!p.comm_free_card, "p still has community card");
+
+        assert!(pl.jail_turns == 0, "pl jail_turns not zero");
+        assert!(!pl.jailed, "pl still jailed");
+        assert!(!pl.chance_jail_card, "pl still has chance card");
+        assert!(!pl.comm_free_card, "pl still has community card");
+    }
+
+    #[test]
+    fn test_going_to_jail_pay_fine_and_miss_3_turns() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'collins'>();
+
+        let username = 'Ajidokwu';
+        let username_1 = 'Collins';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_2);
+        actions_system.register_new_player(username_1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username);
+
+        testing::set_contract_address(caller_1);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 2);
+
+        testing::set_contract_address(caller_2);
+        actions_system.join_game(PlayerSymbol::Dog, 1);
+
+        testing::set_contract_address(caller_1);
+        let started = actions_system.start_game(1);
+        assert(started, 'Game start fail');
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+
+        let mut g = actions_system.retrieve_game(1);
+        let mut p = actions_system.retrieve_game_player(caller_1, 1);
+
+        let mut community_chest: ByteArray = "Get Out of Jail Free";
+
+        let (_, ply) = actions_system.process_community_chest_card(g.clone(), p, community_chest);
+        g = actions_system.finish_turn(g);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 7);
+
+        g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_2, 1);
+
+        let chance = "Get out of Jail Free";
+
+        let (_, ply1) = actions_system.process_chance_card(g.clone(), p, chance);
+        g = actions_system.finish_turn(g);
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 5);
+
+        g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_1, 1);
+
+        let chance = "Go to Jail";
+
+        let (_, ply) = actions_system.process_chance_card(g.clone(), p, chance);
+        g = actions_system.finish_turn(g);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 10);
+
+        g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_2, 1);
+
+        let chance = "Go to Jail";
+
+        let (game, ply1) = actions_system.process_community_chest_card(g.clone(), p, chance);
+        g = actions_system.finish_turn(g);
+
+        testing::set_contract_address(caller_1);
+        actions_system.pay_jail_fine(game.id);
+        actions_system.move_player(1, 5);
+        g = actions_system.finish_turn(g);
+
+        g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_1, 1);
+        assert!(p.jail_turns == 0, "p jail_turns not zero");
+        assert!(!p.jailed, "p still jailed");
+        assert!(p.balance == 1450, "pl balance error");
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 10);
+        g = actions_system.finish_turn(g);
+
+        g = actions_system.retrieve_game(1);
+        let pl = actions_system.retrieve_game_player(caller_2, 1);
+
+        testing::set_contract_address(caller_1);
+
+        actions_system.move_player(1, 5);
+        g = actions_system.finish_turn(g);
+
+        g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_1, 1);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 10);
+        g = actions_system.finish_turn(g);
+
+        g = actions_system.retrieve_game(1);
+        let pl = actions_system.retrieve_game_player(caller_2, 1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 10);
+        g = actions_system.finish_turn(g);
+
+        testing::set_contract_address(caller_2);
+
+        actions_system.move_player(1, 5);
+        g = actions_system.finish_turn(g);
+
+        g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_2, 1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 10);
+        g = actions_system.finish_turn(g);
+
+        testing::set_contract_address(caller_2);
+
+        actions_system.move_player(1, 5);
+        g = actions_system.finish_turn(g);
+
+        g = actions_system.retrieve_game(1);
+        p = actions_system.retrieve_game_player(caller_2, 1);
+
+        g = actions_system.retrieve_game(1);
+        let pl = actions_system.retrieve_game_player(caller_2, 1);
+
+        assert!(pl.jail_turns == 0, "pl.jail_turns not zero");
+        assert!(pl.balance == 1500, "pl.balance not 1500");
+        assert!(!pl.jailed, "pl is still jailed");
+        assert!(pl.chance_jail_card, "pl does not have chance jail card");
+        assert!(!pl.comm_free_card, "pl still has community jail card");
+        assert!(pl.position == 15, "pl.position not 15");
+    }
 }
 
