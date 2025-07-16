@@ -1,7 +1,7 @@
 use dojo_starter::model::game_model::{GameType, Game};
 use dojo_starter::model::game_player_model::{PlayerSymbol, GamePlayer};
 use dojo_starter::model::player_model::Player;
-use dojo_starter::model::property_model::Property;
+use dojo_starter::model::property_model::{Property, TradeOffer};
 use dojo_starter::model::utility_model::Utility;
 use dojo_starter::model::rail_road_model::RailRoad;
 use dojo_starter::model::community_chest_model::CommunityChest;
@@ -44,6 +44,32 @@ pub trait IActions<T> {
     fn get_tax(self: @T, id: u8, game_id: u256) -> Tax;
     fn use_getout_of_jail_chance(ref self: T, game_id: u256) -> bool;
     fn use_getout_of_jail_community_chest(ref self: T, game_id: u256) -> bool;
+
+    fn offer_trade(
+        ref self: T,
+        game_id: u256,
+        to: ContractAddress,
+        offered_property_ids: Array<u8>,
+        requested_property_ids: Array<u8>,
+        cash_offer: u256,
+        cash_request: u256,
+        trade_type: TradeOffer,
+    ) -> u256;
+
+    fn accept_trade(ref self: T, trade_id: u256, game_id: u256) -> bool;
+
+    fn reject_trade(ref self: T, trade_id: u256, game_id: u256) -> bool;
+
+    fn counter_trade(
+        ref self: T,
+        game_id: u256,
+        original_offer_id: u256,
+        offered_property_ids: Array<u8>,
+        requested_property_ids: Array<u8>,
+        cash_offer: u256,
+        cash_request: u256,
+        trade_type: TradeOffer,
+    ) -> u256;
 
     // Dice & player movement
     fn roll_dice(ref self: T) -> (u8, u8);
