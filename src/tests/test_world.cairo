@@ -3946,5 +3946,138 @@ mod tests {
         println!("Winner is: {}", winner_felt);
         assert(winner == caller_1, 'Winner is not Aji');
     }
+
+
+    #[test]
+    fn test_end_game() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'collins'>();
+        let caller_3 = contract_address_const::<'jerry'>();
+        let caller_4 = contract_address_const::<'aliyu'>();
+        let username = 'Ajidokwu';
+        let username_1 = 'Collins';
+        let username_2 = 'Jerry';
+        let username_3 = 'Aliyu';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_2);
+        actions_system.register_new_player(username_1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username);
+
+        testing::set_contract_address(caller_3);
+        actions_system.register_new_player(username_2);
+
+        testing::set_contract_address(caller_4);
+        actions_system.register_new_player(username_3);
+
+        testing::set_contract_address(caller_1);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
+
+        testing::set_contract_address(caller_2);
+        actions_system.join_game(PlayerSymbol::Dog, 1);
+
+        testing::set_contract_address(caller_3);
+        actions_system.join_game(PlayerSymbol::Car, 1);
+
+        testing::set_contract_address(caller_4);
+        actions_system.join_game(PlayerSymbol::Iron, 1);
+
+        testing::set_contract_address(caller_1);
+        let started = actions_system.start_game(1);
+        assert(started, 'Game start fail');
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 1);
+        let mut property = actions_system.get_property(1, 1);
+        actions_system.buy_property(property);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 12);
+
+        let mut game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_3);
+        actions_system.move_player(1, 8);
+        game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_4);
+        actions_system.move_player(1, 8);
+        game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+        property = actions_system.get_property(3, 1);
+        actions_system.buy_property(property);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 12);
+
+        game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_3);
+        actions_system.move_player(1, 8);
+        game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_4);
+        actions_system.move_player(1, 8);
+        game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_1);
+        property = actions_system.get_property(3, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(1, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(3, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(1, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(3, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(1, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(3, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(1, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(3, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(1, 1);
+        let success = actions_system.buy_house_or_hotel(property);
+        assert(success, 'house failed');
+        property = actions_system.get_property(3, 1);
+        assert(property.development == 5, 'dev correct');
+
+        let mut game = actions_system.retrieve_game(1);
+
+        let winner = actions_system.end_game(game.clone());
+        game = actions_system.retrieve_game(1);
+        let winner_felt: felt252 = winner.into();
+        println!("Winner is: {}", winner_felt);
+        assert(winner == caller_1, 'Winner is not Aji');
+        assert(game.status == GameStatus::Ended, 'Game not finished');
+    }
 }
 

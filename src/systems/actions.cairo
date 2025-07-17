@@ -1517,6 +1517,39 @@ pub mod actions {
         }
 
 
+        fn end_game(ref self: ContractState, game: Game) -> ContractAddress {
+            let mut world = self.world_default();
+            let mut players: Array<GamePlayer> = ArrayTrait::new();
+
+            let total_players = game.game_players.len();
+            let mut i = 0;
+
+            // Indexed loop over game.players
+            while i < total_players {
+                let player_address = game.game_players.at(i);
+                let player_model: GamePlayer = world.read_model((*player_address, game.id));
+
+                players.append(player_model);
+                i += 1;
+            };
+
+            // Find the winner by net worth
+            let winner_address = self.get_winner_by_net_worth(players);
+            let winner: Player = world.read_model(winner_address);
+
+            // Set game status to ended
+            let mut updated_game = game;
+            updated_game.status = GameStatus::Ended;
+            updated_game.winner = winner.address;
+
+            // Write back the updated game state
+            world.write_model(@updated_game);
+
+            // Return the winner's address
+            winner.address
+        }
+
+
         fn reject_trade(ref self: ContractState, trade_id: u256, game_id: u256) -> bool {
             let mut world = self.world_default();
             let caller = get_caller_address();
