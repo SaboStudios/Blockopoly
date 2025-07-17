@@ -1426,6 +1426,74 @@ pub mod actions {
 
             true
         }
+        fn calculate_net_worth(ref self: ContractState, player: GamePlayer) -> u256 {
+            let mut world = self.world_default();
+
+            let mut total_property_value: u256 = 0;
+            let mut total_house_cost: u256 = 0;
+            let mut total_rent_value: u256 = 0;
+            let mut card_value: u256 = 0;
+            let mut i = 0;
+            let properties_len = player.properties_owned.len();
+
+            while i < properties_len {
+                let prop_id = *player.properties_owned.at(i);
+                let game_id = player.game_id;
+                let property: Property = self.get_property(prop_id, game_id);
+
+                // Property value (half if mortgaged)
+                if property.is_mortgaged {
+                    total_property_value += property.cost_of_property / 2;
+                } else {
+                    total_property_value += property.cost_of_property;
+                }
+
+                // House/hotel cost
+                if property.development < 5 {
+                    total_house_cost += property.cost_of_house * property.development.into();
+                } else if property.development == 5 {
+                    total_house_cost += property.cost_of_house * 5;
+                }
+
+                // Rent value (always add — mortgaged or not, since it's dev level based)
+                let rent = match property.development {
+                    0 => property.rent_site_only,
+                    1 => property.rent_one_house,
+                    2 => property.rent_two_houses,
+                    3 => property.rent_three_houses,
+                    4 => property.rent_four_houses,
+                    _ => property.rent_hotel,
+                };
+                total_rent_value += rent;
+
+                i += 1;
+            };
+
+            // Jail/Chance card value
+            if player.chance_jail_card {
+                card_value += 50;
+            }
+            if player.comm_free_card {
+                card_value += 50;
+            }
+
+            let net_worth = player.balance
+                + total_property_value
+                + total_house_cost
+                + total_rent_value
+                + card_value;
+
+            // Debug prints
+            println!("Balance: {}", player.balance);
+            println!("Total property value: {}", total_property_value);
+            println!("Total house cost: {}", total_house_cost);
+            println!("Total rent value: {}", total_rent_value);
+            println!("Card value: {}", card_value);
+            println!("NET WORTH: {}", net_worth);
+
+            net_worth
+        }
+
 
         fn reject_trade(ref self: ContractState, trade_id: u256, game_id: u256) -> bool {
             let mut world = self.world_default();

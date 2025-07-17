@@ -3653,5 +3653,145 @@ mod tests {
         let trade = actions_system.get_trade(trade_id);
         assert(trade.status == TradeStatus::Rejected, 'Trade not rejected');
     }
+
+    #[test]
+    fn test_player_net_worth() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'collins'>();
+        let caller_3 = contract_address_const::<'jerry'>();
+        let caller_4 = contract_address_const::<'aliyu'>();
+        let username = 'Ajidokwu';
+        let username_1 = 'Collins';
+        let username_2 = 'Jerry';
+        let username_3 = 'Aliyu';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_2);
+        actions_system.register_new_player(username_1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username);
+
+        testing::set_contract_address(caller_3);
+        actions_system.register_new_player(username_2);
+
+        testing::set_contract_address(caller_4);
+        actions_system.register_new_player(username_3);
+
+        testing::set_contract_address(caller_1);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
+
+        testing::set_contract_address(caller_2);
+        actions_system.join_game(PlayerSymbol::Dog, 1);
+
+        testing::set_contract_address(caller_3);
+        actions_system.join_game(PlayerSymbol::Car, 1);
+
+        testing::set_contract_address(caller_4);
+        actions_system.join_game(PlayerSymbol::Iron, 1);
+
+        testing::set_contract_address(caller_1);
+        let started = actions_system.start_game(1);
+        assert(started, 'Game start fail');
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 1);
+        let mut property = actions_system.get_property(1, 1);
+        actions_system.buy_property(property);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 12);
+
+        let mut game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_3);
+        actions_system.move_player(1, 8);
+        game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_4);
+        actions_system.move_player(1, 8);
+        game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+        property = actions_system.get_property(3, 1);
+        actions_system.buy_property(property);
+
+        testing::set_contract_address(caller_2);
+        actions_system.move_player(1, 12);
+
+        game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_3);
+        actions_system.move_player(1, 8);
+        game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_4);
+        actions_system.move_player(1, 8);
+        game = actions_system.retrieve_game(1);
+        actions_system.finish_turn(game);
+
+        testing::set_contract_address(caller_1);
+        property = actions_system.get_property(3, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(1, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(3, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(1, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(3, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(1, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(3, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(1, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(3, 1);
+        actions_system.buy_house_or_hotel(property);
+
+        property = actions_system.get_property(1, 1);
+        let success = actions_system.buy_house_or_hotel(property);
+        assert(success, 'house failed');
+        property = actions_system.get_property(3, 1);
+        assert(property.development == 5, 'dev correct');
+
+        let aji = actions_system.retrieve_game_player(caller_1, 1);
+
+        assert(aji.total_hotels_owned == 2, 'house count error');
+        assert(aji.total_houses_owned == 8, 'house count error');
+
+        let aji_networth = actions_system.calculate_net_worth(aji);
+        let collins_networth = actions_system
+            .calculate_net_worth(actions_system.retrieve_game_player(caller_2, 1));
+        let jerry_networth = actions_system
+            .calculate_net_worth(actions_system.retrieve_game_player(caller_3, 1));
+        let ali_networth = actions_system
+            .calculate_net_worth(actions_system.retrieve_game_player(caller_4, 1));
+        println!("aji net worth : {}", aji_networth);
+        println!("collins net worth : {}", collins_networth);
+        println!("jerry net worth : {}", jerry_networth);
+        println!("ali net worth : {}", ali_networth);
+    }
 }
 

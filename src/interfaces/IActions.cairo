@@ -45,6 +45,8 @@ pub trait IActions<T> {
     fn use_getout_of_jail_chance(ref self: T, game_id: u256) -> bool;
     fn use_getout_of_jail_community_chest(ref self: T, game_id: u256) -> bool;
 
+    fn calculate_net_worth(ref self: T, player: GamePlayer) -> u256;
+
     fn offer_trade(
         ref self: T,
         game_id: u256,
