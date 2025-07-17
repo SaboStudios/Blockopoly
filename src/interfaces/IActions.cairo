@@ -1,7 +1,7 @@
 use dojo_starter::model::game_model::{GameType, Game};
 use dojo_starter::model::game_player_model::{PlayerSymbol, GamePlayer};
 use dojo_starter::model::player_model::Player;
-use dojo_starter::model::property_model::{Property, TradeOffer};
+use dojo_starter::model::property_model::{Property, TradeOffer, TradeOfferDetails};
 use dojo_starter::model::utility_model::Utility;
 use dojo_starter::model::rail_road_model::RailRoad;
 use dojo_starter::model::community_chest_model::CommunityChest;
@@ -70,6 +70,8 @@ pub trait IActions<T> {
         cash_request: u256,
         trade_type: TradeOffer,
     ) -> u256;
+    fn approve_counter_trade(ref self: T, trade_id: u256) -> bool;
+    fn get_trade(self: @T, trade_id: u256) -> TradeOfferDetails;
 
     // Dice & player movement
     fn roll_dice(ref self: T) -> (u8, u8);

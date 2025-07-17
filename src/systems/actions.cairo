@@ -1465,19 +1465,40 @@ pub mod actions {
             );
 
             original_offer.id = original_offer.id;
-            original_offer.from = caller; // now the original receiver is offering
-            original_offer.to = original_offer.from; // the original initiator is now the receiver
             original_offer.game_id = game_id;
             original_offer.offered_property_ids = offered_property_ids;
             original_offer.requested_property_ids = requested_property_ids;
             original_offer.cash_offer = cash_offer;
             original_offer.cash_request = cash_request;
             original_offer.trade_type = trade_type;
-            original_offer.status = TradeStatus::Pending;
+            original_offer.status = TradeStatus::Countered;
+            original_offer.is_countered = true;
 
             world.write_model(@original_offer);
 
             original_offer.id
+        }
+
+        fn approve_counter_trade(ref self: ContractState, trade_id: u256) -> bool {
+            let mut world = self.world_default();
+            let caller = get_caller_address();
+
+            let mut offer: TradeOfferDetails = world.read_model(trade_id);
+            assert!(caller == offer.from, "Only the initiator can approve the counter trade");
+            assert!(offer.status == TradeStatus::Countered, "Trade is not pending");
+
+            // Process the trade
+            offer.status = TradeStatus::Pending;
+            offer.is_countered = false;
+            offer.approve_counter = true;
+
+            true
+        }
+
+        fn get_trade(self: @ContractState, trade_id: u256) -> TradeOfferDetails {
+            let world = self.world_default();
+            let trade: TradeOfferDetails = world.read_model(trade_id);
+            trade
         }
 
 
