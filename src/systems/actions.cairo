@@ -1426,6 +1426,129 @@ pub mod actions {
 
             true
         }
+        fn calculate_net_worth(ref self: ContractState, player: GamePlayer) -> u256 {
+            let mut world = self.world_default();
+
+            let mut total_property_value: u256 = 0;
+            let mut total_house_cost: u256 = 0;
+            let mut total_rent_value: u256 = 0;
+            let mut card_value: u256 = 0;
+            let mut i = 0;
+            let properties_len = player.properties_owned.len();
+
+            while i < properties_len {
+                let prop_id = *player.properties_owned.at(i);
+                let game_id = player.game_id;
+                let property: Property = self.get_property(prop_id, game_id);
+
+                // Property value (half if mortgaged)
+                if property.is_mortgaged {
+                    total_property_value += property.cost_of_property / 2;
+                } else {
+                    total_property_value += property.cost_of_property;
+                }
+
+                // House/hotel cost
+                if property.development < 5 {
+                    total_house_cost += property.cost_of_house * property.development.into();
+                } else if property.development == 5 {
+                    total_house_cost += property.cost_of_house * 5;
+                }
+
+                // Rent value (always add — mortgaged or not, since it's dev level based)
+                let rent = match property.development {
+                    0 => property.rent_site_only,
+                    1 => property.rent_one_house,
+                    2 => property.rent_two_houses,
+                    3 => property.rent_three_houses,
+                    4 => property.rent_four_houses,
+                    _ => property.rent_hotel,
+                };
+                total_rent_value += rent;
+
+                i += 1;
+            };
+
+            // Jail/Chance card value
+            if player.chance_jail_card {
+                card_value += 50;
+            }
+            if player.comm_free_card {
+                card_value += 50;
+            }
+
+            let net_worth = player.balance
+                + total_property_value
+                + total_house_cost
+                + total_rent_value
+                + card_value;
+
+            // Debug prints
+            println!("Balance: {}", player.balance);
+            println!("Total property value: {}", total_property_value);
+            println!("Total house cost: {}", total_house_cost);
+            println!("Total rent value: {}", total_rent_value);
+            println!("Card value: {}", card_value);
+            println!("NET WORTH: {}", net_worth);
+
+            net_worth
+        }
+        fn get_winner_by_net_worth(
+            ref self: ContractState, players: Array<GamePlayer>,
+        ) -> ContractAddress {
+            let mut i = 0;
+            let mut max_net_worth: u256 = 0;
+            let mut winner_address: ContractAddress = contract_address_const::<'0'>();
+
+            let players_len = players.len();
+            while i < players_len {
+                let player = players.at(i);
+                let net_worth = self.calculate_net_worth(player.clone());
+
+                if net_worth > max_net_worth {
+                    max_net_worth = net_worth;
+                    winner_address = *player.address;
+                };
+
+                i += 1;
+            };
+
+            winner_address
+        }
+
+
+        fn end_game(ref self: ContractState, game: Game) -> ContractAddress {
+            let mut world = self.world_default();
+            let mut players: Array<GamePlayer> = ArrayTrait::new();
+
+            let total_players = game.game_players.len();
+            let mut i = 0;
+
+            // Indexed loop over game.players
+            while i < total_players {
+                let player_address = game.game_players.at(i);
+                let player_model: GamePlayer = world.read_model((*player_address, game.id));
+
+                players.append(player_model);
+                i += 1;
+            };
+
+            // Find the winner by net worth
+            let winner_address = self.get_winner_by_net_worth(players);
+            let winner: Player = world.read_model(winner_address);
+
+            // Set game status to ended
+            let mut updated_game = game;
+            updated_game.status = GameStatus::Ended;
+            updated_game.winner = winner.address;
+
+            // Write back the updated game state
+            world.write_model(@updated_game);
+
+            // Return the winner's address
+            winner.address
+        }
+
 
         fn reject_trade(ref self: ContractState, trade_id: u256, game_id: u256) -> bool {
             let mut world = self.world_default();
