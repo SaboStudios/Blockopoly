@@ -3490,5 +3490,168 @@ mod tests {
         assert(!aji.comm_free_card, 'Section update');
         assert(collins.comm_free_card, 'Section update');
     }
+
+    #[test]
+    fn test_offer_test_counter_trade() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'collins'>();
+        let username = 'Ajidokwu';
+        let username_1 = 'Collins';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_2);
+        actions_system.register_new_player(username_1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username);
+
+        testing::set_contract_address(caller_1);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
+
+        testing::set_contract_address(caller_2);
+        actions_system.join_game(PlayerSymbol::Dog, 1);
+
+        testing::set_contract_address(caller_1);
+        let started = actions_system.start_game(1);
+        assert(started, 'Game start fail');
+
+        let game_p = actions_system.retrieve_game(1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+        let chance = "Get Out of Jail Free";
+
+        let mut g = actions_system.retrieve_game(1);
+        let mut p = actions_system.retrieve_game_player(caller_1, 1);
+
+        let (g, ply) = actions_system.process_community_chest_card(g.clone(), p, chance);
+        actions_system.finish_turn(g);
+
+        p = actions_system.retrieve_game_player(caller_1, 1);
+        assert!(p.comm_free_card, "p does not have community jail card");
+
+        testing::set_contract_address(caller_2);
+        let mut offered_property_ids: Array<u8> = array![];
+        let mut requested_property_ids: Array<u8> = array![];
+        offered_property_ids.append(6);
+        requested_property_ids.append(1);
+        let mut trade_id = actions_system
+            .offer_trade(
+                1,
+                caller_1,
+                offered_property_ids.clone(),
+                requested_property_ids.clone(),
+                50,
+                0,
+                TradeOffer::ChanceJailCardForCash,
+            );
+
+        actions_system.move_player(1, 5);
+        let g = actions_system.retrieve_game(1);
+        actions_system.finish_turn(g);
+
+        testing::set_contract_address(caller_1);
+        actions_system
+            .counter_trade(
+                1,
+                1,
+                offered_property_ids,
+                requested_property_ids.clone(),
+                50,
+                0,
+                TradeOffer::CommunityJailCardForCash,
+            );
+
+        testing::set_contract_address(caller_2);
+        testing::set_contract_address(caller_2);
+        actions_system.approve_counter_trade(1);
+
+        testing::set_contract_address(caller_1);
+        let s = actions_system.accept_trade(1, 1);
+        assert(s, 'accept failed');
+
+        let aji = actions_system.retrieve_game_player(caller_1, 1);
+        let mut collins = actions_system.retrieve_game_player(caller_2, 1);
+        assert(!aji.comm_free_card, 'Section update');
+        assert(collins.comm_free_card, 'Section update');
+    }
+
+    #[test]
+    fn test_offer_test_reject_trade() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'collins'>();
+        let username = 'Ajidokwu';
+        let username_1 = 'Collins';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_2);
+        actions_system.register_new_player(username_1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username);
+
+        testing::set_contract_address(caller_1);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 4);
+
+        testing::set_contract_address(caller_2);
+        actions_system.join_game(PlayerSymbol::Dog, 1);
+
+        testing::set_contract_address(caller_1);
+        let started = actions_system.start_game(1);
+        assert(started, 'Game start fail');
+
+        let game_p = actions_system.retrieve_game(1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+        let chance = "Get Out of Jail Free";
+
+        let mut g = actions_system.retrieve_game(1);
+        let mut p = actions_system.retrieve_game_player(caller_1, 1);
+
+        let (g, ply) = actions_system.process_community_chest_card(g.clone(), p, chance);
+        actions_system.finish_turn(g);
+
+        p = actions_system.retrieve_game_player(caller_1, 1);
+        assert!(p.comm_free_card, "p does not have community jail card");
+
+        testing::set_contract_address(caller_2);
+        let mut offered_property_ids: Array<u8> = array![];
+        let mut requested_property_ids: Array<u8> = array![];
+        offered_property_ids.append(6);
+        requested_property_ids.append(1);
+        let mut trade_id = actions_system
+            .offer_trade(
+                1,
+                caller_1,
+                offered_property_ids.clone(),
+                requested_property_ids.clone(),
+                50,
+                0,
+                TradeOffer::ChanceJailCardForCash,
+            );
+
+        actions_system.move_player(1, 5);
+        let g = actions_system.retrieve_game(1);
+        actions_system.finish_turn(g);
+
+        testing::set_contract_address(caller_1);
+        actions_system.reject_trade(trade_id, 1);
+
+        let trade = actions_system.get_trade(trade_id);
+        assert(trade.status == TradeStatus::Rejected, 'Trade not rejected');
+    }
 }
 

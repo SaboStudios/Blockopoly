@@ -22,6 +22,8 @@ pub struct TradeOfferDetails {
     pub cash_request: u256,
     pub trade_type: TradeOffer,
     pub status: TradeStatus,
+    pub is_countered: bool,
+    pub approve_counter: bool,
 }
 #[derive(Copy, Drop, Serde)]
 #[dojo::model]
@@ -79,6 +81,7 @@ pub enum TradeStatus {
     Accepted,
     Rejected,
     Pending,
+    Countered,
 }
 
 
