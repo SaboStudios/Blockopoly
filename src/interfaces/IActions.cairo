@@ -47,6 +47,8 @@ pub trait IActions<T> {
 
     fn calculate_net_worth(ref self: T, player: GamePlayer) -> u256;
 
+    fn get_winner_by_net_worth(ref self: T, players: Array<GamePlayer>) -> ContractAddress;
+
     fn offer_trade(
         ref self: T,
         game_id: u256,

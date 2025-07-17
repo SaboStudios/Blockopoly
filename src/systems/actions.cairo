@@ -1493,6 +1493,28 @@ pub mod actions {
 
             net_worth
         }
+        fn get_winner_by_net_worth(
+            ref self: ContractState, players: Array<GamePlayer>,
+        ) -> ContractAddress {
+            let mut i = 0;
+            let mut max_net_worth: u256 = 0;
+            let mut winner_address: ContractAddress = contract_address_const::<'0'>();
+
+            let players_len = players.len();
+            while i < players_len {
+                let player = players.at(i);
+                let net_worth = self.calculate_net_worth(player.clone());
+
+                if net_worth > max_net_worth {
+                    max_net_worth = net_worth;
+                    winner_address = *player.address;
+                };
+
+                i += 1;
+            };
+
+            winner_address
+        }
 
 
         fn reject_trade(ref self: ContractState, trade_id: u256, game_id: u256) -> bool {
