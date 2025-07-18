@@ -130,12 +130,10 @@ pub trait PropertyTrait {
     fn change_game_property_ownership(
         ref self: Property, new_owner: ContractAddress, owner: ContractAddress,
     ) -> bool;
-   
 }
 
 
 impl PropertyImpl of PropertyTrait {
-   
     fn new(
         id: u8,
         game_id: u256,
