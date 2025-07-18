@@ -28,7 +28,7 @@ pub trait IActions<T> {
 
     // Board spaces retrieval
     fn get_property(self: @T, id: u8, game_id: u256) -> Property;
-   
+
     fn use_getout_of_jail_chance(ref self: T, game_id: u256) -> bool;
     fn use_getout_of_jail_community_chest(ref self: T, game_id: u256) -> bool;
 
@@ -103,6 +103,4 @@ pub trait IActions<T> {
         ref self: T, from: GamePlayer, to: GamePlayer, amount: u256,
     ) -> Array<GamePlayer>;
     fn mint(ref self: T, recepient: ContractAddress, game_id: u256, amount: u256);
-  
-
 }

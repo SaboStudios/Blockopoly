@@ -28,7 +28,7 @@ mod tests {
         TradeCounter, m_TradeCounter, TradeOfferDetails, m_TradeOfferDetails, TradeOffer,
         TradeStatus,
     };
-  
+
     use starknet::{testing, get_caller_address, contract_address_const};
 
     fn namespace_def() -> NamespaceDef {

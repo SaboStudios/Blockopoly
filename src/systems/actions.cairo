@@ -129,7 +129,6 @@ pub mod actions {
                 );
         }
 
-      
 
         fn get_property(self: @ContractState, id: u8, game_id: u256) -> Property {
             let world = self.world_default();
@@ -137,7 +136,7 @@ pub mod actions {
             property
         }
 
-     
+
         fn start_game(ref self: ContractState, game_id: u256) -> bool {
             let mut world = self.world_default();
             let mut game: Game = world.read_model(game_id);
@@ -2002,61 +2001,56 @@ pub mod actions {
             );
         }
 
-        fn vote_to_kick_player(ref self: ContractState, game_id: u256, target_player: ContractAddress) {
-    let mut world = self.world_default();
-    let caller = get_caller_address();
+        fn vote_to_kick_player(
+            ref self: ContractState, game_id: u256, target_player: ContractAddress,
+        ) {
+            let mut world = self.world_default();
+            let caller = get_caller_address();
 
-    // Ensure caller is not voting for himself
-    assert!(caller != target_player, "You can't vote to kick yourself");
+            // Ensure caller is not voting for himself
+            assert!(caller != target_player, "You can't vote to kick yourself");
 
-    // Load target and caller players
-    let mut target: GamePlayer = world.read_model((target_player, game_id));
-    let caller_player: GamePlayer = world.read_model((caller, game_id));
+            // Load target and caller players
+            let mut target: GamePlayer = world.read_model((target_player, game_id));
+            let caller_player: GamePlayer = world.read_model((caller, game_id));
 
-    // Ensure both are in the same game
-    assert!(target.game_id == game_id, "Not same game");
+            // Ensure both are in the same game
+            assert!(target.game_id == game_id, "Not same game");
 
-    // Increase strike (can also implement vote tracking to prevent multiple votes)
-    target.strikes += 1;
+            // Increase strike (can also implement vote tracking to prevent multiple votes)
+            target.strikes += 1;
 
-    // Save updated target player
-    world.write_model(@target);
+            // Save updated target player
+            world.write_model(@target);
 
-    // Count total players
-    let game: Game = world.read_model(game_id);
-    let total_players: u8 = game.number_of_players;
-    let strike_percent = (target.strikes * 100) / total_players;
+            // Count total players
+            let game: Game = world.read_model(game_id);
+            let total_players: u8 = game.number_of_players;
+            let strike_percent = (target.strikes * 100) / total_players;
 
-    
+            // Kick if strikes >= 70%
+            if strike_percent >= 70 {
+                // Transfer all properties to the bank
+                let bank = get_contract_address();
+                let mut i = 0;
+                while i < target.properties_owned.len() {
+                    let prop_id = *target.properties_owned.at(i);
+                    let mut property: Property = world.read_model((prop_id, game_id));
+                    property.owner = bank;
+                    world.write_model(@property);
+                    i += 1;
+                };
 
-    // Kick if strikes >= 70%
-    if strike_percent >= 70 {
-        
+                // Clear player data
+                target.properties_owned = array![];
+                target.balance = 0;
+                target.strikes = 0;
+                // target.has_left = true;
 
-        // Transfer all properties to the bank
-        let bank = get_contract_address();
-        let mut i = 0;
-        while i < target.properties_owned.len() {
-            let prop_id = *target.properties_owned.at(i);
-            let mut property: Property = world.read_model((prop_id, game_id));
-            property.owner = bank;
-            world.write_model(@property);
-            i += 1;
-        };
-
-        // Clear player data
-        target.properties_owned = array![];
-        target.balance = 0;
-        target.strikes = 0;
-        // target.has_left = true;
-
-        // Save updated player
-        world.write_model(@target);
-
-        
-    }
-}
-
+                // Save updated player
+                world.write_model(@target);
+            }
+        }
     }
 
     #[generate_trait]
