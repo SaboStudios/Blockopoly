@@ -2,7 +2,7 @@
 
 ## 📌 Overview
 
-StarkPoly is a **fully on-chain, decentralized version of the classic Monopoly game**, built on **Starknet** using **Dojo**. This version leverages **ZK-Rollups** for scalability and **Cairo smart contracts** to ensure a seamless, trustless gaming experience. Players can **buy, sell, and trade digital properties** securely, with game logic enforced entirely on-chain.
+Blockopoly is a **fully on-chain, decentralized version of the classic Monopoly game**, built on **Starknet** using **Dojo**. This version leverages **ZK-Rollups** for scalability and **Cairo smart contracts** to ensure a seamless, trustless gaming experience. Players can **buy, sell, and trade digital properties** securely, with game logic enforced entirely on-chain.
 
 ## ✨ Features
 
