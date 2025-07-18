@@ -6,8 +6,6 @@ pub mod actions {
         Property, PropertyType, PropertyTrait, PropertyToId, IdToProperty, TradeOffer,
         TradeOfferDetails, TradeCounter, TradeStatus,
     };
-    use dojo_starter::model::utility_model::{Utility, UtilityTrait, UtilityToId, IdToUtility};
-    use dojo_starter::model::rail_road_model::{RailRoad, RailRoadTrait, RailRoadToId, IdToRailRoad};
     use dojo_starter::model::game_model::{
         GameType, Game, GameBalance, GameTrait, GameCounter, GameStatus, IGameBalance,
     };
@@ -15,11 +13,6 @@ pub mod actions {
         Player, UsernameToAddress, AddressToUsername, PlayerTrait, IsRegistered,
     };
     use dojo_starter::model::game_player_model::{GamePlayer, PlayerSymbol, GamePlayerTrait};
-    use dojo_starter::model::chance_model::{Chance, ChanceTrait};
-    use dojo_starter::model::community_chest_model::{CommunityChest, CommunityChestTrait};
-    use dojo_starter::model::jail_model::{Jail};
-    use dojo_starter::model::go_free_parking_model::{Go};
-    use dojo_starter::model::tax_model::{Tax};
     use starknet::{
         ContractAddress, get_caller_address, get_block_timestamp, contract_address_const,
         get_contract_address,
@@ -136,29 +129,7 @@ pub mod actions {
                 );
         }
 
-        fn get_tax(self: @ContractState, id: u8, game_id: u256) -> Tax {
-            let world = self.world_default();
-            let tax: Tax = world.read_model((id, game_id));
-            tax
-        }
-
-        fn get_go(self: @ContractState, id: u8, game_id: u256) -> Go {
-            let world = self.world_default();
-            let go: Go = world.read_model((id, game_id));
-            go
-        }
-
-        fn get_chance(self: @ContractState, id: u8, game_id: u256) -> Chance {
-            let world = self.world_default();
-            let chance: Chance = world.read_model((id, game_id));
-            chance
-        }
-
-        fn get_community_chest(self: @ContractState, id: u8, game_id: u256) -> CommunityChest {
-            let world = self.world_default();
-            let community_chest: CommunityChest = world.read_model((id, game_id));
-            community_chest
-        }
+      
 
         fn get_property(self: @ContractState, id: u8, game_id: u256) -> Property {
             let world = self.world_default();
@@ -166,24 +137,7 @@ pub mod actions {
             property
         }
 
-        fn get_utility(self: @ContractState, id: u8, game_id: u256) -> Utility {
-            let world = self.world_default();
-            let utility: Utility = world.read_model((id, game_id));
-            utility
-        }
-
-        fn get_railroad(self: @ContractState, id: u8, game_id: u256) -> RailRoad {
-            let world = self.world_default();
-            let railroad: RailRoad = world.read_model((id, game_id));
-            railroad
-        }
-
-        fn get_jail(self: @ContractState, id: u8, game_id: u256) -> Jail {
-            let world = self.world_default();
-            let jail: Jail = world.read_model((id, game_id));
-            jail
-        }
-
+     
         fn start_game(ref self: ContractState, game_id: u256) -> bool {
             let mut world = self.world_default();
             let mut game: Game = world.read_model(game_id);
@@ -339,20 +293,6 @@ pub mod actions {
 
             // Persist the updated game state
             world.write_model(@game);
-        }
-
-
-        fn sell_property(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
-            let mut world = self.world_default();
-            let caller = get_caller_address();
-            let mut property: Property = world.read_model((property_id, game_id));
-
-            assert(property.owner == caller, 'Can only sell your property');
-
-            property.for_sale = true;
-            world.write_model(@property);
-
-            true
         }
 
 
@@ -1959,6 +1899,164 @@ pub mod actions {
             world.write_model(@game);
             (game, player)
         }
+
+
+        fn leave_game(ref self: ContractState, game_id: u256, transfer_to: ContractAddress) {
+            let mut world = self.world_default();
+            let caller = get_caller_address();
+
+            // Load game and player
+            let mut game: Game = world.read_model(game_id);
+            let mut quitting_player: GamePlayer = world.read_model((caller, game_id));
+
+            // assert(quitting_player.in_game, "Player not in game");
+
+            // Transfer properties to another player
+            let mut i = 0;
+            let len = quitting_player.properties_owned.len();
+            while i < len {
+                if quitting_player.properties_owned.len() == 0 {
+                    break;
+                }
+                let prop_id = *quitting_player.properties_owned.at(i);
+                let mut prop: Property = world.read_model((game_id, prop_id));
+                prop.owner = transfer_to;
+                world.write_model(@prop);
+                i += 1;
+            };
+
+            // Remove player from game
+            let mut new_game_players: Array<ContractAddress> = array![];
+            let mut i = 0;
+            while i < game.game_players.len() {
+                let candidate = *game.game_players.at(i);
+                if candidate != caller {
+                    new_game_players.append(candidate);
+                }
+                i += 1;
+            };
+
+            game.game_players = new_game_players;
+            game.number_of_players -= 1;
+
+            // End game if only one player left
+            if game.number_of_players == 1 {
+                if game.game_players.len() > 0 {
+                    let winner = *game.game_players.at(0);
+                    game.winner = winner;
+                    game.status = GameStatus::Ended;
+                } else {
+                    // Fallback case: no players left, just mark game ended
+                    game.status = GameStatus::Ended;
+                }
+            }
+
+            // Save updates
+            // quitting_player.in_game = false;
+            quitting_player.properties_owned = array![];
+            world.write_model(@quitting_player);
+            world.write_model(@game);
+        }
+
+        fn bankruptcy_check(ref self: ContractState, player: GamePlayer, amount_owed: u256) {
+            let mut world = self.world_default();
+
+            let net_worth = self.calculate_net_worth(player.clone());
+
+            if net_worth > amount_owed {
+                return; // Not bankrupt
+            }
+
+            // Get property at player's current position
+            let game_id = player.game_id;
+            let tile_pos = player.position;
+            let property: Property = self.get_property(tile_pos, game_id);
+
+            // If no owner or already owned by the player, do nothing
+            if property.owner == get_contract_address() || property.owner == player.address {
+                println!("No valid new owner for bankrupt transfer");
+                return;
+            }
+
+            // Transfer properties
+            let mut i = 0;
+            let props_len = player.properties_owned.len();
+            while i < props_len {
+                let prop_id = *player.properties_owned.at(i);
+                let mut prop: Property = self.get_property(prop_id, game_id);
+                prop.owner = property.owner;
+                world.write_model(@prop);
+                i += 1;
+            };
+
+            // Clear player's balance and properties
+            let mut updated_player = player.clone();
+            updated_player.balance = 0;
+            updated_player.properties_owned = array![];
+            world.write_model(@updated_player);
+
+            println!(
+                "Player {:?} is bankrupt. Assets transferred to {:?}",
+                player.address,
+                property.owner,
+            );
+        }
+
+        fn vote_to_kick_player(ref self: ContractState, game_id: u256, target_player: ContractAddress) {
+    let mut world = self.world_default();
+    let caller = get_caller_address();
+
+    // Ensure caller is not voting for himself
+    assert!(caller != target_player, "You can't vote to kick yourself");
+
+    // Load target and caller players
+    let mut target: GamePlayer = world.read_model((target_player, game_id));
+    let caller_player: GamePlayer = world.read_model((caller, game_id));
+
+    // Ensure both are in the same game
+    assert!(target.game_id == game_id, "Not same game");
+
+    // Increase strike (can also implement vote tracking to prevent multiple votes)
+    target.strikes += 1;
+
+    // Save updated target player
+    world.write_model(@target);
+
+    // Count total players
+    let game: Game = world.read_model(game_id);
+    let total_players: u8 = game.number_of_players;
+    let strike_percent = (target.strikes * 100) / total_players;
+
+    
+
+    // Kick if strikes >= 70%
+    if strike_percent >= 70 {
+        
+
+        // Transfer all properties to the bank
+        let bank = get_contract_address();
+        let mut i = 0;
+        while i < target.properties_owned.len() {
+            let prop_id = *target.properties_owned.at(i);
+            let mut property: Property = world.read_model((prop_id, game_id));
+            property.owner = bank;
+            world.write_model(@property);
+            i += 1;
+        };
+
+        // Clear player data
+        target.properties_owned = array![];
+        target.balance = 0;
+        target.strikes = 0;
+        // target.has_left = true;
+
+        // Save updated player
+        world.write_model(@target);
+
+        
+    }
+}
+
     }
 
     #[generate_trait]
@@ -3178,4 +3276,3 @@ pub mod actions {
         }
     }
 }
-
