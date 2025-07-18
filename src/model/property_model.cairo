@@ -130,39 +130,12 @@ pub trait PropertyTrait {
     fn change_game_property_ownership(
         ref self: Property, new_owner: ContractAddress, owner: ContractAddress,
     ) -> bool;
-    // fn property_transfer(
-//     initiator_property: Property, initiator: GamePlayer, receiver: GamePlayer,
-// ) -> (GamePlayer, GamePlayer, Property);
+   
 }
 
 
 impl PropertyImpl of PropertyTrait {
-    // fn property_transfer(
-    //     mut initiator_property: Property, mut initiator: GamePlayer, mut receiver: GamePlayer,
-    // ) -> (GamePlayer, GamePlayer, Property) {
-    //     assert(initiator_property.game_id == receiver.game_id, 'Not in the same Game');
-
-    //     // Update the property owner
-    //     initiator_property.owner = receiver.address;
-
-    //     // Build a new properties array for initiator excluding the transferred property
-    //     let mut new_properties = array![];
-    //     let mut i = 0;
-    //     while (i < initiator.properties_owned.len()) {
-    //         let prop = initiator.properties_owned[i];
-    //         if prop.property_id != initiator_property.property_id {
-    //             new_properties.append(prop);
-    //         }
-    //         i += 1;
-    //     };
-    //     initiator.properties_owned = new_properties;
-
-    //     // Add the property to receiver's properties
-    //     receiver.properties_owned.append(initiator_property);
-
-    //     (initiator, receiver, initiator_property)
-    // }
-
+   
     fn new(
         id: u8,
         game_id: u256,

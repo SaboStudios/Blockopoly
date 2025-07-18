@@ -31,6 +31,7 @@ pub struct GamePlayer {
     pub is_bankrupt: bool,
     pub is_active: bool,
     pub jail_turns: u8,
+    pub strikes: u8,
 }
 
 
@@ -80,6 +81,7 @@ impl GamePlayerImpl of GamePlayerTrait {
             no_section7: 0,
             no_section8: 0,
             jail_turns: 0,
+            strikes: 0,
         }
     }
 

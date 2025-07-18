@@ -28,17 +28,7 @@ mod tests {
         TradeCounter, m_TradeCounter, TradeOfferDetails, m_TradeOfferDetails, TradeOffer,
         TradeStatus,
     };
-    use dojo_starter::model::utility_model::{
-        Utility, m_Utility, IdToUtility, m_IdToUtility, UtilityToId, m_UtilityToId,
-    };
-    use dojo_starter::model::rail_road_model::{
-        RailRoad, m_RailRoad, IdToRailRoad, m_IdToRailRoad, RailRoadToId, m_RailRoadToId,
-    };
-    use dojo_starter::model::chance_model::{Chance, m_Chance};
-    use dojo_starter::model::community_chest_model::{CommunityChest, m_CommunityChest};
-    use dojo_starter::model::jail_model::{Jail, m_Jail};
-    use dojo_starter::model::go_free_parking_model::{Go, m_Go};
-    use dojo_starter::model::tax_model::{Tax, m_Tax};
+  
     use starknet::{testing, get_caller_address, contract_address_const};
 
     fn namespace_def() -> NamespaceDef {
@@ -55,17 +45,6 @@ mod tests {
                 TestResource::Model(m_AddressToUsername::TEST_CLASS_HASH),
                 TestResource::Model(m_IsRegistered::TEST_CLASS_HASH),
                 TestResource::Model(m_GameCounter::TEST_CLASS_HASH),
-                TestResource::Model(m_Utility::TEST_CLASS_HASH),
-                TestResource::Model(m_IdToUtility::TEST_CLASS_HASH),
-                TestResource::Model(m_UtilityToId::TEST_CLASS_HASH),
-                TestResource::Model(m_RailRoad::TEST_CLASS_HASH),
-                TestResource::Model(m_IdToRailRoad::TEST_CLASS_HASH),
-                TestResource::Model(m_RailRoadToId::TEST_CLASS_HASH),
-                TestResource::Model(m_Chance::TEST_CLASS_HASH),
-                TestResource::Model(m_CommunityChest::TEST_CLASS_HASH),
-                TestResource::Model(m_Jail::TEST_CLASS_HASH),
-                TestResource::Model(m_Go::TEST_CLASS_HASH),
-                TestResource::Model(m_Tax::TEST_CLASS_HASH),
                 TestResource::Model(m_GamePlayer::TEST_CLASS_HASH),
                 TestResource::Model(m_TradeCounter::TEST_CLASS_HASH),
                 TestResource::Model(m_TradeOfferDetails::TEST_CLASS_HASH),
@@ -4078,6 +4057,81 @@ mod tests {
         println!("Winner is: {}", winner_felt);
         assert(winner == caller_1, 'Winner is not Aji');
         assert(game.status == GameStatus::Ended, 'Game not finished');
+    }
+
+    #[test]
+    fn test_leave_game() {
+        let caller_1 = contract_address_const::<'aji'>();
+        let caller_2 = contract_address_const::<'collins'>();
+        let username = 'Ajidokwu';
+        let username_1 = 'Collins';
+
+        let ndef = namespace_def();
+        let mut world = spawn_test_world([ndef].span());
+        world.sync_perms_and_inits(contract_defs());
+
+        let (contract_address, _) = world.dns(@"actions").unwrap();
+        let actions_system = IActionsDispatcher { contract_address };
+
+        testing::set_contract_address(caller_2);
+        actions_system.register_new_player(username_1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.register_new_player(username);
+
+        testing::set_contract_address(caller_1);
+        actions_system.create_new_game(GameType::PublicGame, PlayerSymbol::Hat, 2);
+
+        testing::set_contract_address(caller_2);
+        actions_system.join_game(PlayerSymbol::Dog, 1);
+
+        testing::set_contract_address(caller_1);
+        let started = actions_system.start_game(1);
+        assert(started, 'Game start fail');
+
+        let game_p = actions_system.retrieve_game(1);
+
+        testing::set_contract_address(caller_1);
+        actions_system.move_player(1, 2);
+        let chance = "Get Out of Jail Free";
+
+        let mut g = actions_system.retrieve_game(1);
+        let mut p = actions_system.retrieve_game_player(caller_1, 1);
+
+        let (g, ply) = actions_system.process_community_chest_card(g.clone(), p, chance);
+        actions_system.finish_turn(g);
+
+        p = actions_system.retrieve_game_player(caller_1, 1);
+        assert!(p.comm_free_card, "p does not have community jail card");
+
+        testing::set_contract_address(caller_2);
+        let mut offered_property_ids: Array<u8> = array![];
+        let mut requested_property_ids: Array<u8> = array![];
+        offered_property_ids.append(6);
+        requested_property_ids.append(1);
+        let mut trade_id = actions_system
+            .offer_trade(
+                1,
+                caller_1,
+                offered_property_ids.clone(),
+                requested_property_ids.clone(),
+                50,
+                0,
+                TradeOffer::ChanceJailCardForCash,
+            );
+
+        actions_system.move_player(1, 5);
+        let g = actions_system.retrieve_game(1);
+        actions_system.finish_turn(g);
+
+        testing::set_contract_address(caller_1);
+        actions_system.leave_game(1, caller_2);
+
+        let game = actions_system.retrieve_game(1);
+        println!("players from array left : {}", game.game_players.len());
+        println!("number_of_players left : {}", game.number_of_players);
+        assert!(game.game_players.len() == 1, "Game has more than one player");
+        assert!(game.status == GameStatus::Ended, "Game is not finished");
     }
 }
 

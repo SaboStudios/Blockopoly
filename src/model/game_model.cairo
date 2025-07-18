@@ -1,5 +1,4 @@
 use starknet::{ContractAddress, contract_address_const};
-use dojo_starter::model::game_player_model::{GamePlayer, PlayerSymbol, GamePlayerTrait};
 // Keeps track of the state of the game
 
 #[derive(Serde, Copy, Drop, Introspect, PartialEq)]
@@ -206,4 +205,3 @@ pub impl GameBalanceImpl of IGameBalance {
         true
     }
 }
-
