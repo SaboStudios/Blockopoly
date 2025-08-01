@@ -1,73 +1,76 @@
-# 🏛️ Blockopoly
+![Dojo Starter](./assets/cover.png)
 
-## 📌 Overview
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/mark-dark.svg">
+  <img alt="Dojo logo" align="right" width="120" src=".github/mark-light.svg">
+</picture>
 
-Blockopoly is a **fully on-chain, decentralized version of the classic Monopoly game**, built on **Starknet** using **Dojo**. This version leverages **ZK-Rollups** for scalability and **Cairo smart contracts** to ensure a seamless, trustless gaming experience. Players can **buy, sell, and trade digital properties** securely, with game logic enforced entirely on-chain.
+<a href="https://x.com/ohayo_dojo">
+<img src="https://img.shields.io/twitter/follow/dojostarknet?style=social"/>
+</a>
+<a href="https://github.com/dojoengine/dojo/stargazers">
+<img src="https://img.shields.io/github/stars/dojoengine/dojo?style=social"/>
+</a>
 
-## ✨ Features
+[![discord](https://img.shields.io/badge/join-dojo-green?logo=discord&logoColor=white)](https://discord.com/invite/dojoengine)
+[![Telegram Chat][tg-badge]][tg-url]
 
-- **Fully On-Chain Game State** – All transactions and state updates happen on Starknet.
-- **Cairo & Dojo-Powered** – Optimized for speed and efficiency using **Starknet's native game engine**.
-- **Zero-Knowledge Scalability** – Low gas fees and high throughput via **Starknet’s ZK-Rollups**.
-- **On-Chain Assets & Trading** – Properties are represented as **ERC721/ERC1155 NFTs** or **custom Starknet assets**.
-- **Decentralized & Trustless Gameplay** – No centralized authority; game rules enforced by smart contracts.
-- **Account Abstraction for Gasless Transactions** – Improves UX by handling gas fees flexibly.
+[tg-badge]: https://img.shields.io/endpoint?color=neon&logo=telegram&label=chat&style=flat-square&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fdojoengine
+[tg-url]: https://t.me/dojoengine
 
-## 🔧 Tech Stack
+# Dojo Starter: Official Guide
 
-- **Starknet** – L2 blockchain for scalability
-- **Cairo** – Smart contract programming language
-- **Dojo** – On-chain gaming framework
-- **Torii** – Indexer for game state management
-- **React / Next.js** – Frontend (if applicable)
+A quickstart guide to help you build and deploy your first Dojo provable game.
 
-## 🚀 Getting Started
+Read the full tutorial [here](https://dojoengine.org/tutorial/dojo-starter).
 
-### 1️⃣ Clone the Repository
+## Running Locally
+
+#### Terminal one (Make sure this is running)
 
 ```bash
-git clone https://github.com/your-username/monopoly-dapp-starknet.git
-cd monopoly-dapp-starknet
+# Run Katana
+katana --dev --dev.no-fee
 ```
 
-### 2️⃣ Install Dependencies
+#### Terminal two
 
 ```bash
-npm install  # or yarn install
-```
-
-### 3️⃣ Deploy Smart Contracts
-
-Using **Dojo** CLI:
-
-```bash
+# Build the example
 sozo build
-sozo migrate --world <WORLD_ADDRESS> --rpc-url <STARKNET_RPC>
+
+# Inspect the world
+sozo inspect
+
+# Migrate the example
+sozo migrate
+
+# Start Torii
+# Replace <WORLD_ADDRESS> with the address of the deployed world from the previous step
+torii --world <WORLD_ADDRESS> --http.cors_origins "*"
 ```
 
-### 4️⃣ Run the Frontend
+## Docker
+You can start stack using docker compose. [Here are the installation instruction](https://docs.docker.com/engine/install/)
 
 ```bash
-npm run dev
+docker compose up
 ```
+You'll get all services logs in the same terminal instance. Whenever you want to stop just ctrl+c
 
-## 📜 Smart Contract Deployment
+---
 
-To deploy the **Dojo-based Monopoly contracts**, use:
+## Contribution
 
-```bash
-sozo execute MonopolySystem register_player --account <ACCOUNT> --world <WORLD_ADDRESS>
-```
+1. **Report a Bug**
 
-## 📅 Roadmap
+    - If you think you have encountered a bug, and we should know about it, feel free to report it [here](https://github.com/dojoengine/dojo-starter/issues) and we will take care of it.
 
-- [ ] Complete **game logic implementation** in **Cairo**
-- [ ] Develop **on-chain property trading & staking**
-- [ ] Integrate **Torii** for real-time indexing
-- [ ] Build a **smooth, interactive UI**
-- [ ] Deploy to **Starknet Mainnet**
+2. **Request a Feature**
 
-## 🤝 Contributing
+    - You can also request for a feature [here](https://github.com/dojoengine/dojo-starter/issues), and if it's viable, it will be picked for development.
 
-We welcome contributions! Fork the repo, submit PRs, and help build the future of **on-chain gaming**.
-# Blockopoly
+3. **Create a Pull Request**
+    - It can't get better then this, your pull request will be appreciated by the community.
+
+Happy coding!

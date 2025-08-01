@@ -1,4 +1,4 @@
-use starknet::{ContractAddress};
+use starknet::ContractAddress;
 
 #[derive(Drop, Serde, Clone, Introspect)]
 #[dojo::model]

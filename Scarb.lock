@@ -2,36 +2,30 @@
 version = 1
 
 [[package]]
+name = "blockopoly"
+version = "1.6.0"
+dependencies = [
+ "dojo",
+ "dojo_cairo_test",
+]
+
+[[package]]
 name = "dojo"
-version = "1.2.2"
-source = "git+https://github.com/dojoengine/dojo?tag=v1.2.2#aafa6669b750cec99aed145640dd6c9a9a946562"
+version = "1.6.2"
+source = "git+https://github.com/dojoengine/dojo?tag=v1.6.2#d6e847c51ecd0121a43c2a17b96dbca936604764"
 dependencies = [
  "dojo_plugin",
 ]
 
 [[package]]
 name = "dojo_cairo_test"
-version = "1.0.12"
-source = "git+https://github.com/dojoengine/dojo?tag=v1.2.2#aafa6669b750cec99aed145640dd6c9a9a946562"
+version = "1.6.2"
+source = "git+https://github.com/dojoengine/dojo?tag=v1.6.2#d6e847c51ecd0121a43c2a17b96dbca936604764"
 dependencies = [
  "dojo",
 ]
 
 [[package]]
 name = "dojo_plugin"
-version = "2.9.2"
-source = "git+https://github.com/dojoengine/dojo?tag=v1.2.2#aafa6669b750cec99aed145640dd6c9a9a946562"
-
-[[package]]
-name = "dojo_starter"
-version = "1.2.2"
-dependencies = [
- "dojo",
- "dojo_cairo_test",
- "origami_random",
-]
-
-[[package]]
-name = "origami_random"
-version = "1.1.2"
-source = "git+https://github.com/dojoengine/origami#4d6a98e4fee4c71c885a1669660a545b979283c7"
+version = "2.10.1"
+source = "git+https://github.com/dojoengine/dojo?tag=v1.6.2#d6e847c51ecd0121a43c2a17b96dbca936604764"
