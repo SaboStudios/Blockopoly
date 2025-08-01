@@ -4,7 +4,8 @@ description = "The official Dojo Starter guide, the quickest and most streamline
 cover_uri = "file://assets/cover.png"
 icon_uri = "file://assets/icon.png"
 website = "https://github.com/dojoengine/dojo-starter"
-seed = "dojo_starter"
+seed = "seed = "blockoliteeeyui"
+"
 
 [world.socials]
 x = "https://x.com/ohayo_dojo"
@@ -13,7 +14,7 @@ github = "https://github.com/dojoengine/dojo-starter"
 telegram = "https://t.me/dojoengine"
 
 [namespace]
-default = "dojo_starter"
+default = "blockopoly"
 
 [env]
 rpc_url = "http://localhost:5050/"
@@ -22,5 +23,23 @@ account_address = "0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5c
 private_key = "0xc5b2fcab997346f3ea1c00b002ecf6f382c5f9c9659a3894eb783c5320f912"
 # world_address = "0x06171ed98331e849d6084bf2b3e3186a7ddf35574dd68cab4691053ee8ab69d7"
 
+
 [writers]
-"dojo_starter" = ["dojo_starter-actions"]
+"blockopoly" = ["blockopoly-player",  "blockopoly-game" ]
+"blockopoly-UsernameToAddress" = ["blockopoly-player",  "blockopoly-game" ]
+"blockopoly-AddressToUsername" = ["blockopoly-player",  "blockopoly-game" ]
+"blockopoly-IsRegistered" = ["blockopoly-player",  "blockopoly-game" ]
+"blockopoly-Player" = ["blockopoly-player",  "blockopoly-game" ]
+
+"blockopoly-TradeCounter" = ["blockopoly-player",  "blockopoly-game" ]
+"blockopoly-TradeOfferDetails" = ["blockopoly-player",  "blockopoly-game" ]
+"blockopoly-Property" = ["blockopoly-player",  "blockopoly-game" ]
+"blockopoly-PropertyToId" = ["blockopoly-player",  "blockopoly-game" ]
+"blockopoly-IdToProperty" = ["blockopoly-player",  "blockopoly-game" ]
+
+"blockopoly-GameCounter" = ["blockopoly-player",  "blockopoly-game" ]
+"blockopoly-GameBalance" = ["blockopoly-player",  "blockopoly-game" ]
+"blockopoly-Game" = ["blockopoly-player",  "blockopoly-game" ]
+
+"blockopoly-GamePlayer" = ["blockopoly-player", "blockopoly-property", "blockopoly-game" ]
+
