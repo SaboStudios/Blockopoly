@@ -1,35 +1,27 @@
 #[cfg(test)]
 mod tests {
-    use dojo_cairo_test::WorldStorageTestTrait;
     use dojo::model::{ModelStorage, ModelStorageTest};
     use dojo::world::WorldStorageTrait;
     use dojo_cairo_test::{
-        spawn_test_world, NamespaceDef, TestResource, ContractDefTrait, ContractDef,
+        ContractDef, ContractDefTrait, NamespaceDef, TestResource, WorldStorageTestTrait,
+        spawn_test_world,
     };
-
-    use dojo_starter::systems::actions::{actions};
-
     use dojo_starter::interfaces::IActions::{IActionsDispatcher, IActionsDispatcherTrait};
-
-
     use dojo_starter::model::game_model::{
-        Game, m_Game, GameType, GameStatus, GameCounter, m_GameCounter, GameBalance, m_GameBalance,
+        Game, GameBalance, GameCounter, GameStatus, GameType, m_Game, m_GameBalance, m_GameCounter,
     };
-
+    use dojo_starter::model::game_player_model::{GamePlayer, PlayerSymbol, m_GamePlayer};
     use dojo_starter::model::player_model::{
-        Player, m_Player, UsernameToAddress, m_UsernameToAddress, AddressToUsername,
-        m_AddressToUsername, IsRegistered, m_IsRegistered,
+        AddressToUsername, IsRegistered, Player, UsernameToAddress, m_AddressToUsername,
+        m_IsRegistered, m_Player, m_UsernameToAddress,
     };
-
-    use dojo_starter::model::game_player_model::{GamePlayer, m_GamePlayer, PlayerSymbol};
-
     use dojo_starter::model::property_model::{
-        Property, m_Property, IdToProperty, m_IdToProperty, PropertyToId, m_PropertyToId,
-        TradeCounter, m_TradeCounter, TradeOfferDetails, m_TradeOfferDetails, TradeOffer,
-        TradeStatus,
+        IdToProperty, Property, PropertyToId, TradeCounter, TradeOffer, TradeOfferDetails,
+        TradeStatus, m_IdToProperty, m_Property, m_PropertyToId, m_TradeCounter,
+        m_TradeOfferDetails,
     };
-
-    use starknet::{testing, get_caller_address, contract_address_const};
+    use dojo_starter::systems::actions::actions;
+    use starknet::{contract_address_const, get_caller_address, testing};
 
     fn namespace_def() -> NamespaceDef {
         let ndef = NamespaceDef {

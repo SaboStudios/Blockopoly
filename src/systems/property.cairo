@@ -1,11 +1,13 @@
 use blockopoly::model::game_model::{
     Game, GameBalance, GameCounter, GameStatus, GameTrait, GameType, IGameBalance,
 };
+use blockopoly::model::player_model::{
+    AddressToUsername, IsRegistered, Player, PlayerTrait, UsernameToAddress,
+};
 use blockopoly::model::property_model::{
     IdToProperty, Property, PropertyToId, PropertyTrait, PropertyType, TradeCounter, TradeOffer,
     TradeOfferDetails, TradeStatus,
 };
-use blockopoly::model::player_model::{AddressToUsername, IsRegistered, Player, PlayerTrait, UsernameToAddress};
 use starknet::ContractAddress;
 // define the interface
 #[starknet::interface]
@@ -17,7 +19,7 @@ pub trait IProperty<T> {
     fn buy_house_or_hotel(ref self: T, property_id: u8, game_id: u256) -> bool;
     fn finish_turn(ref self: T, game_id: u256) -> Game;
     fn sell_house_or_hotel(ref self: T, property_id: u8, game_id: u256) -> bool;
-    
+    fn get_property(self: @T, property_id: u8, game_id: u256) -> Property;
 }
 
 // dojo decorator
@@ -58,11 +60,18 @@ pub mod property {
             let caller = get_caller_address();
             // Load the property
             let mut property: Property = world.read_model((property_id, game_id));
-            let mut player: GamePlayer = world.read_model((caller, property_id));
+            let mut player: GamePlayer = world.read_model((caller, game_id));
+
             let mut owner: GamePlayer = world.read_model((property.owner, game_id));
 
+            let zero_address: ContractAddress = contract_address_const::<0>();
+
             assert(player.position == property.id, 'wrong property');
-            assert(player.game_id == owner.game_id, 'Not in the same game');
+            if (property.owner != zero_address) {
+                assert(property.owner != caller, 'already own property');
+                assert(player.game_id == owner.game_id, 'Not same game');
+                assert(property.for_sale, 'Property not for sale');
+            }
             assert(player.balance >= property.cost_of_property, 'insufficient funds');
 
             // Transfer funds
@@ -151,7 +160,6 @@ pub mod property {
 
             // Load owner
             let mut owner: GamePlayer = world.read_model((property.owner, game_id));
-            
 
             // Assertions
             assert(property.owner == caller, 'Only the owner can unmortgage');
@@ -178,11 +186,11 @@ pub mod property {
         }
 
 
-        fn pay_rent(ref self: ContractState,  property_id: u8, game_id: u256) -> bool {
+        fn pay_rent(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
             let mut world = self.world_default();
             let caller = get_caller_address();
 
-               // Load property
+            // Load property
             let mut property: Property = world.read_model((property_id, game_id));
             assert(property.id == property_id, 'Property not found');
 
@@ -195,7 +203,10 @@ pub mod property {
 
             // Basic checks
             let zero_address: ContractAddress = contract_address_const::<0>();
-            assert(property.owner != zero_address, 'Property unowned');
+
+            if property.owner == zero_address {
+                return false; // Property is unowned, no rent to pay
+            }
             assert(property.owner != caller, 'Cannot pay rent to yourself');
             assert(player.position == property.id, 'Not on property');
             assert(!property.is_mortgaged, 'No rent on mortgaged');
@@ -265,7 +276,7 @@ pub mod property {
                     );
                 }
                 i += 1;
-            };
+            }
 
             // ✅ Passed checks, build
             let cost: u256 = property.cost_of_house;
@@ -321,7 +332,7 @@ pub mod property {
                     break;
                 }
                 index += 1;
-            };
+            }
 
             let next_index = (current_index + 1) % players_len;
             game.next_player = *game.game_players.at(next_index);
@@ -329,7 +340,10 @@ pub mod property {
             world.write_model(@game);
             game
         }
-       
+        fn get_property(self: @ContractState, property_id: u8, game_id: u256) -> Property {
+            let world = self.world_default();
+            world.read_model((property_id, game_id))
+        }
     }
 
     #[generate_trait]
@@ -340,7 +354,7 @@ pub mod property {
             self.world(@"blockopoly")
         }
 
-               fn create_trade_id(ref self: ContractState) -> u256 {
+        fn create_trade_id(ref self: ContractState) -> u256 {
             let mut world = self.world_default();
             let mut trade_counter: TradeCounter = world.read_model('v0');
             let new_val = trade_counter.current_val + 1;
@@ -363,7 +377,7 @@ pub mod property {
                     group_properties.append(prop);
                 }
                 i += 1;
-            };
+            }
 
             group_properties
         }
@@ -379,7 +393,7 @@ pub mod property {
                     count += 1;
                 }
                 i += 1;
-            };
+            }
             count
         }
 
@@ -395,7 +409,7 @@ pub mod property {
                     count += 1;
                 }
                 i += 1;
-            };
+            }
             count
         }
     }

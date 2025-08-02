@@ -7,6 +7,7 @@ pub struct GamePlayer {
     pub address: ContractAddress, // links to Player
     #[key]
     pub game_id: u256, // unique per game
+    pub username: felt252,
     pub player_symbol: PlayerSymbol,
     pub is_next: bool,
     pub dice_rolled: u8,
@@ -57,6 +58,7 @@ impl GamePlayerImpl of GamePlayerTrait {
         GamePlayer {
             address,
             game_id,
+            username,
             dice_rolled: 0,
             player_symbol: player_symbol,
             balance: 0,

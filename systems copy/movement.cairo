@@ -275,7 +275,7 @@ pub mod movement {
                     count += 1;
                 }
                 i += 1;
-            };
+            }
             count
         }
 
@@ -291,7 +291,7 @@ pub mod movement {
                     count += 1;
                 }
                 i += 1;
-            };
+            }
             count
         }
     }

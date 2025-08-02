@@ -1,12 +1,14 @@
 use blockopoly::model::game_model::{
     Game, GameBalance, GameCounter, GameStatus, GameTrait, GameType, IGameBalance,
 };
-    use blockopoly::model::property_model::{
-        IdToProperty, Property, PropertyToId, PropertyTrait, PropertyType, TradeCounter, TradeOffer,
-        TradeOfferDetails, TradeStatus,
-    };
 use blockopoly::model::game_player_model::{GamePlayer, GamePlayerTrait, PlayerSymbol};
-use blockopoly::model::player_model::{AddressToUsername, IsRegistered, Player, PlayerTrait, UsernameToAddress};
+use blockopoly::model::player_model::{
+    AddressToUsername, IsRegistered, Player, PlayerTrait, UsernameToAddress,
+};
+use blockopoly::model::property_model::{
+    IdToProperty, Property, PropertyToId, PropertyTrait, PropertyType, TradeCounter, TradeOffer,
+    TradeOfferDetails, TradeStatus,
+};
 use starknet::ContractAddress;
 // define the interface
 #[starknet::interface]
@@ -27,51 +29,47 @@ pub trait IGame<T> {
     fn get_winner_by_net_worth(ref self: T, game_id: u256) -> ContractAddress;
     fn calculate_net_worth(ref self: T, player_address: ContractAddress, game_id: u256) -> u256;
 
-        fn assert_player_not_already_joined(
-            ref self: T, game: Game, username: felt252,
-        );
+    fn assert_player_not_already_joined(ref self: T, game: Game, username: felt252);
 
-            fn try_join_symbol(
-            ref self: T,
-             game: Game,
-            symbol: PlayerSymbol,
-            username: felt252,
-            game_id: u256,
-        );
+    fn try_join_symbol(
+        ref self: T, game: Game, symbol: PlayerSymbol, username: felt252, game_id: u256,
+    );
 
-        fn count_joined_players(ref self: T,  game_id: u256) -> u8 ;
-        fn generate_community_chest_deck(ref self: T) -> Array<ByteArray> ;
+    fn count_joined_players(ref self: T, game_id: u256) -> u8;
+    fn generate_community_chest_deck(ref self: T) -> Array<ByteArray>;
 
-         fn create_new_game_id(ref self: T) -> u256;
-        fn generate_chance_deck(ref self: T) -> Array<ByteArray> ;
+    fn create_new_game_id(ref self: T) -> u256;
+    fn generate_chance_deck(ref self: T) -> Array<ByteArray>;
 
-        fn generate_properties(
-            ref self: T,
-            id: u8,
-            game_id: u256,
-            name: felt252,
-            cost_of_property: u256,
-            property_type: PropertyType,
-            rent_site_only: u256,
-            rent_one_house: u256,
-            rent_two_houses: u256,
-            rent_three_houses: u256,
-            rent_four_houses: u256,
-            cost_of_house: u256,
-            rent_hotel: u256,
-            is_mortgaged: bool,
-            group_id: u8,
-            owner: ContractAddress,
-        );
+    fn generate_properties(
+        ref self: T,
+        id: u8,
+        game_id: u256,
+        name: felt252,
+        cost_of_property: u256,
+        property_type: PropertyType,
+        rent_site_only: u256,
+        rent_one_house: u256,
+        rent_two_houses: u256,
+        rent_three_houses: u256,
+        rent_four_houses: u256,
+        cost_of_house: u256,
+        rent_hotel: u256,
+        is_mortgaged: bool,
+        group_id: u8,
+        owner: ContractAddress,
+    );
 
-        fn generate_board_tiles(ref self: T, game_id: u256);
-    
+    fn generate_board_tiles(ref self: T, game_id: u256);
+
+    fn get_game_player(self: @T, address: ContractAddress, game_id: u256) -> GamePlayer;
+
+    fn get_game_player_balance(self: @T, address: ContractAddress, game_id: u256) -> u256;
 }
 
 // dojo decorator
 #[dojo::contract]
 pub mod game {
-
     use dojo::event::EventStorage;
     use dojo::model::ModelStorage;
     use starknet::{
@@ -80,9 +78,9 @@ pub mod game {
     };
     use super::{
         AddressToUsername, Game, GameBalance, GameCounter, GamePlayer, GamePlayerTrait, GameStatus,
-        GameTrait, GameType, IGame, IGameBalance, Player, PlayerSymbol, 
-        IdToProperty, Property, PropertyToId, PropertyTrait, PropertyType, TradeCounter, TradeOffer,
-        TradeOfferDetails, TradeStatus,
+        GameTrait, GameType, IGame, IGameBalance, IdToProperty, Player, PlayerSymbol, Property,
+        PropertyToId, PropertyTrait, PropertyType, TradeCounter, TradeOffer, TradeOfferDetails,
+        TradeStatus,
     };
 
     #[derive(Copy, Drop, Serde)]
@@ -127,7 +125,7 @@ pub mod game {
             assert(number_of_players >= 2 && number_of_players <= 8, 'invalid no of players');
 
             // Get the account address of the caller
-             let caller_address = get_caller_address();
+            let caller_address = get_caller_address();
             let caller_username1: AddressToUsername = world.read_model(caller_address);
             let caller_username = caller_username1.username;
 
@@ -200,51 +198,54 @@ pub mod game {
             game_id
         }
 
-              fn retrieve_game(self: @ContractState, game_id: u256) -> Game {
+        fn retrieve_game(self: @ContractState, game_id: u256) -> Game {
             // Get default world
             let mut world = self.world_default();
             //get the game state
             let game: Game = world.read_model(game_id);
             game
         }
-    fn create_game(ref self: ContractState, game_type: u8, player_symbol: u8, number_of_players: u8) -> u256 {
-    let player_symbol_enum = match player_symbol {
-        0 => PlayerSymbol::Hat,
-        1 => PlayerSymbol::Car,
-        2 => PlayerSymbol::Dog,
-        3 => PlayerSymbol::Thimble,
-        4 => PlayerSymbol::Iron,
-        5 => PlayerSymbol::Battleship,
-        6 => PlayerSymbol::Boot,
-        7 => PlayerSymbol::Wheelbarrow,
-        _ => panic!("Invalid player symbol"),
-    };
+        fn create_game(
+            ref self: ContractState, game_type: u8, player_symbol: u8, number_of_players: u8,
+        ) -> u256 {
+            let player_symbol_enum = match player_symbol {
+                0 => PlayerSymbol::Hat,
+                1 => PlayerSymbol::Car,
+                2 => PlayerSymbol::Dog,
+                3 => PlayerSymbol::Thimble,
+                4 => PlayerSymbol::Iron,
+                5 => PlayerSymbol::Battleship,
+                6 => PlayerSymbol::Boot,
+                7 => PlayerSymbol::Wheelbarrow,
+                _ => panic!("Invalid player symbol"),
+            };
 
-    let game_type_enum = match game_type {
-        0 => GameType::PublicGame,
-        1 => GameType::PrivateGame,
-        _ => panic!("Invalid game type"),
-    };
+            let game_type_enum = match game_type {
+                0 => GameType::PublicGame,
+                1 => GameType::PrivateGame,
+                _ => panic!("Invalid game type"),
+            };
 
-    let game_id = self.create_new_game(game_type_enum, player_symbol_enum, number_of_players);
-    game_id
-}
+            let game_id = self
+                .create_new_game(game_type_enum, player_symbol_enum, number_of_players);
+            game_id
+        }
 
-fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256) {
-    let player_symbol_enum = match player_symbol {
-        0 => PlayerSymbol::Hat,
-        1 => PlayerSymbol::Car,
-        2 => PlayerSymbol::Dog,
-        3 => PlayerSymbol::Thimble,
-        4 => PlayerSymbol::Iron,
-        5 => PlayerSymbol::Battleship,
-        6 => PlayerSymbol::Boot,
-        7 => PlayerSymbol::Wheelbarrow,
-        _ => panic!("Invalid player symbol"),
-    };
+        fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256) {
+            let player_symbol_enum = match player_symbol {
+                0 => PlayerSymbol::Hat,
+                1 => PlayerSymbol::Car,
+                2 => PlayerSymbol::Dog,
+                3 => PlayerSymbol::Thimble,
+                4 => PlayerSymbol::Iron,
+                5 => PlayerSymbol::Battleship,
+                6 => PlayerSymbol::Boot,
+                7 => PlayerSymbol::Wheelbarrow,
+                _ => panic!("Invalid player symbol"),
+            };
 
-    self.join_game(player_symbol_enum, game_id);
-}
+            self.join_game(player_symbol_enum, game_id);
+        }
 
 
         // Allows a registered player to join a pending game by selecting a symbol.
@@ -306,6 +307,8 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
             let mut world = self.world_default();
             let mut game: Game = world.read_model(game_id);
 
+            assert(game.status == GameStatus::Pending, 'GAME NOT PENDING');
+
             game.status = GameStatus::Ongoing;
             game.next_player = get_caller_address();
 
@@ -314,12 +317,12 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
             while i < len {
                 self.mint(*game.game_players[i], 1, 1500);
                 i += 1;
-            };
+            }
             world.write_model(@game);
             true
         }
 
-            fn mint(ref self: ContractState, recepient: ContractAddress, game_id: u256, amount: u256) {
+        fn mint(ref self: ContractState, recepient: ContractAddress, game_id: u256, amount: u256) {
             let mut world = self.world_default();
             let mut player: GamePlayer = world.read_model((recepient, game_id));
             player.balance += amount;
@@ -341,7 +344,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
 
                 players.append(player_model);
                 i += 1;
-            };
+            }
 
             // Find the winner by net worth
             let winner_address = self.get_winner_by_net_worth(game.id);
@@ -360,32 +363,34 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
         }
 
         fn get_winner_by_net_worth(ref self: ContractState, game_id: u256) -> ContractAddress {
-    let mut world = self.world_default();
-    let mut game: Game = world.read_model(game_id);
-    let total_players = game.game_players.len();
+            let mut world = self.world_default();
+            let mut game: Game = world.read_model(game_id);
+            let total_players = game.game_players.len();
 
-    let mut i = 0;
-    let mut max_net_worth: u256 = 0;
-    let mut winner_address: ContractAddress = contract_address_const::<'0'>();
+            let mut i = 0;
+            let mut max_net_worth: u256 = 0;
+            let mut winner_address: ContractAddress = contract_address_const::<'0'>();
 
-    while i < total_players {
-        let player_address = game.game_players.at(i);
-        let player: GamePlayer = world.read_model((*player_address, game.id));
-        let net_worth = self.calculate_net_worth(player.address, player.game_id);
+            while i < total_players {
+                let player_address = game.game_players.at(i);
+                let player: GamePlayer = world.read_model((*player_address, game.id));
+                let net_worth = self.calculate_net_worth(player.address, player.game_id);
 
-        if net_worth > max_net_worth {
-            max_net_worth = net_worth;
-            winner_address = player.address;
+                if net_worth > max_net_worth {
+                    max_net_worth = net_worth;
+                    winner_address = player.address;
+                }
+
+                i += 1;
+            }
+
+            winner_address
         }
 
-        i += 1;
-    };
 
-    winner_address
-}
-
-
-         fn calculate_net_worth(ref self: ContractState, player_address: ContractAddress, game_id: u256) -> u256 {
+        fn calculate_net_worth(
+            ref self: ContractState, player_address: ContractAddress, game_id: u256,
+        ) -> u256 {
             let mut world = self.world_default();
             let mut player: GamePlayer = world.read_model((player_address, game_id));
             let mut total_property_value: u256 = 0;
@@ -427,7 +432,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                 total_rent_value += rent;
 
                 i += 1;
-            };
+            }
 
             // Jail/Chance card value
             if player.chance_jail_card {
@@ -454,7 +459,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
             net_worth
         }
 
-            fn assert_player_not_already_joined(
+        fn assert_player_not_already_joined(
             ref self: ContractState, game: Game, username: felt252,
         ) {
             assert(game.player_hat != username, 'ALREADY SELECTED HAT');
@@ -467,7 +472,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
             assert(game.player_wheelbarrow != username, 'ALREADY SELECTED WHEELBARROW');
         }
 
-         fn try_join_symbol(
+        fn try_join_symbol(
             ref self: ContractState,
             mut game: Game,
             symbol: PlayerSymbol,
@@ -510,7 +515,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
             }
         }
 
-         fn count_joined_players(ref self: ContractState, mut game_id: u256) -> u8 {
+        fn count_joined_players(ref self: ContractState, mut game_id: u256) -> u8 {
             let mut count: u8 = 0;
             let mut world = self.world_default();
             let game: Game = world.read_model(game_id);
@@ -542,9 +547,9 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
             }
 
             count
-        }   
+        }
 
-          fn create_new_game_id(ref self: ContractState) -> u256 {
+        fn create_new_game_id(ref self: ContractState) -> u256 {
             let mut world = self.world_default();
             let mut game_counter: GameCounter = world.read_model('v0');
             let new_val = game_counter.current_val + 1;
@@ -604,7 +609,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
             deck
         }
 
-          fn generate_properties(
+        fn generate_properties(
             ref self: ContractState,
             id: u8,
             game_id: u256,
@@ -654,25 +659,11 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
         fn generate_board_tiles(ref self: ContractState, game_id: u256) {
             let mut world = self.world_default();
             let contract_address = get_contract_address();
-            let bank: GamePlayer = world.read_model((contract_address, game_id));
+            let bank: ContractAddress = contract_address_const::<0>();
 
             self
                 .generate_properties(
-                    0,
-                    game_id,
-                    'Go',
-                    0,
-                    PropertyType::Go,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    false,
-                    0,
-                    bank.address,
+                    0, game_id, 'Go', 0, PropertyType::Go, 0, 0, 0, 0, 0, 0, 0, false, 0, bank,
                 );
             self
                 .generate_properties(
@@ -690,7 +681,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     50,
                     false,
                     1,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -708,7 +699,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     0,
                     false,
                     0,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -726,7 +717,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     50,
                     false,
                     1,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -744,7 +735,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     0,
                     false,
                     0,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -762,7 +753,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     0,
                     false,
                     0,
-                    bank.address,
+                    bank,
                 );
 
             self
@@ -781,7 +772,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     50,
                     false,
                     2,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -799,7 +790,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     0,
                     false,
                     0,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -817,7 +808,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     50,
                     false,
                     2,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -835,7 +826,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     50,
                     false,
                     2,
-                    bank.address,
+                    bank,
                 );
 
             self
@@ -854,7 +845,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     0,
                     false,
                     0,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -872,7 +863,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     100,
                     false,
                     3,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -890,7 +881,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     0,
                     false,
                     0,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -908,7 +899,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     100,
                     false,
                     3,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -926,7 +917,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     100,
                     false,
                     3,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -944,7 +935,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     0,
                     false,
                     0,
-                    bank.address,
+                    bank,
                 );
 
             self
@@ -963,7 +954,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     100,
                     false,
                     4,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -981,7 +972,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     0,
                     false,
                     0,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -999,7 +990,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     100,
                     false,
                     4,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -1017,7 +1008,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     100,
                     false,
                     4,
-                    bank.address,
+                    bank,
                 );
 
             self
@@ -1036,7 +1027,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     0,
                     false,
                     0,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -1054,7 +1045,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     150,
                     false,
                     5,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -1072,7 +1063,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     0,
                     false,
                     0,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -1090,7 +1081,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     150,
                     false,
                     5,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -1108,7 +1099,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     150,
                     false,
                     5,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -1126,7 +1117,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     0,
                     false,
                     0,
-                    bank.address,
+                    bank,
                 );
 
             self
@@ -1145,7 +1136,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     150,
                     false,
                     6,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -1163,7 +1154,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     150,
                     false,
                     6,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -1181,7 +1172,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     0,
                     false,
                     0,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -1199,7 +1190,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     150,
                     false,
                     6,
-                    bank.address,
+                    bank,
                 );
 
             self
@@ -1218,7 +1209,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     0,
                     false,
                     0,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -1236,7 +1227,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     200,
                     false,
                     7,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -1254,7 +1245,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     200,
                     false,
                     7,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -1272,7 +1263,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     0,
                     false,
                     0,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -1290,7 +1281,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     200,
                     false,
                     7,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -1308,7 +1299,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     0,
                     false,
                     0,
-                    bank.address,
+                    bank,
                 );
 
             self
@@ -1327,7 +1318,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     0,
                     false,
                     0,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -1345,7 +1336,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     200,
                     false,
                     8,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -1363,7 +1354,7 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     0,
                     false,
                     0,
-                    bank.address,
+                    bank,
                 );
             self
                 .generate_properties(
@@ -1381,12 +1372,24 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
                     200,
                     false,
                     8,
-                    bank.address,
+                    bank,
                 );
         }
-      
 
-
+        fn get_game_player(
+            self: @ContractState, address: ContractAddress, game_id: u256,
+        ) -> GamePlayer {
+            let mut world = self.world_default();
+            let player: GamePlayer = world.read_model((address, game_id));
+            player
+        }
+        fn get_game_player_balance(
+            self: @ContractState, address: ContractAddress, game_id: u256,
+        ) -> u256 {
+            let mut world = self.world_default();
+            let player: GamePlayer = world.read_model((address, game_id));
+            player.balance
+        }
     }
 
     #[generate_trait]
@@ -1396,6 +1399,5 @@ fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256
         fn world_default(self: @ContractState) -> dojo::world::WorldStorage {
             self.world(@"blockopoly")
         }
-
     }
 }

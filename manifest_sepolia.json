@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x13d92333361bb7049c1232c0a5404e2c19082ededc3a73d75cb33fa952adec7",
-    "address": "0x6ba7034d98ded0083368c8d684abfef998816df6e7ec6cfdcf932cc72d2ac26",
-    "seed": "ideybegyoudeplnnnokskjdyna",
+    "address": "0x6d31a6419aa561b0469a6aabd57686e4ab2bcf654376d169c97e5dd905a39bf",
+    "seed": "ajiosoddgfuytue",
     "name": "Dojo starter",
     "entrypoints": [
       "uuid",
@@ -1328,8 +1328,8 @@
   },
   "contracts": [
     {
-      "address": "0x13a363da92583f78a87b816410ba27cff00208aa7127aa182a2db1d8e0e75ae",
-      "class_hash": "0x7487d273fbc7cf1e233416158b3d3ecdb26b61afc00fb2e1ddde85e53347faa",
+      "address": "0x4c802664cea83eb5e6ed8c13509ce9ccd21a8271f8c364a4201628e565be10b",
+      "class_hash": "0x7ae99fcd618f99a5ce116c289a2e7f17771b0e6c8a594acc0fa893a10414fc6",
       "abi": [
         {
           "type": "impl",
@@ -1673,6 +1673,124 @@
             {
               "name": "VisitingJail",
               "type": "()"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "blockopoly::model::game_player_model::GamePlayer",
+          "members": [
+            {
+              "name": "address",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "game_id",
+              "type": "core::integer::u256"
+            },
+            {
+              "name": "username",
+              "type": "core::felt252"
+            },
+            {
+              "name": "player_symbol",
+              "type": "blockopoly::model::game_player_model::PlayerSymbol"
+            },
+            {
+              "name": "is_next",
+              "type": "core::bool"
+            },
+            {
+              "name": "dice_rolled",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "position",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "jailed",
+              "type": "core::bool"
+            },
+            {
+              "name": "balance",
+              "type": "core::integer::u256"
+            },
+            {
+              "name": "properties_owned",
+              "type": "core::array::Array::<core::integer::u8>"
+            },
+            {
+              "name": "chance_jail_card",
+              "type": "core::bool"
+            },
+            {
+              "name": "comm_free_card",
+              "type": "core::bool"
+            },
+            {
+              "name": "total_houses_owned",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "total_hotels_owned",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "no_of_utilities",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "no_of_railways",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "no_section1",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "no_section2",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "no_section3",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "no_section4",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "no_section5",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "no_section6",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "no_section7",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "no_section8",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "is_bankrupt",
+              "type": "core::bool"
+            },
+            {
+              "name": "is_active",
+              "type": "core::bool"
+            },
+            {
+              "name": "jail_turns",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "strikes",
+              "type": "core::integer::u8"
             }
           ]
         },
@@ -2032,6 +2150,46 @@
               ],
               "outputs": [],
               "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "get_game_player",
+              "inputs": [
+                {
+                  "name": "address",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                },
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u256"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "blockopoly::model::game_player_model::GamePlayer"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "get_game_player_balance",
+              "inputs": [
+                {
+                  "name": "address",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                },
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u256"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::integer::u256"
+                }
+              ],
+              "state_mutability": "view"
             }
           ]
         },
@@ -2175,8 +2333,8 @@
       ]
     },
     {
-      "address": "0x665048ee1be3cf027c862e29c64492682b5bebaf4c461e7c296404ffdd96b93",
-      "class_hash": "0x7ced345b581997fd0d444f137672318030c131eb38573ef6638c1b5c23e60de",
+      "address": "0x192b86c8657b3f09515d51bd34a24fe77b979713796ae39b0a08f5a49b002c8",
+      "class_hash": "0x398c6a8227653d189390db7cad0d3c9a3d77ffd1324ac6895e56b4d4f44e401",
       "abi": [
         {
           "type": "impl",
@@ -2372,6 +2530,38 @@
                 }
               ],
               "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "current_player",
+              "inputs": [
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u256"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::starknet::contract_address::ContractAddress"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "current_playername",
+              "inputs": [
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u256"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::felt252"
+                }
+              ],
+              "state_mutability": "view"
             }
           ]
         },
@@ -2504,7 +2694,7 @@
       ]
     },
     {
-      "address": "0x42b767411020b88eada3e8961da0c09dcec34c99b5a41699f19adaaa0f38d65",
+      "address": "0x696b3b94f1d8d20342c308be864db55b798d692c6fa2958181c5f05dbe890a9",
       "class_hash": "0x2c35b79d2c5300a7d4ae492cc3094ddcb77611795eb97288067a334487b961f",
       "abi": [
         {
@@ -2822,8 +3012,8 @@
       ]
     },
     {
-      "address": "0x50f74c3239fe3f7f6fdae916adec6e9cef4a513903bbe7bb041d089c824fd4e",
-      "class_hash": "0x2473db50722f734d29b8463a7693769d870546fd8c9e93a416a00316912aea9",
+      "address": "0xecb58e43d5361bad4f0bb589d46acad36f5e61f404c5b7ac0c3d3e6f763920",
+      "class_hash": "0x67f1caccc58bfa14b980014cdd3f17b43b6fdb2d07819df50f0c35539809b74",
       "abi": [
         {
           "type": "impl",
@@ -3087,6 +3277,130 @@
           ]
         },
         {
+          "type": "enum",
+          "name": "blockopoly::model::property_model::PropertyType",
+          "variants": [
+            {
+              "name": "Go",
+              "type": "()"
+            },
+            {
+              "name": "Chance",
+              "type": "()"
+            },
+            {
+              "name": "CommunityChest",
+              "type": "()"
+            },
+            {
+              "name": "Jail",
+              "type": "()"
+            },
+            {
+              "name": "Utility",
+              "type": "()"
+            },
+            {
+              "name": "RailRoad",
+              "type": "()"
+            },
+            {
+              "name": "Tax",
+              "type": "()"
+            },
+            {
+              "name": "FreeParking",
+              "type": "()"
+            },
+            {
+              "name": "Property",
+              "type": "()"
+            },
+            {
+              "name": "VisitingJail",
+              "type": "()"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "blockopoly::model::property_model::Property",
+          "members": [
+            {
+              "name": "id",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "game_id",
+              "type": "core::integer::u256"
+            },
+            {
+              "name": "name",
+              "type": "core::felt252"
+            },
+            {
+              "name": "owner",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "property_type",
+              "type": "blockopoly::model::property_model::PropertyType"
+            },
+            {
+              "name": "cost_of_property",
+              "type": "core::integer::u256"
+            },
+            {
+              "name": "property_level",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "rent_site_only",
+              "type": "core::integer::u256"
+            },
+            {
+              "name": "rent_one_house",
+              "type": "core::integer::u256"
+            },
+            {
+              "name": "rent_two_houses",
+              "type": "core::integer::u256"
+            },
+            {
+              "name": "rent_three_houses",
+              "type": "core::integer::u256"
+            },
+            {
+              "name": "rent_four_houses",
+              "type": "core::integer::u256"
+            },
+            {
+              "name": "cost_of_house",
+              "type": "core::integer::u256"
+            },
+            {
+              "name": "rent_hotel",
+              "type": "core::integer::u256"
+            },
+            {
+              "name": "is_mortgaged",
+              "type": "core::bool"
+            },
+            {
+              "name": "group_id",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "for_sale",
+              "type": "core::bool"
+            },
+            {
+              "name": "development",
+              "type": "core::integer::u8"
+            }
+          ]
+        },
+        {
           "type": "interface",
           "name": "blockopoly::systems::property::IProperty",
           "items": [
@@ -3225,6 +3539,26 @@
                 }
               ],
               "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "get_property",
+              "inputs": [
+                {
+                  "name": "property_id",
+                  "type": "core::integer::u8"
+                },
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u256"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "blockopoly::model::property_model::Property"
+                }
+              ],
+              "state_mutability": "view"
             }
           ]
         },
@@ -3358,8 +3692,8 @@
       ]
     },
     {
-      "address": "0x1cfb11a11c341e4150d9c624d29bd894f32f114b28ad2cde62d642f581bfddc",
-      "class_hash": "0x5797fa73a9aa07bbb4d62e3a9f4d64a4bba66d74dfc4276b3c715611e1c0b0f",
+      "address": "0x4640ff0b8ff33e95080262324d5cf74a6f935ee38697b83d19f11db656d93d3",
+      "class_hash": "0x410767833038d885c3022702947860ab2e2005956559f1969cf362afaa34467",
       "abi": [
         {
           "type": "impl",
@@ -3888,7 +4222,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x1a158420e567215011ef908cbdd0a1e2fc6e328b025b5f77bf896c3e059504f",
+      "class_hash": "0x510d0c5d901a2a131066c862fef00b83f9b9bbafcfb49cf2899eb563634aa92",
       "tag": "blockopoly-GamePlayer",
       "selector": "0x2048a0e5df9a34115f15e73141a2775346e2d23185045d77f408d24be71074"
     },

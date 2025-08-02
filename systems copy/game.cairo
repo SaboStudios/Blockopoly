@@ -151,7 +151,7 @@ pub mod game {
             game_id
         }
 
-              fn retrieve_game(self: @ContractState, game_id: u256) -> Game {
+        fn retrieve_game(self: @ContractState, game_id: u256) -> Game {
             // Get default world
             let mut world = self.world_default();
             //get the game state
@@ -225,7 +225,7 @@ pub mod game {
             while i < len {
                 self.mint(*game.game_players[i], 1, 1500);
                 i += 1;
-            };
+            }
             world.write_model(@game);
             true
         }
@@ -244,7 +244,7 @@ pub mod game {
 
                 players.append(player_model);
                 i += 1;
-            };
+            }
 
             // Find the winner by net worth
             let winner_address = self.get_winner_by_net_worth(players);
@@ -1258,7 +1258,7 @@ pub mod game {
                 total_rent_value += rent;
 
                 i += 1;
-            };
+            }
 
             // Jail/Chance card value
             if player.chance_jail_card {
@@ -1302,7 +1302,7 @@ pub mod game {
                 }
 
                 i += 1;
-            };
+            }
 
             winner_address
         }
