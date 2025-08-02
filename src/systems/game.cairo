@@ -16,16 +16,16 @@ pub trait IGame<T> {
         ref self: T, game_type: GameType, player_symbol: PlayerSymbol, number_of_players: u8,
     ) -> u256;
     fn join_game(ref self: T, player_symbol: PlayerSymbol, game_id: u256);
+    fn create_game(ref self: T, game_type: u8, player_symbol: u8, number_of_players: u8) -> u256;
+    fn join_game_by_symbol(ref self: T, player_symbol: u8, game_id: u256);
 
     fn start_game(ref self: T, game_id: u256) -> bool;
 
-    fn end_game(ref self: T, game: Game) -> ContractAddress;
+    fn end_game(ref self: T, game_id: u256) -> ContractAddress;
     fn retrieve_game(self: @T, game_id: u256) -> Game;
     fn mint(ref self: T, recepient: ContractAddress, game_id: u256, amount: u256);
-      fn get_winner_by_net_worth(
-            ref self: T, players: Array<GamePlayer>,
-        ) -> ContractAddress;
-        fn calculate_net_worth(ref self: T, player: GamePlayer) -> u256;
+    fn get_winner_by_net_worth(ref self: T, game_id: u256) -> ContractAddress;
+    fn calculate_net_worth(ref self: T, player_address: ContractAddress, game_id: u256) -> u256;
 
         fn assert_player_not_already_joined(
             ref self: T, game: Game, username: felt252,
@@ -39,7 +39,7 @@ pub trait IGame<T> {
             game_id: u256,
         );
 
-        fn count_joined_players(ref self: T,  game: Game) -> u8 ;
+        fn count_joined_players(ref self: T,  game_id: u256) -> u8 ;
         fn generate_community_chest_deck(ref self: T) -> Array<ByteArray> ;
 
          fn create_new_game_id(ref self: T) -> u256;
@@ -207,6 +207,45 @@ pub mod game {
             let game: Game = world.read_model(game_id);
             game
         }
+    fn create_game(ref self: ContractState, game_type: u8, player_symbol: u8, number_of_players: u8) -> u256 {
+    let player_symbol_enum = match player_symbol {
+        0 => PlayerSymbol::Hat,
+        1 => PlayerSymbol::Car,
+        2 => PlayerSymbol::Dog,
+        3 => PlayerSymbol::Thimble,
+        4 => PlayerSymbol::Iron,
+        5 => PlayerSymbol::Battleship,
+        6 => PlayerSymbol::Boot,
+        7 => PlayerSymbol::Wheelbarrow,
+        _ => panic!("Invalid player symbol"),
+    };
+
+    let game_type_enum = match game_type {
+        0 => GameType::PublicGame,
+        1 => GameType::PrivateGame,
+        _ => panic!("Invalid game type"),
+    };
+
+    let game_id = self.create_new_game(game_type_enum, player_symbol_enum, number_of_players);
+    game_id
+}
+
+fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256) {
+    let player_symbol_enum = match player_symbol {
+        0 => PlayerSymbol::Hat,
+        1 => PlayerSymbol::Car,
+        2 => PlayerSymbol::Dog,
+        3 => PlayerSymbol::Thimble,
+        4 => PlayerSymbol::Iron,
+        5 => PlayerSymbol::Battleship,
+        6 => PlayerSymbol::Boot,
+        7 => PlayerSymbol::Wheelbarrow,
+        _ => panic!("Invalid player symbol"),
+    };
+
+    self.join_game(player_symbol_enum, game_id);
+}
+
 
         // Allows a registered player to join a pending game by selecting a symbol.
         // Automatically starts the game once the required number of players have joined.
@@ -249,7 +288,7 @@ pub mod game {
                 );
 
             // Recount players and update the joined count
-            game.players_joined = self.count_joined_players(game.clone());
+            game.players_joined = self.count_joined_players(game.id);
             game.game_players.append(get_caller_address());
 
             // Start the game if all players have joined
@@ -287,10 +326,11 @@ pub mod game {
             world.write_model(@player);
         }
 
-        fn end_game(ref self: ContractState, game: Game) -> ContractAddress {
+        fn end_game(ref self: ContractState, game_id: u256) -> ContractAddress {
             let mut world = self.world_default();
             let mut players: Array<GamePlayer> = ArrayTrait::new();
 
+            let mut game: Game = world.read_model(game_id);
             let total_players = game.game_players.len();
             let mut i = 0;
 
@@ -304,7 +344,7 @@ pub mod game {
             };
 
             // Find the winner by net worth
-            let winner_address = self.get_winner_by_net_worth(players);
+            let winner_address = self.get_winner_by_net_worth(game.id);
             let winner: Player = world.read_model(winner_address);
 
             // Set game status to ended
@@ -319,32 +359,35 @@ pub mod game {
             winner.address
         }
 
-           fn get_winner_by_net_worth(
-            ref self: ContractState, players: Array<GamePlayer>,
-        ) -> ContractAddress {
-            let mut i = 0;
-            let mut max_net_worth: u256 = 0;
-            let mut winner_address: ContractAddress = contract_address_const::<'0'>();
+        fn get_winner_by_net_worth(ref self: ContractState, game_id: u256) -> ContractAddress {
+    let mut world = self.world_default();
+    let mut game: Game = world.read_model(game_id);
+    let total_players = game.game_players.len();
 
-            let players_len = players.len();
-            while i < players_len {
-                let player = players.at(i);
-                let net_worth = self.calculate_net_worth(player.clone());
+    let mut i = 0;
+    let mut max_net_worth: u256 = 0;
+    let mut winner_address: ContractAddress = contract_address_const::<'0'>();
 
-                if net_worth > max_net_worth {
-                    max_net_worth = net_worth;
-                    winner_address = *player.address;
-                }
+    while i < total_players {
+        let player_address = game.game_players.at(i);
+        let player: GamePlayer = world.read_model((*player_address, game.id));
+        let net_worth = self.calculate_net_worth(player.address, player.game_id);
 
-                i += 1;
-            };
-
-            winner_address
+        if net_worth > max_net_worth {
+            max_net_worth = net_worth;
+            winner_address = player.address;
         }
 
-         fn calculate_net_worth(ref self: ContractState, player: GamePlayer) -> u256 {
-            let mut world = self.world_default();
+        i += 1;
+    };
 
+    winner_address
+}
+
+
+         fn calculate_net_worth(ref self: ContractState, player_address: ContractAddress, game_id: u256) -> u256 {
+            let mut world = self.world_default();
+            let mut player: GamePlayer = world.read_model((player_address, game_id));
             let mut total_property_value: u256 = 0;
             let mut total_house_cost: u256 = 0;
             let mut total_rent_value: u256 = 0;
@@ -467,8 +510,10 @@ pub mod game {
             }
         }
 
-         fn count_joined_players(ref self: ContractState, mut game: Game) -> u8 {
+         fn count_joined_players(ref self: ContractState, mut game_id: u256) -> u8 {
             let mut count: u8 = 0;
+            let mut world = self.world_default();
+            let game: Game = world.read_model(game_id);
 
             if game.player_hat != 0 {
                 count += 1; // self.transfer_funds(caller, property.rent_site_only);

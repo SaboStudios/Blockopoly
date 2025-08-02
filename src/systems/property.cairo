@@ -10,12 +10,12 @@ use starknet::ContractAddress;
 // define the interface
 #[starknet::interface]
 pub trait IProperty<T> {
-    fn buy_property(ref self: T, property: Property) -> bool;
-    fn mortgage_property(ref self: T, property: Property) -> bool;
-    fn unmortgage_property(ref self: T, property: Property) -> bool;
-    fn pay_rent(ref self: T, property: Property) -> bool;
-    fn buy_house_or_hotel(ref self: T, property: Property) -> bool;
-    fn finish_turn(ref self: T, game: Game) -> Game;
+    fn buy_property(ref self: T, property_id: u8, game_id: u256) -> bool;
+    fn mortgage_property(ref self: T, property_id: u8, game_id: u256) -> bool;
+    fn unmortgage_property(ref self: T, property_id: u8, game_id: u256) -> bool;
+    fn pay_rent(ref self: T, property_id: u8, game_id: u256) -> bool;
+    fn buy_house_or_hotel(ref self: T, property_id: u8, game_id: u256) -> bool;
+    fn finish_turn(ref self: T, game_id: u256) -> Game;
     fn sell_house_or_hotel(ref self: T, property_id: u8, game_id: u256) -> bool;
     
 }
@@ -48,17 +48,18 @@ pub mod property {
 
     #[abi(embed_v0)]
     impl PropertysImpl of IProperty<ContractState> {
-        fn buy_property(ref self: ContractState, mut property: Property) -> bool {
+        fn buy_property(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
             // get the world
             let mut world = self.world_default();
             // get the game and check it is ongoing
-            let mut found_game: Game = world.read_model(property.game_id);
+            let mut found_game: Game = world.read_model(game_id);
             assert!(found_game.status == GameStatus::Ongoing, "game has not started yet ");
 
             let caller = get_caller_address();
-
-            let mut player: GamePlayer = world.read_model((caller, property.game_id));
-            let mut owner: GamePlayer = world.read_model((property.owner, property.game_id));
+            // Load the property
+            let mut property: Property = world.read_model((property_id, game_id));
+            let mut player: GamePlayer = world.read_model((caller, property_id));
+            let mut owner: GamePlayer = world.read_model((property.owner, game_id));
 
             assert(player.position == property.id, 'wrong property');
             assert(player.game_id == owner.game_id, 'Not in the same game');
@@ -94,7 +95,7 @@ pub mod property {
             }
 
             // Finish turn
-            found_game = self.finish_turn(found_game);
+            found_game = self.finish_turn(found_game.id);
 
             // Persist changes
             world.write_model(@found_game);
@@ -105,15 +106,17 @@ pub mod property {
             true
         }
 
-        fn mortgage_property(ref self: ContractState, mut property: Property) -> bool {
+        fn mortgage_property(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
             let mut world = self.world_default();
 
             // Check the game is ongoing
-            let mut game: Game = world.read_model(property.game_id);
+            let mut game: Game = world.read_model(game_id);
             assert(game.status == GameStatus::Ongoing, 'Game has not started yet');
-
+            // Load property and owner
+            let mut property: Property = world.read_model((property_id, game_id));
+            assert(property.id == property_id, 'Property not found');
             let caller = get_caller_address();
-            let mut owner: GamePlayer = world.read_model((property.owner, property.game_id));
+            let mut owner: GamePlayer = world.read_model((property.owner, game_id));
 
             // Ensure caller owns property and it is not already mortgaged
             assert(property.owner == caller, 'Not your property');
@@ -134,16 +137,21 @@ pub mod property {
         }
 
 
-        fn unmortgage_property(ref self: ContractState, mut property: Property) -> bool {
+        fn unmortgage_property(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
             let mut world = self.world_default();
             let caller = get_caller_address();
 
             // Load game and ensure it's ongoing
-            let game: Game = world.read_model(property.game_id);
+            let game: Game = world.read_model(game_id);
             assert(game.status == GameStatus::Ongoing, 'Game has not started yet');
 
+            // Load property
+            let mut property: Property = world.read_model((property_id, game_id));
+            assert(property.id == property_id, 'Property not found');
+
             // Load owner
-            let mut owner: GamePlayer = world.read_model((property.owner, property.game_id));
+            let mut owner: GamePlayer = world.read_model((property.owner, game_id));
+            
 
             // Assertions
             assert(property.owner == caller, 'Only the owner can unmortgage');
@@ -170,15 +178,19 @@ pub mod property {
         }
 
 
-        fn pay_rent(ref self: ContractState, mut property: Property) -> bool {
+        fn pay_rent(ref self: ContractState,  property_id: u8, game_id: u256) -> bool {
             let mut world = self.world_default();
             let caller = get_caller_address();
 
-            let mut player: GamePlayer = world.read_model((caller, property.game_id));
-            let mut owner: GamePlayer = world.read_model((property.owner, property.game_id));
+               // Load property
+            let mut property: Property = world.read_model((property_id, game_id));
+            assert(property.id == property_id, 'Property not found');
+
+            let mut player: GamePlayer = world.read_model((caller, game_id));
+            let mut owner: GamePlayer = world.read_model((property.owner, game_id));
 
             // Validate game
-            let mut game: Game = world.read_model(property.game_id);
+            let mut game: Game = world.read_model(game_id);
             assert(game.status == GameStatus::Ongoing, 'Game not started');
 
             // Basic checks
@@ -203,7 +215,7 @@ pub mod property {
             owner.balance += rent_amount;
 
             // Finish turn and persist
-            game = self.finish_turn(game);
+            game = self.finish_turn(game.id);
 
             world.write_model(@game);
             world.write_model(@player);
@@ -214,10 +226,11 @@ pub mod property {
         }
 
 
-        fn buy_house_or_hotel(ref self: ContractState, mut property: Property) -> bool {
+        fn buy_house_or_hotel(ref self: ContractState, property_id: u8, game_id: u256) -> bool {
             let mut world = self.world_default();
             let caller = get_caller_address();
-            let mut player: GamePlayer = world.read_model((caller, property.game_id));
+            let mut player: GamePlayer = world.read_model((caller, game_id));
+            let mut property: Property = world.read_model((property_id, game_id));
 
             assert(property.owner == caller, 'Only the owner can develop');
             assert(!property.is_mortgaged, 'Property is mortgaged');
@@ -293,11 +306,12 @@ pub mod property {
             true
         }
 
-        fn finish_turn(ref self: ContractState, mut game: Game) -> Game {
+        fn finish_turn(ref self: ContractState, game_id: u256) -> Game {
             let mut world = self.world_default();
             let caller = get_caller_address();
             let mut index = 0;
             let mut current_index = 0;
+            let mut game: Game = world.read_model(game_id);
             let players_len = game.game_players.len();
 
             while index < players_len {
