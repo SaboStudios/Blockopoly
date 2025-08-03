@@ -9,17 +9,6 @@ pub struct GameCounter {
     pub current_val: u256,
 }
 
-#[derive(Serde, Copy, Drop, Introspect, PartialEq)]
-#[dojo::model]
-pub struct GameBalance {
-    #[key]
-    pub playe_address: ContractAddress,
-    #[key]
-    pub game_id: u256,
-    pub balance: u256,
-}
-
-
 #[derive(Drop, Clone, Serde)]
 #[dojo::model]
 pub struct Game {
@@ -194,14 +183,3 @@ impl GameImpl of GameTrait {
     }
 }
 
-
-#[generate_trait]
-pub impl GameBalanceImpl of IGameBalance {
-    fn deduct_game_balance(ref self: GameBalance, amount: u256) -> bool {
-        true
-    }
-
-    fn increase_game_balance(ref self: GameBalance, amount: u256) -> bool {
-        true
-    }
-}

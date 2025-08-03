@@ -1,11 +1,5 @@
-use blockopoly::model::player_model::{
-    AddressToUsername, IsRegistered, Player, PlayerTrait, UsernameToAddress,
-};
-use blockopoly::model::property_model::{
-    IdToProperty, Property, PropertyToId, PropertyTrait, PropertyType, TradeCounter, TradeOffer,
-    TradeOfferDetails, TradeStatus,
-};
 use starknet::ContractAddress;
+ use blockopoly::model::property_model::TradeOfferDetails;
 // define the interface
 #[starknet::interface]
 pub trait ITrade<T> {
@@ -34,37 +28,35 @@ pub trait ITrade<T> {
     ) -> u256;
     fn approve_counter_trade(ref self: T, trade_id: u256) -> bool;
     fn get_trade(self: @T, trade_id: u256) -> TradeOfferDetails;
-    fn create_trade_id(ref self: T) -> u256;
+    
 }
 
 // dojo decorator
 #[dojo::contract]
 pub mod trade {
-    use blockopoly::model::game_model::{
-        Game, GameBalance, GameCounter, GameStatus, GameTrait, GameType, IGameBalance,
+    use blockopoly::model::property_model::{
+        Property, TradeCounter, TradeOffer, TradeStatus,
     };
-    use blockopoly::model::game_player_model::{GamePlayer, GamePlayerTrait, PlayerSymbol};
-    use dojo::event::EventStorage;
+
+    use blockopoly::model::game_model::{Game, GameStatus};
+    use blockopoly::model::game_player_model::{GamePlayer};
+
+    // use dojo::event::EventStorage;
+
     use dojo::model::ModelStorage;
-    use starknet::{
-        ContractAddress, contract_address_const, get_block_timestamp, get_caller_address,
-    };
-    use super::{
-        AddressToUsername, ITrade, IdToProperty, IsRegistered, Player, PlayerTrait, Property,
-        PropertyToId, PropertyTrait, PropertyType, TradeCounter, TradeOffer, TradeOfferDetails,
-        TradeStatus, UsernameToAddress,
-    };
+    use starknet::{ContractAddress, get_caller_address};
+    use super::{ITrade, TradeOfferDetails};
 
 
-    #[derive(Copy, Drop, Serde)]
-    #[dojo::event]
-    pub struct PlayerCreated {
-        #[key]
-        pub username: felt252,
-        #[key]
-        pub player: ContractAddress,
-        pub timestamp: u64,
-    }
+    // #[derive(Copy, Drop, Serde)]
+    // #[dojo::event]
+    // pub struct PlayerCreated {
+    //     #[key]
+    //     pub username: felt252,
+    //     #[key]
+    //     pub player: ContractAddress,
+    //     pub timestamp: u64,
+    // }
 
     #[abi(embed_v0)]
     impl TradeImpl of ITrade<ContractState> {
@@ -236,7 +228,7 @@ pub mod trade {
                             new_properties_owned.append(owned_prop_id);
                         }
                         j += 1;
-                    }
+                    };
 
                     // Assign back the new array
                     initiator.properties_owned = new_properties_owned;
@@ -272,7 +264,7 @@ pub mod trade {
                     world.write_model(@property);
 
                     i += 1;
-                }
+                };
 
                 // Transfer cash from receiver to initiator
                 assert!(receiver.balance >= offer.cash_request, "Receiver has insufficient cash");
@@ -304,7 +296,7 @@ pub mod trade {
                             new_properties_owned.append(owned_prop_id);
                         }
                         k += 1;
-                    }
+                    };
                     initiator.properties_owned = new_properties_owned;
 
                     // Add to receiver properties_owned
@@ -352,7 +344,7 @@ pub mod trade {
                     world.write_model(@property);
 
                     i += 1;
-                }
+                };
 
                 // Transfer requested properties from receiver to initiator
                 let mut j = 0;
@@ -375,7 +367,7 @@ pub mod trade {
                             new_properties_owned.append(owned_prop_id);
                         }
                         l += 1;
-                    }
+                    };
                     receiver.properties_owned = new_properties_owned;
 
                     // Add to initiator properties_owned
@@ -423,7 +415,7 @@ pub mod trade {
                     world.write_model(@property);
 
                     j += 1;
-                }
+                };
 
                 // Write updated players
                 world.write_model(@initiator);
@@ -455,7 +447,7 @@ pub mod trade {
                             new_properties_owned.append(owned_prop_id);
                         }
                         l += 1;
-                    }
+                    };
                     receiver.properties_owned = new_properties_owned;
 
                     // Add to initiator properties_owned
@@ -503,7 +495,7 @@ pub mod trade {
                     world.write_model(@property);
 
                     j += 1;
-                }
+                };
 
                 // Write updated players
                 world.write_model(@initiator);
@@ -530,7 +522,7 @@ pub mod trade {
                             new_properties_owned.append(owned_prop_id);
                         }
                         k += 1;
-                    }
+                    };
                     initiator.properties_owned = new_properties_owned;
 
                     // Add to receiver properties_owned
@@ -578,7 +570,7 @@ pub mod trade {
                     world.write_model(@property);
 
                     i += 1;
-                }
+                };
 
                 // Transfer cash from initiator to receiver
                 assert!(initiator.balance >= offer.cash_offer, "Initiator has insufficient cash");
@@ -606,7 +598,7 @@ pub mod trade {
                             new_properties_owned.append(owned_prop_id);
                         }
                         l += 1;
-                    }
+                    };
                     receiver.properties_owned = new_properties_owned;
 
                     // Add to initiator properties_owned
@@ -654,7 +646,7 @@ pub mod trade {
                     world.write_model(@property);
 
                     j += 1;
-                }
+                };
 
                 // Write updated players
                 world.write_model(@initiator);
@@ -681,7 +673,7 @@ pub mod trade {
                             new_properties_owned.append(owned_prop_id);
                         }
                         k += 1;
-                    }
+                    };
                     initiator.properties_owned = new_properties_owned;
 
                     // Add to receiver properties_owned
@@ -729,7 +721,7 @@ pub mod trade {
                     world.write_model(@property);
 
                     i += 1;
-                }
+                };
 
                 // Transfer cash from receiver to initiator
                 assert!(receiver.balance >= offer.cash_request, "Receiver has insufficient cash");
@@ -757,7 +749,7 @@ pub mod trade {
                             new_properties_owned.append(owned_prop_id);
                         }
                         l += 1;
-                    }
+                    };
                     receiver.properties_owned = new_properties_owned;
 
                     // Add to initiator properties_owned
@@ -805,7 +797,7 @@ pub mod trade {
                     world.write_model(@property);
 
                     j += 1;
-                }
+                };
 
                 // Write updated players
                 world.write_model(@initiator);
@@ -890,14 +882,7 @@ pub mod trade {
             true
         }
 
-        fn create_trade_id(ref self: ContractState) -> u256 {
-            let mut world = self.world_default();
-            let mut trade_counter: TradeCounter = world.read_model('v0');
-            let new_val = trade_counter.current_val + 1;
-            trade_counter.current_val = new_val;
-            world.write_model(@trade_counter);
-            new_val
-        }
+     
     }
 
     #[generate_trait]
@@ -906,6 +891,15 @@ pub mod trade {
         /// can't be const.
         fn world_default(self: @ContractState) -> dojo::world::WorldStorage {
             self.world(@"blockopoly")
+        }
+
+           fn create_trade_id(ref self: ContractState) -> u256 {
+            let mut world = self.world_default();
+            let mut trade_counter: TradeCounter = world.read_model('v0');
+            let new_val = trade_counter.current_val + 1;
+            trade_counter.current_val = new_val;
+            world.write_model(@trade_counter);
+            new_val
         }
     }
 }

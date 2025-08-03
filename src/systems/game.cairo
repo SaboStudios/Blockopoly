@@ -1,69 +1,26 @@
-use blockopoly::model::game_model::{
-    Game, GameBalance, GameCounter, GameStatus, GameTrait, GameType, IGameBalance,
-};
-use blockopoly::model::game_player_model::{GamePlayer, GamePlayerTrait, PlayerSymbol};
-use blockopoly::model::player_model::{
-    AddressToUsername, IsRegistered, Player, PlayerTrait, UsernameToAddress,
-};
+use blockopoly::model::game_model::{Game, GameCounter, GameStatus, GameTrait, GameType};
+use blockopoly::model::game_player_model::{GamePlayer, PlayerSymbol};
+use blockopoly::model::player_model::{AddressToUsername, Player};
 use blockopoly::model::property_model::{
-    IdToProperty, Property, PropertyToId, PropertyTrait, PropertyType, TradeCounter, TradeOffer,
-    TradeOfferDetails, TradeStatus,
+    IdToProperty, Property, PropertyToId, PropertyTrait, PropertyType,
 };
 use starknet::ContractAddress;
+
+
 // define the interface
 #[starknet::interface]
 pub trait IGame<T> {
     // 🎮 GameSystem - Game creation and lifecycle
-    fn create_new_game(
-        ref self: T, game_type: GameType, player_symbol: PlayerSymbol, number_of_players: u8,
-    ) -> u256;
-    fn join_game(ref self: T, player_symbol: PlayerSymbol, game_id: u256);
     fn create_game(ref self: T, game_type: u8, player_symbol: u8, number_of_players: u8) -> u256;
-    fn join_game_by_symbol(ref self: T, player_symbol: u8, game_id: u256);
+    fn join_game(ref self: T, player_symbol: u8, game_id: u256);
 
     fn start_game(ref self: T, game_id: u256) -> bool;
-
     fn end_game(ref self: T, game_id: u256) -> ContractAddress;
     fn retrieve_game(self: @T, game_id: u256) -> Game;
+
     fn mint(ref self: T, recepient: ContractAddress, game_id: u256, amount: u256);
-    fn get_winner_by_net_worth(ref self: T, game_id: u256) -> ContractAddress;
-    fn calculate_net_worth(ref self: T, player_address: ContractAddress, game_id: u256) -> u256;
-
-    fn assert_player_not_already_joined(ref self: T, game: Game, username: felt252);
-
-    fn try_join_symbol(
-        ref self: T, game: Game, symbol: PlayerSymbol, username: felt252, game_id: u256,
-    );
-
-    fn count_joined_players(ref self: T, game_id: u256) -> u8;
-    fn generate_community_chest_deck(ref self: T) -> Array<ByteArray>;
-
-    fn create_new_game_id(ref self: T) -> u256;
-    fn generate_chance_deck(ref self: T) -> Array<ByteArray>;
-
-    fn generate_properties(
-        ref self: T,
-        id: u8,
-        game_id: u256,
-        name: felt252,
-        cost_of_property: u256,
-        property_type: PropertyType,
-        rent_site_only: u256,
-        rent_one_house: u256,
-        rent_two_houses: u256,
-        rent_three_houses: u256,
-        rent_four_houses: u256,
-        cost_of_house: u256,
-        rent_hotel: u256,
-        is_mortgaged: bool,
-        group_id: u8,
-        owner: ContractAddress,
-    );
-
-    fn generate_board_tiles(ref self: T, game_id: u256);
 
     fn get_game_player(self: @T, address: ContractAddress, game_id: u256) -> GamePlayer;
-
     fn get_game_player_balance(self: @T, address: ContractAddress, game_id: u256) -> u256;
 }
 
@@ -74,13 +31,10 @@ pub mod game {
     use dojo::model::ModelStorage;
     use starknet::{
         ContractAddress, contract_address_const, get_block_timestamp, get_caller_address,
-        get_contract_address,
     };
     use super::{
-        AddressToUsername, Game, GameBalance, GameCounter, GamePlayer, GamePlayerTrait, GameStatus,
-        GameTrait, GameType, IGame, IGameBalance, IdToProperty, Player, PlayerSymbol, Property,
-        PropertyToId, PropertyTrait, PropertyType, TradeCounter, TradeOffer, TradeOfferDetails,
-        TradeStatus,
+        AddressToUsername, Game, GameCounter, GamePlayer, GameStatus, GameTrait, GameType, IGame,
+        IdToProperty, Player, PlayerSymbol, Property, PropertyToId, PropertyTrait, PropertyType,
     };
 
     #[derive(Copy, Drop, Serde)]
@@ -113,6 +67,139 @@ pub mod game {
     #[abi(embed_v0)]
     impl GameImpl of IGame<ContractState> {
         // to stay and call models
+        fn retrieve_game(self: @ContractState, game_id: u256) -> Game {
+            // Get default world
+            let mut world = self.world_default();
+            //get the game state
+            let game: Game = world.read_model(game_id);
+            game
+        }
+        fn create_game(
+            ref self: ContractState, game_type: u8, player_symbol: u8, number_of_players: u8,
+        ) -> u256 {
+            let player_symbol_enum = match player_symbol {
+                0 => PlayerSymbol::Hat,
+                1 => PlayerSymbol::Car,
+                2 => PlayerSymbol::Dog,
+                3 => PlayerSymbol::Thimble,
+                4 => PlayerSymbol::Iron,
+                5 => PlayerSymbol::Battleship,
+                6 => PlayerSymbol::Boot,
+                7 => PlayerSymbol::Wheelbarrow,
+                _ => panic!("Invalid player symbol"),
+            };
+
+            let game_type_enum = match game_type {
+                0 => GameType::PublicGame,
+                1 => GameType::PrivateGame,
+                _ => panic!("Invalid game type"),
+            };
+
+            let game_id = self
+                .create_new_game(game_type_enum, player_symbol_enum, number_of_players);
+            game_id
+        }
+
+        fn join_game(ref self: ContractState, player_symbol: u8, game_id: u256) {
+            let player_symbol_enum = match player_symbol {
+                0 => PlayerSymbol::Hat,
+                1 => PlayerSymbol::Car,
+                2 => PlayerSymbol::Dog,
+                3 => PlayerSymbol::Thimble,
+                4 => PlayerSymbol::Iron,
+                5 => PlayerSymbol::Battleship,
+                6 => PlayerSymbol::Boot,
+                7 => PlayerSymbol::Wheelbarrow,
+                _ => panic!("Invalid player symbol"),
+            };
+
+            self.join(player_symbol_enum, game_id);
+        }
+
+        fn start_game(ref self: ContractState, game_id: u256) -> bool {
+            let mut world = self.world_default();
+            let mut game: Game = world.read_model(game_id);
+
+            assert(game.status == GameStatus::Pending, 'GAME NOT PENDING');
+
+            game.status = GameStatus::Ongoing;
+            game.next_player = get_caller_address();
+
+            let len = game.game_players.len();
+            let mut i = 0;
+            while i < len {
+                self.mint(*game.game_players[i], 1, 1500);
+                i += 1;
+            };
+            world.write_model(@game);
+            true
+        }
+
+        fn mint(ref self: ContractState, recepient: ContractAddress, game_id: u256, amount: u256) {
+            let mut world = self.world_default();
+            let mut player: GamePlayer = world.read_model((recepient, game_id));
+            player.balance += amount;
+            world.write_model(@player);
+        }
+
+        fn end_game(ref self: ContractState, game_id: u256) -> ContractAddress {
+            let mut world = self.world_default();
+            let mut players: Array<GamePlayer> = ArrayTrait::new();
+
+            let mut game: Game = world.read_model(game_id);
+            let total_players = game.game_players.len();
+            let mut i = 0;
+
+            // Indexed loop over game.players
+            while i < total_players {
+                let player_address = game.game_players.at(i);
+                let player_model: GamePlayer = world.read_model((*player_address, game.id));
+
+                players.append(player_model);
+                i += 1;
+            };
+
+            // Find the winner by net worth
+            let winner_address = self.get_winner_by_net_worth(game.id);
+            let winner: Player = world.read_model(winner_address);
+
+            // Set game status to ended
+            let mut updated_game = game;
+            updated_game.status = GameStatus::Ended;
+            updated_game.winner = winner.address;
+
+            // Write back the updated game state
+            world.write_model(@updated_game);
+
+            // Return the winner's address
+            winner.address
+        }
+
+
+        fn get_game_player(
+            self: @ContractState, address: ContractAddress, game_id: u256,
+        ) -> GamePlayer {
+            let mut world = self.world_default();
+            let player: GamePlayer = world.read_model((address, game_id));
+            player
+        }
+        fn get_game_player_balance(
+            self: @ContractState, address: ContractAddress, game_id: u256,
+        ) -> u256 {
+            let mut world = self.world_default();
+            let player: GamePlayer = world.read_model((address, game_id));
+            player.balance
+        }
+    }
+
+    #[generate_trait]
+    impl InternalImpl of InternalTrait {
+        /// Use the default namespace "dojo_starter". This function is handy since the ByteArray
+        /// can't be const.
+        fn world_default(self: @ContractState) -> dojo::world::WorldStorage {
+            self.world(@"blockopoly")
+        }
+
         fn create_new_game(
             ref self: ContractState,
             game_type: GameType,
@@ -130,7 +217,6 @@ pub mod game {
             let caller_username = caller_username1.username;
 
             let game_id = self.create_new_game_id();
-            let mut player: GamePlayer = world.read_model((caller_address, game_id));
             let timestamp = get_block_timestamp();
 
             // Initialize player symbols
@@ -198,59 +284,34 @@ pub mod game {
             game_id
         }
 
-        fn retrieve_game(self: @ContractState, game_id: u256) -> Game {
-            // Get default world
+        fn get_winner_by_net_worth(ref self: ContractState, game_id: u256) -> ContractAddress {
             let mut world = self.world_default();
-            //get the game state
-            let game: Game = world.read_model(game_id);
-            game
-        }
-        fn create_game(
-            ref self: ContractState, game_type: u8, player_symbol: u8, number_of_players: u8,
-        ) -> u256 {
-            let player_symbol_enum = match player_symbol {
-                0 => PlayerSymbol::Hat,
-                1 => PlayerSymbol::Car,
-                2 => PlayerSymbol::Dog,
-                3 => PlayerSymbol::Thimble,
-                4 => PlayerSymbol::Iron,
-                5 => PlayerSymbol::Battleship,
-                6 => PlayerSymbol::Boot,
-                7 => PlayerSymbol::Wheelbarrow,
-                _ => panic!("Invalid player symbol"),
+            let mut game: Game = world.read_model(game_id);
+            let total_players = game.game_players.len();
+
+            let mut i = 0;
+            let mut max_net_worth: u256 = 0;
+            let mut winner_address: ContractAddress = contract_address_const::<'0'>();
+
+            while i < total_players {
+                let player_address = game.game_players.at(i);
+                let player: GamePlayer = world.read_model((*player_address, game.id));
+                let net_worth = self.calculate_net_worth(player.address, player.game_id);
+
+                if net_worth > max_net_worth {
+                    max_net_worth = net_worth;
+                    winner_address = player.address;
+                }
+
+                i += 1;
             };
 
-            let game_type_enum = match game_type {
-                0 => GameType::PublicGame,
-                1 => GameType::PrivateGame,
-                _ => panic!("Invalid game type"),
-            };
-
-            let game_id = self
-                .create_new_game(game_type_enum, player_symbol_enum, number_of_players);
-            game_id
+            winner_address
         }
-
-        fn join_game_by_symbol(ref self: ContractState, player_symbol: u8, game_id: u256) {
-            let player_symbol_enum = match player_symbol {
-                0 => PlayerSymbol::Hat,
-                1 => PlayerSymbol::Car,
-                2 => PlayerSymbol::Dog,
-                3 => PlayerSymbol::Thimble,
-                4 => PlayerSymbol::Iron,
-                5 => PlayerSymbol::Battleship,
-                6 => PlayerSymbol::Boot,
-                7 => PlayerSymbol::Wheelbarrow,
-                _ => panic!("Invalid player symbol"),
-            };
-
-            self.join_game(player_symbol_enum, game_id);
-        }
-
 
         // Allows a registered player to join a pending game by selecting a symbol.
         // Automatically starts the game once the required number of players have joined.
-        fn join_game(ref self: ContractState, player_symbol: PlayerSymbol, game_id: u256) {
+        fn join(ref self: ContractState, player_symbol: PlayerSymbol, game_id: u256) {
             // Load world state
             let mut world = self.world_default();
 
@@ -275,10 +336,10 @@ pub mod game {
             assert(caller_username != 0, 'PLAYER NOT REGISTERED');
 
             // Ensure the player hasn't already joined under a different symbol
-            self.assert_player_not_already_joined(game.clone(), caller_username);
+            self.assert_player_not_already_joined(game.clone().id, caller_username);
 
             // Attempt to join the game with the selected symbol
-            // self.try_join_symbol(game.clone(), player_symbol, caller_username, game_id);
+            self.try_join_symbol(game.clone().id, player_symbol, caller_username);
 
             // Emit event for player joining
             world
@@ -300,91 +361,6 @@ pub mod game {
 
             // Persist the updated game state
             world.write_model(@game);
-        }
-
-
-        fn start_game(ref self: ContractState, game_id: u256) -> bool {
-            let mut world = self.world_default();
-            let mut game: Game = world.read_model(game_id);
-
-            assert(game.status == GameStatus::Pending, 'GAME NOT PENDING');
-
-            game.status = GameStatus::Ongoing;
-            game.next_player = get_caller_address();
-
-            let len = game.game_players.len();
-            let mut i = 0;
-            while i < len {
-                self.mint(*game.game_players[i], 1, 1500);
-                i += 1;
-            }
-            world.write_model(@game);
-            true
-        }
-
-        fn mint(ref self: ContractState, recepient: ContractAddress, game_id: u256, amount: u256) {
-            let mut world = self.world_default();
-            let mut player: GamePlayer = world.read_model((recepient, game_id));
-            player.balance += amount;
-            world.write_model(@player);
-        }
-
-        fn end_game(ref self: ContractState, game_id: u256) -> ContractAddress {
-            let mut world = self.world_default();
-            let mut players: Array<GamePlayer> = ArrayTrait::new();
-
-            let mut game: Game = world.read_model(game_id);
-            let total_players = game.game_players.len();
-            let mut i = 0;
-
-            // Indexed loop over game.players
-            while i < total_players {
-                let player_address = game.game_players.at(i);
-                let player_model: GamePlayer = world.read_model((*player_address, game.id));
-
-                players.append(player_model);
-                i += 1;
-            }
-
-            // Find the winner by net worth
-            let winner_address = self.get_winner_by_net_worth(game.id);
-            let winner: Player = world.read_model(winner_address);
-
-            // Set game status to ended
-            let mut updated_game = game;
-            updated_game.status = GameStatus::Ended;
-            updated_game.winner = winner.address;
-
-            // Write back the updated game state
-            world.write_model(@updated_game);
-
-            // Return the winner's address
-            winner.address
-        }
-
-        fn get_winner_by_net_worth(ref self: ContractState, game_id: u256) -> ContractAddress {
-            let mut world = self.world_default();
-            let mut game: Game = world.read_model(game_id);
-            let total_players = game.game_players.len();
-
-            let mut i = 0;
-            let mut max_net_worth: u256 = 0;
-            let mut winner_address: ContractAddress = contract_address_const::<'0'>();
-
-            while i < total_players {
-                let player_address = game.game_players.at(i);
-                let player: GamePlayer = world.read_model((*player_address, game.id));
-                let net_worth = self.calculate_net_worth(player.address, player.game_id);
-
-                if net_worth > max_net_worth {
-                    max_net_worth = net_worth;
-                    winner_address = player.address;
-                }
-
-                i += 1;
-            }
-
-            winner_address
         }
 
 
@@ -432,7 +408,7 @@ pub mod game {
                 total_rent_value += rent;
 
                 i += 1;
-            }
+            };
 
             // Jail/Chance card value
             if player.chance_jail_card {
@@ -448,20 +424,15 @@ pub mod game {
                 + total_rent_value
                 + card_value;
 
-            // Debug prints
-            // println!("Balance: {}", player.balance);
-            // println!("Total property value: {}", total_property_value);
-            // println!("Total house cost: {}", total_house_cost);
-            // println!("Total rent value: {}", total_rent_value);
-            // println!("Card value: {}", card_value);
-            // println!("NET WORTH: {}", net_worth);
-
             net_worth
         }
 
         fn assert_player_not_already_joined(
-            ref self: ContractState, game: Game, username: felt252,
+            ref self: ContractState, game_id: u256, username: felt252,
         ) {
+            let mut world = self.world_default();
+            let game: Game = world.read_model(game_id);
+
             assert(game.player_hat != username, 'ALREADY SELECTED HAT');
             assert(game.player_car != username, 'ALREADY SELECTED CAR');
             assert(game.player_dog != username, 'ALREADY SELECTED DOG');
@@ -473,12 +444,11 @@ pub mod game {
         }
 
         fn try_join_symbol(
-            ref self: ContractState,
-            mut game: Game,
-            symbol: PlayerSymbol,
-            username: felt252,
-            game_id: u256,
+            ref self: ContractState, game_id: u256, symbol: PlayerSymbol, username: felt252,
         ) {
+            let mut world = self.world_default();
+            let mut game: Game = world.read_model(game_id);
+
             match symbol {
                 PlayerSymbol::Hat => {
                     assert(game.player_hat == 0, 'HAT already selected');
@@ -515,14 +485,13 @@ pub mod game {
             }
         }
 
-        fn count_joined_players(ref self: ContractState, mut game_id: u256) -> u8 {
+        fn count_joined_players(ref self: ContractState, game_id: u256) -> u8 {
             let mut count: u8 = 0;
             let mut world = self.world_default();
             let game: Game = world.read_model(game_id);
 
             if game.player_hat != 0 {
-                count += 1; // self.transfer_funds(caller, property.rent_site_only);
-                // self.credit_owner(property.owner, property.rent_site_only);
+                count += 1;
             }
             if game.player_car != 0 {
                 count += 1;
@@ -657,8 +626,6 @@ pub mod game {
         }
 
         fn generate_board_tiles(ref self: ContractState, game_id: u256) {
-            let mut world = self.world_default();
-            let contract_address = get_contract_address();
             let bank: ContractAddress = contract_address_const::<0>();
 
             self
@@ -1374,30 +1341,6 @@ pub mod game {
                     8,
                     bank,
                 );
-        }
-
-        fn get_game_player(
-            self: @ContractState, address: ContractAddress, game_id: u256,
-        ) -> GamePlayer {
-            let mut world = self.world_default();
-            let player: GamePlayer = world.read_model((address, game_id));
-            player
-        }
-        fn get_game_player_balance(
-            self: @ContractState, address: ContractAddress, game_id: u256,
-        ) -> u256 {
-            let mut world = self.world_default();
-            let player: GamePlayer = world.read_model((address, game_id));
-            player.balance
-        }
-    }
-
-    #[generate_trait]
-    impl InternalImpl of InternalTrait {
-        /// Use the default namespace "dojo_starter". This function is handy since the ByteArray
-        /// can't be const.
-        fn world_default(self: @ContractState) -> dojo::world::WorldStorage {
-            self.world(@"blockopoly")
         }
     }
 }

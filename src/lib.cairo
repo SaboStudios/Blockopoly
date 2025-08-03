@@ -1,9 +1,9 @@
 pub mod systems {
-    // pub mod player;
+    pub mod player;
     pub mod game;
-    // pub mod movement;
-// pub mod property;
-// pub mod trade;
+    pub mod movement;
+    pub mod property;
+    pub mod trade;
 }
 
 pub mod model {

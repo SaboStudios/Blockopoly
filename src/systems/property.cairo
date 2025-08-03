@@ -1,14 +1,5 @@
-use blockopoly::model::game_model::{
-    Game, GameBalance, GameCounter, GameStatus, GameTrait, GameType, IGameBalance,
-};
-use blockopoly::model::player_model::{
-    AddressToUsername, IsRegistered, Player, PlayerTrait, UsernameToAddress,
-};
-use blockopoly::model::property_model::{
-    IdToProperty, Property, PropertyToId, PropertyTrait, PropertyType, TradeCounter, TradeOffer,
-    TradeOfferDetails, TradeStatus,
-};
-use starknet::ContractAddress;
+use blockopoly::model::property_model::{Property, PropertyType, PropertyTrait};
+use blockopoly::model::game_model::{Game, GameStatus};
 // define the interface
 #[starknet::interface]
 pub trait IProperty<T> {
@@ -25,28 +16,26 @@ pub trait IProperty<T> {
 // dojo decorator
 #[dojo::contract]
 pub mod property {
-    use blockopoly::model::game_player_model::{GamePlayer, GamePlayerTrait, PlayerSymbol};
-    use dojo::event::EventStorage;
-    use dojo::model::ModelStorage;
     use starknet::{
-        ContractAddress, contract_address_const, get_block_timestamp, get_caller_address,
-        get_contract_address,
+        ContractAddress, contract_address_const, get_caller_address,
     };
-    use super::{
-        Game, GameBalance, GameCounter, GameStatus, GameTrait, GameType, IGameBalance, IProperty,
-        IdToProperty, Player, Property, PropertyToId, PropertyTrait, PropertyType, TradeCounter,
-        TradeOffer, TradeOfferDetails, TradeStatus,
-    };
+    
+    use blockopoly::model::game_player_model::GamePlayer;
+    // use blockopoly::model::player_model::Player;
+    use super::{IProperty, Property, PropertyType, PropertyTrait, Game, GameStatus};
 
-    #[derive(Copy, Drop, Serde)]
-    #[dojo::event]
-    pub struct PlayerCreated {
-        #[key]
-        pub username: felt252,
-        #[key]
-        pub player: ContractAddress,
-        pub timestamp: u64,
-    }
+    // use dojo::event::EventStorage;
+    use dojo::model::ModelStorage;
+
+    // #[derive(Copy, Drop, Serde)]
+    // #[dojo::event]
+    // pub struct PlayerCreated {
+    //     #[key]
+    //     pub username: felt252,
+    //     #[key]
+    //     pub player: ContractAddress,
+    //     pub timestamp: u64,
+    // }
 
     #[abi(embed_v0)]
     impl PropertysImpl of IProperty<ContractState> {
@@ -276,7 +265,7 @@ pub mod property {
                     );
                 }
                 i += 1;
-            }
+            };
 
             // ✅ Passed checks, build
             let cost: u256 = property.cost_of_house;
@@ -301,17 +290,23 @@ pub mod property {
             let mut world = self.world_default();
             let caller = get_caller_address();
             let mut property: Property = world.read_model((property_id, game_id));
-            let contract_address = get_contract_address();
 
             assert(property.owner == caller, 'Only the owner ');
             assert(property.development > 0, 'No houses to sell');
 
             let refund: u256 = property.cost_of_house / 2;
 
-            // self.transfer_from(contract_address, caller, game_id, refund);
+            let mut player: GamePlayer = world.read_model((caller, game_id));
+            player.balance += refund;
 
             property.development -= 1;
+            if property.development < 5 {
+                player.total_houses_owned -= 1;
+            } else {
+                player.total_hotels_owned -= 1;
+            }
 
+            world.write_model(@player);
             world.write_model(@property);
 
             true
@@ -332,7 +327,7 @@ pub mod property {
                     break;
                 }
                 index += 1;
-            }
+            };
 
             let next_index = (current_index + 1) % players_len;
             game.next_player = *game.game_players.at(next_index);
@@ -354,16 +349,6 @@ pub mod property {
             self.world(@"blockopoly")
         }
 
-        fn create_trade_id(ref self: ContractState) -> u256 {
-            let mut world = self.world_default();
-            let mut trade_counter: TradeCounter = world.read_model('v0');
-            let new_val = trade_counter.current_val + 1;
-            trade_counter.current_val = new_val;
-            world.write_model(@trade_counter);
-            new_val
-        }
-
-
         fn get_properties_by_group(
             ref self: ContractState, group_id: u8, game_id: u256,
         ) -> Array<Property> {
@@ -377,7 +362,7 @@ pub mod property {
                     group_properties.append(prop);
                 }
                 i += 1;
-            }
+            };
 
             group_properties
         }
@@ -393,7 +378,7 @@ pub mod property {
                     count += 1;
                 }
                 i += 1;
-            }
+            };
             count
         }
 
@@ -409,7 +394,7 @@ pub mod property {
                     count += 1;
                 }
                 i += 1;
-            }
+            };
             count
         }
     }

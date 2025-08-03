@@ -1,8 +1,3 @@
-use blockopoly::model::game_player_model::{GamePlayer, GamePlayerTrait, PlayerSymbol};
-use blockopoly::model::player_model::{
-    AddressToUsername, IsRegistered, Player, PlayerTrait, UsernameToAddress,
-};
-use blockopoly::model::property_model::Property;
 use starknet::ContractAddress;
 // define the interface
 #[starknet::interface]
@@ -12,43 +7,32 @@ pub trait IMovement<T> {
     fn pay_jail_fine(ref self: T, game_id: u256) -> bool;
     fn use_getout_of_jail_chance(ref self: T, game_id: u256) -> bool;
     fn use_getout_of_jail_community_chest(ref self: T, game_id: u256) -> bool;
-    fn count_owner_railroadss(ref self: T, owner: ContractAddress, game_id: u256) -> u8;
 
-    fn count_owner_utilitiess(ref self: T, owner: ContractAddress, game_id: u256) -> u8;
     fn current_player(self: @T, game_id: u256) -> ContractAddress;
     fn current_playername(self: @T, game_id: u256) -> felt252;
-    //   fn handle_property_landing(
-//     ref self: T, player: GamePlayer,  property: Property,
-// ) -> Property;
 }
 
 // dojo decorator
 #[dojo::contract]
 pub mod movement {
-    use blockopoly::model::game_model::{
-        Game, GameBalance, GameCounter, GameStatus, GameTrait, GameType, IGameBalance,
-    };
-    use blockopoly::model::property_model::{
-        IdToProperty, Property, PropertyToId, PropertyTrait, PropertyType, TradeCounter, TradeOffer,
-        TradeOfferDetails, TradeStatus,
-    };
-    use dojo::event::EventStorage;
-    use dojo::model::ModelStorage;
-    use starknet::{
-        ContractAddress, contract_address_const, get_block_timestamp, get_caller_address,
-        get_contract_address,
-    };
-    use super::{GamePlayer, GamePlayerTrait, PlayerSymbol};
+    use blockopoly::model::game_model::{Game, GameStatus};
+    use blockopoly::model::game_player_model::{GamePlayer, GamePlayerTrait};
+    use blockopoly::model::player_model::AddressToUsername;
+    use blockopoly::model::property_model::{Property, PropertyType};
 
-    #[derive(Copy, Drop, Serde)]
-    #[dojo::event]
-    pub struct PlayerCreated {
-        #[key]
-        pub username: felt252,
-        #[key]
-        pub player: ContractAddress,
-        pub timestamp: u64,
-    }
+    // use dojo::event::EventStorage;
+    use dojo::model::ModelStorage;
+    use starknet::{ContractAddress, get_caller_address};
+
+    // #[derive(Copy, Drop, Serde)]
+    // #[dojo::event]
+    // pub struct PlayerCreated {
+    //     #[key]
+    //     pub username: felt252,
+    //     #[key]
+    //     pub player: ContractAddress,
+    //     pub timestamp: u64,
+    // }
 
     #[abi(embed_v0)]
     impl MovementImpl of super::IMovement<ContractState> {
@@ -169,6 +153,28 @@ pub mod movement {
             true
         }
 
+        fn current_player(self: @ContractState, game_id: u256) -> ContractAddress {
+            let mut world = self.world_default();
+            let game: Game = world.read_model(game_id);
+            game.next_player
+        }
+
+        fn current_playername(self: @ContractState, game_id: u256) -> felt252 {
+            let mut world = self.world_default();
+            let game: Game = world.read_model(game_id);
+            let player: AddressToUsername = world.read_model(game.next_player);
+            player.username
+        }
+    }
+
+    #[generate_trait]
+    impl InternalImpl of InternalTrait {
+        /// Use the default namespace "dojo_starter". This function is handy since the ByteArray
+        /// can't be const.
+        fn world_default(self: @ContractState) -> dojo::world::WorldStorage {
+            self.world(@"blockopoly")
+        }
+
         fn count_owner_railroadss(
             ref self: ContractState, owner: ContractAddress, game_id: u256,
         ) -> u8 {
@@ -180,7 +186,7 @@ pub mod movement {
                     count += 1;
                 }
                 i += 1;
-            }
+            };
             count
         }
 
@@ -196,122 +202,8 @@ pub mod movement {
                     count += 1;
                 }
                 i += 1;
-            }
+            };
             count
-        }
-
-        fn current_player(self: @ContractState, game_id: u256) -> ContractAddress {
-            let mut world = self.world_default();
-            let game: Game = world.read_model(game_id);
-            game.next_player
-        }
-
-        fn current_playername(self: @ContractState, game_id: u256) -> felt252 {
-            let mut world = self.world_default();
-            let game: Game = world.read_model(game_id);
-            let player: GamePlayer = world.read_model((game.next_player, game_id));
-            player.username
-        }
-        //   fn handle_property_landing(
-    //     ref self: ContractState, player: GamePlayer, mut property: Property,
-    // ) -> Property {
-    //     let caller = get_caller_address();
-    //     let bank_address = get_contract_address();
-
-        //     match property.property_type {
-    //         PropertyType::CommunityChest => {
-    //             println!(
-    //                 "Player {:?} landed on Community Chest '{}'. Drawing a card...",
-    //                 caller,
-    //                 property.name,
-    //             );
-    //             // you could call self.draw_community_chest_card() here
-    //         },
-    //         PropertyType::Chance => {
-    //             println!(
-    //                 "Player {:?} landed on Chance '{}'. Drawing a card...",
-    //                 caller,
-    //                 property.name,
-    //             );
-    //             // you could call self.draw_chance_card() here
-    //         },
-    //         _ => {
-    //             if property.owner == bank_address {
-    //                 println!(
-    //                     "This property '{}' is owned by the bank. It costs {}.",
-    //                     property.name,
-    //                     property.cost_of_property,
-    //                 );
-    //             } else if property.owner != caller {
-    //                 // Owned by someone else
-    //                 let owner_railroads = self
-    //                     .count_owner_railroadss(property.owner, property.game_id);
-    //                 let owner_utilities = self
-    //                     .count_owner_utilitiess(property.owner, property.game_id);
-
-        //                 let rent_amount = property
-    //                     .get_rent_amount(
-    //                         owner_railroads, owner_utilities, player.dice_rolled.into(),
-    //                     );
-
-        //                 match property.property_type {
-    //                     PropertyType::RailRoad => {
-    //                         println!(
-    //                             "This railroad '{}' is owned by {:?}. Player {:?} must pay
-    //                             rent: {}.", property.name,
-    //                             property.owner,
-    //                             caller,
-    //                             rent_amount,
-    //                         );
-    //                     },
-    //                     PropertyType::Utility => {
-    //                         println!(
-    //                             "This utility '{}' is owned by {:?}. Player {:?} must pay
-    //                             rent: {}.", property.name,
-    //                             property.owner,
-    //                             caller,
-    //                             rent_amount,
-    //                         );
-    //                     },
-    //                     PropertyType::Property => {
-    //                         println!(
-    //                             "This property '{}' is owned by {:?}. Player {:?} must pay
-    //                             rent: {}.", property.name,
-    //                             property.owner,
-    //                             caller,
-    //                             rent_amount,
-    //                         );
-    //                     },
-    //                     _ => {
-    //                         println!(
-    //                             "This space '{}' is owned by {:?}. Player {:?} may owe rent:
-    //                             {}.", property.name,
-    //                             property.owner,
-    //                             caller,
-    //                             rent_amount,
-    //                         );
-    //                     },
-    //                 }
-    //             } else {
-    //                 // Player owns this property
-    //                 println!(
-    //                     "Player {:?} landed on their own property '{}'.", caller,
-    //                     property.name,
-    //                 );
-    //             }
-    //         },
-    //     }
-
-        //     property
-    // }
-    }
-
-    #[generate_trait]
-    impl InternalImpl of InternalTrait {
-        /// Use the default namespace "dojo_starter". This function is handy since the ByteArray
-        /// can't be const.
-        fn world_default(self: @ContractState) -> dojo::world::WorldStorage {
-            self.world(@"blockopoly")
         }
     }
 }
