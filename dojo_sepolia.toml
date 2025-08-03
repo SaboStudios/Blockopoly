@@ -4,7 +4,7 @@ description = "The official Dojo Starter guide, the quickest and most streamline
 cover_uri = "file://assets/cover.png"
 icon_uri = "file://assets/icon.png"
 website = "https://github.com/dojoengine/dojo-starter"
-seed = "ideybegyoudeployna"
+seed = "asfad"
 
 [world.socials]
 x = "https://x.com/ohayo_dojo"
@@ -25,8 +25,7 @@ default = "blockopoly"
 
 [writers]
 "blockopoly" = ["blockopoly-game", "blockopoly-movement", "blockopoly-player", "blockopoly-property", "blockopoly-trade"]
-"blockopoly-GameCounter" = ["blockopoly-game", "blockopoly-movement", "blockopoly-player", "blockopoly-property", "blockopoly-trade"]
-"blockopoly-GameBalance" = ["blockopoly-game", "blockopoly-movement", "blockopoly-player", "blockopoly-property", "blockopoly-trade"]
+"blockopoly-GameCounter" = ["blockopoly-game", "blockopoly-movement", "blockopoly-player","blockopoly-property", "blockopoly-trade"]
 "blockopoly-Game" = ["blockopoly-game", "blockopoly-movement", "blockopoly-player", "blockopoly-property", "blockopoly-trade"]
 "blockopoly-GamePlayer" = ["blockopoly-game", "blockopoly-movement", "blockopoly-player", "blockopoly-property", "blockopoly-trade"]
 "blockopoly-Player" = ["blockopoly-game", "blockopoly-movement", "blockopoly-player", "blockopoly-property", "blockopoly-trade"]
@@ -35,7 +34,7 @@ default = "blockopoly"
 "blockopoly-AddressToUsername" = ["blockopoly-game", "blockopoly-movement", "blockopoly-player", "blockopoly-property", "blockopoly-trade"]
 "blockopoly-IsRegistered" = ["blockopoly-game", "blockopoly-movement", "blockopoly-player", "blockopoly-property", "blockopoly-trade"]
 "blockopoly-IdToProperty" = ["blockopoly-game", "blockopoly-movement", "blockopoly-player", "blockopoly-property", "blockopoly-trade"]
-"blockopoly-PropertyToId" = ["blockopoly-game", "blockopoly-movement", "blockopoly-player", "blockopoly-property", "blockopoly-trade"]
+"blockopoly-PropertyToId" = ["blockopoly-game", "blockopoly-movement", "blockopoly-player","blockopoly-property", "blockopoly-trade"]
 "blockopoly-Property" = ["blockopoly-game", "blockopoly-movement", "blockopoly-player", "blockopoly-property", "blockopoly-trade"]
 
 "blockopoly-TradeOfferDetails" = ["blockopoly-game", "blockopoly-movement", "blockopoly-player", "blockopoly-property", "blockopoly-trade"]

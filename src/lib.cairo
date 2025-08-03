@@ -1,7 +1,7 @@
 pub mod systems {
-    pub mod movement;
-    pub mod game;
     pub mod player;
+    pub mod game;
+    pub mod movement;
     pub mod property;
     pub mod trade;
 }

@@ -1,4 +1,6 @@
-use blockopoly::model::player_model::{AddressToUsername, IsRegistered, Player, PlayerTrait, UsernameToAddress};
+use blockopoly::model::player_model::{
+    AddressToUsername, IsRegistered, Player, PlayerTrait, UsernameToAddress,
+};
 use starknet::ContractAddress;
 // define the interface
 #[starknet::interface]

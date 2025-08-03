@@ -251,7 +251,7 @@ pub mod property {
                     );
                 }
                 i += 1;
-            };
+            }
 
             // ✅ Passed checks, build
             let cost: u256 = property.cost_of_house;
@@ -306,7 +306,7 @@ pub mod property {
                     break;
                 }
                 index += 1;
-            };
+            }
 
             let next_index = (current_index + 1) % players_len;
             game.next_player = *game.game_players.at(next_index);
@@ -338,7 +338,7 @@ pub mod property {
                     group_properties.append(prop);
                 }
                 i += 1;
-            };
+            }
 
             group_properties
         }
@@ -354,7 +354,7 @@ pub mod property {
                     count += 1;
                 }
                 i += 1;
-            };
+            }
             count
         }
 
@@ -370,23 +370,27 @@ pub mod property {
                     count += 1;
                 }
                 i += 1;
-            };
+            }
             count
         }
     }
 }
+// "blockopoly" = ["blockopoly-player", "blockopoly-game", "blockopoly-movement",
+// "blockopoly-property", "blockopoly-trade"]
+// "blockopoly-UsernameToAddress" = ["blockopoly-player", "blockopoly-game", "blockopoly-movement",
+// "blockopoly-property", "blockopoly-trade"]
+// "blockopoly-AddressToUsername" = ["blockopoly-player", "blockopoly-game", "blockopoly-movement",
+// "blockopoly-property", "blockopoly-trade"]
+// "blockopoly-IsRegistered" = ["blockopoly-player", "blockopoly-game", "blockopoly-movement",
+// "blockopoly-property", "blockopoly-trade"]
+// "blockopoly-Player" = ["blockopoly-player", "blockopoly-game", "blockopoly-movement",
+// "blockopoly-property", "blockopoly-trade"]
 
+// "blockopoly-GameCounter" = ["blockopoly-player", "blockopoly-game", "blockopoly-movement",
+// "blockopoly-property", "blockopoly-trade"]
+// "blockopoly-Game" = ["blockopoly-player", "blockopoly-game", "blockopoly-movement",
+// "blockopoly-property", "blockopoly-trade"]
+// "blockopoly-GamePlayer" = ["blockopoly-player", "blockopoly-game", "blockopoly-movement",
+// "blockopoly-property", "blockopoly-trade"]
 
-
-
-
-// "blockopoly" = ["blockopoly-player", "blockopoly-game", "blockopoly-movement", "blockopoly-property", "blockopoly-trade"]
-// "blockopoly-UsernameToAddress" = ["blockopoly-player", "blockopoly-game", "blockopoly-movement", "blockopoly-property", "blockopoly-trade"]
-// "blockopoly-AddressToUsername" = ["blockopoly-player", "blockopoly-game", "blockopoly-movement", "blockopoly-property", "blockopoly-trade"]
-// "blockopoly-IsRegistered" = ["blockopoly-player", "blockopoly-game", "blockopoly-movement", "blockopoly-property", "blockopoly-trade"]
-// "blockopoly-Player" = ["blockopoly-player", "blockopoly-game", "blockopoly-movement", "blockopoly-property", "blockopoly-trade"]
-
-// "blockopoly-GameCounter" = ["blockopoly-player", "blockopoly-game", "blockopoly-movement", "blockopoly-property", "blockopoly-trade"]
-// "blockopoly-Game" = ["blockopoly-player", "blockopoly-game", "blockopoly-movement", "blockopoly-property", "blockopoly-trade"]
-// "blockopoly-GamePlayer" = ["blockopoly-player", "blockopoly-game", "blockopoly-movement", "blockopoly-property", "blockopoly-trade"]
 

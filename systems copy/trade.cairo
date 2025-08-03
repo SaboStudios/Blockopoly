@@ -215,7 +215,7 @@ pub mod trade {
                             new_properties_owned.append(owned_prop_id);
                         }
                         j += 1;
-                    };
+                    }
 
                     // Assign back the new array
                     initiator.properties_owned = new_properties_owned;
@@ -251,7 +251,7 @@ pub mod trade {
                     world.write_model(@property);
 
                     i += 1;
-                };
+                }
 
                 // Transfer cash from receiver to initiator
                 assert!(receiver.balance >= offer.cash_request, "Receiver has insufficient cash");
@@ -283,7 +283,7 @@ pub mod trade {
                             new_properties_owned.append(owned_prop_id);
                         }
                         k += 1;
-                    };
+                    }
                     initiator.properties_owned = new_properties_owned;
 
                     // Add to receiver properties_owned
@@ -331,7 +331,7 @@ pub mod trade {
                     world.write_model(@property);
 
                     i += 1;
-                };
+                }
 
                 // Transfer requested properties from receiver to initiator
                 let mut j = 0;
@@ -354,7 +354,7 @@ pub mod trade {
                             new_properties_owned.append(owned_prop_id);
                         }
                         l += 1;
-                    };
+                    }
                     receiver.properties_owned = new_properties_owned;
 
                     // Add to initiator properties_owned
@@ -402,7 +402,7 @@ pub mod trade {
                     world.write_model(@property);
 
                     j += 1;
-                };
+                }
 
                 // Write updated players
                 world.write_model(@initiator);
@@ -434,7 +434,7 @@ pub mod trade {
                             new_properties_owned.append(owned_prop_id);
                         }
                         l += 1;
-                    };
+                    }
                     receiver.properties_owned = new_properties_owned;
 
                     // Add to initiator properties_owned
@@ -482,7 +482,7 @@ pub mod trade {
                     world.write_model(@property);
 
                     j += 1;
-                };
+                }
 
                 // Write updated players
                 world.write_model(@initiator);
@@ -509,7 +509,7 @@ pub mod trade {
                             new_properties_owned.append(owned_prop_id);
                         }
                         k += 1;
-                    };
+                    }
                     initiator.properties_owned = new_properties_owned;
 
                     // Add to receiver properties_owned
@@ -557,7 +557,7 @@ pub mod trade {
                     world.write_model(@property);
 
                     i += 1;
-                };
+                }
 
                 // Transfer cash from initiator to receiver
                 assert!(initiator.balance >= offer.cash_offer, "Initiator has insufficient cash");
@@ -585,7 +585,7 @@ pub mod trade {
                             new_properties_owned.append(owned_prop_id);
                         }
                         l += 1;
-                    };
+                    }
                     receiver.properties_owned = new_properties_owned;
 
                     // Add to initiator properties_owned
@@ -633,7 +633,7 @@ pub mod trade {
                     world.write_model(@property);
 
                     j += 1;
-                };
+                }
 
                 // Write updated players
                 world.write_model(@initiator);
@@ -660,7 +660,7 @@ pub mod trade {
                             new_properties_owned.append(owned_prop_id);
                         }
                         k += 1;
-                    };
+                    }
                     initiator.properties_owned = new_properties_owned;
 
                     // Add to receiver properties_owned
@@ -708,7 +708,7 @@ pub mod trade {
                     world.write_model(@property);
 
                     i += 1;
-                };
+                }
 
                 // Transfer cash from receiver to initiator
                 assert!(receiver.balance >= offer.cash_request, "Receiver has insufficient cash");
@@ -736,7 +736,7 @@ pub mod trade {
                             new_properties_owned.append(owned_prop_id);
                         }
                         l += 1;
-                    };
+                    }
                     receiver.properties_owned = new_properties_owned;
 
                     // Add to initiator properties_owned
@@ -784,7 +784,7 @@ pub mod trade {
                     world.write_model(@property);
 
                     j += 1;
-                };
+                }
 
                 // Write updated players
                 world.write_model(@initiator);

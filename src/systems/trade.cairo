@@ -1,9 +1,5 @@
-use blockopoly::model::property_model::{
-    IdToProperty, Property, PropertyToId, PropertyTrait, PropertyType, TradeCounter, TradeOffer,
-    TradeOfferDetails, TradeStatus,
-};
-use blockopoly::model::player_model::{AddressToUsername, IsRegistered, Player, PlayerTrait, UsernameToAddress};
 use starknet::ContractAddress;
+ use blockopoly::model::property_model::TradeOfferDetails;
 // define the interface
 #[starknet::interface]
 pub trait ITrade<T> {
@@ -16,7 +12,7 @@ pub trait ITrade<T> {
         requested_property_ids: Array<u8>,
         cash_offer: u256,
         cash_request: u256,
-        trade_type: TradeOffer,
+        trade_type: u8,
     ) -> u256;
     fn accept_trade(ref self: T, trade_id: u256, game_id: u256) -> bool;
     fn reject_trade(ref self: T, trade_id: u256, game_id: u256) -> bool;
@@ -28,41 +24,39 @@ pub trait ITrade<T> {
         requested_property_ids: Array<u8>,
         cash_offer: u256,
         cash_request: u256,
-        trade_type: TradeOffer,
+        trade_type: u8,
     ) -> u256;
     fn approve_counter_trade(ref self: T, trade_id: u256) -> bool;
     fn get_trade(self: @T, trade_id: u256) -> TradeOfferDetails;
-    fn create_trade_id(ref self: T) -> u256;
+    
 }
 
 // dojo decorator
 #[dojo::contract]
 pub mod trade {
-    use blockopoly::model::game_model::{
-        Game, GameBalance, GameCounter, GameStatus, GameTrait, GameType, IGameBalance,
+    use blockopoly::model::property_model::{
+        Property, TradeCounter, TradeOffer, TradeStatus,
     };
-    use blockopoly::model::game_player_model::{GamePlayer, GamePlayerTrait, PlayerSymbol};
-    use dojo::event::EventStorage;
+
+    use blockopoly::model::game_model::{Game, GameStatus};
+    use blockopoly::model::game_player_model::{GamePlayer};
+
+    // use dojo::event::EventStorage;
+
     use dojo::model::ModelStorage;
-    use starknet::{
-        ContractAddress, contract_address_const, get_block_timestamp, get_caller_address,
-    };
-    use super::{
-        AddressToUsername, ITrade, IdToProperty, IsRegistered, Player, PlayerTrait, Property,
-        PropertyToId, PropertyTrait, PropertyType, TradeCounter, TradeOffer, TradeOfferDetails,
-        TradeStatus, UsernameToAddress,
-    };
+    use starknet::{ContractAddress, get_caller_address};
+    use super::{ITrade, TradeOfferDetails};
 
 
-    #[derive(Copy, Drop, Serde)]
-    #[dojo::event]
-    pub struct PlayerCreated {
-        #[key]
-        pub username: felt252,
-        #[key]
-        pub player: ContractAddress,
-        pub timestamp: u64,
-    }
+    // #[derive(Copy, Drop, Serde)]
+    // #[dojo::event]
+    // pub struct PlayerCreated {
+    //     #[key]
+    //     pub username: felt252,
+    //     #[key]
+    //     pub player: ContractAddress,
+    //     pub timestamp: u64,
+    // }
 
     #[abi(embed_v0)]
     impl TradeImpl of ITrade<ContractState> {
@@ -74,7 +68,7 @@ pub mod trade {
             requested_property_ids: Array<u8>,
             cash_offer: u256,
             cash_request: u256,
-            trade_type: TradeOffer,
+            trade_type: u8,
         ) -> u256 {
             let caller = get_caller_address();
 
@@ -83,6 +77,15 @@ pub mod trade {
 
             assert!(game.next_player == caller, "Not your turn");
             assert!(game.status == GameStatus::Ongoing, "Game is not ongoing");
+
+            let trade_enum = match trade_type {
+                0 => TradeOffer::PropertyForCash,
+                1 => TradeOffer::PropertyForProperty,
+                2 => TradeOffer::CashForProperty,
+                3 => TradeOffer::CashPlusPropertyForProperty,
+                4 => TradeOffer::PropertyForCashPlusProperty,
+                _ => panic!("Invalid trade type"),
+            };
 
             let id = self.create_trade_id();
 
@@ -98,7 +101,7 @@ pub mod trade {
             offer.requested_property_ids = requested_property_ids;
             offer.cash_offer = cash_offer;
             offer.cash_request = cash_request;
-            offer.trade_type = trade_type;
+            offer.trade_type = trade_enum;
             offer.status = TradeStatus::Pending;
 
             world.write_model(@offer);
@@ -127,7 +130,7 @@ pub mod trade {
             requested_property_ids: Array<u8>,
             cash_offer: u256,
             cash_request: u256,
-            trade_type: TradeOffer,
+            trade_type: u8,
         ) -> u256 {
             let caller = get_caller_address();
 
@@ -135,6 +138,15 @@ pub mod trade {
             let mut game: Game = world.read_model(game_id);
 
             assert!(game.status == GameStatus::Ongoing, "Game is not ongoing");
+
+            let trade_enum = match trade_type {
+                0 => TradeOffer::PropertyForCash,
+                1 => TradeOffer::PropertyForProperty,
+                2 => TradeOffer::CashForProperty,
+                3 => TradeOffer::CashPlusPropertyForProperty,
+                4 => TradeOffer::PropertyForCashPlusProperty,
+                _ => panic!("Invalid trade type"),
+            };
 
             let mut original_offer: TradeOfferDetails = world.read_model(original_offer_id);
 
@@ -149,7 +161,7 @@ pub mod trade {
             original_offer.requested_property_ids = requested_property_ids;
             original_offer.cash_offer = cash_offer;
             original_offer.cash_request = cash_request;
-            original_offer.trade_type = trade_type;
+            original_offer.trade_type = trade_enum;
             original_offer.status = TradeStatus::Countered;
             original_offer.is_countered = true;
 
@@ -870,14 +882,7 @@ pub mod trade {
             true
         }
 
-             fn create_trade_id(ref self: ContractState) -> u256 {
-            let mut world = self.world_default();
-            let mut trade_counter: TradeCounter = world.read_model('v0');
-            let new_val = trade_counter.current_val + 1;
-            trade_counter.current_val = new_val;
-            world.write_model(@trade_counter);
-            new_val
-        }
+     
     }
 
     #[generate_trait]
@@ -888,7 +893,14 @@ pub mod trade {
             self.world(@"blockopoly")
         }
 
-   
+           fn create_trade_id(ref self: ContractState) -> u256 {
+            let mut world = self.world_default();
+            let mut trade_counter: TradeCounter = world.read_model('v0');
+            let new_val = trade_counter.current_val + 1;
+            trade_counter.current_val = new_val;
+            world.write_model(@trade_counter);
+            new_val
+        }
     }
 }
 
